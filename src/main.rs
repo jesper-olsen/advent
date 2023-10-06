@@ -276,7 +276,7 @@ enum Word {
 #[rustfmt::skip]
 #[derive(PartialEq, PartialOrd, Clone, Copy, Debug)]
 enum Mot {
-    N, S, E, W, NE, SE, NW, SW, U, D, L, R, In, Out, Forward, Back,
+    N=0, S, E, W, NE, SE, NW, SW, U, D, L, R, In, Out, Forward, Back,
     Over, Across, Upstream, Downstream, Enter, Crawl, Jump, Climb,
     Look, Cross, Road, Hill, Woods, Valley, House, Gully, Stream, 
     Depression, Entrance, Cave, Rock, Slab, Bed, Passage, Cavern, 
@@ -668,8 +668,7 @@ const fn lookup_location(loc: Loc) -> (&'static str, &'static str, u16) {
 }
 
 impl Game {
-    fn lookup_instructions(&self) -> Loc {
-        let dwarf = false;
+    fn lookup_instructions(&self, dwarf: bool) -> Loc {
         match (self.loc, self.mot) {
             (Loc::Road, Mot::W | Mot::U | Mot::Road) => Loc::Hill,
             (Loc::Road, Mot::E | Mot::In | Mot::House | Mot::Enter) => Loc::House,
@@ -2043,7 +2042,9 @@ fn major(g: &mut Game) -> Goto {
                 for j in 0..g.dloc.len() {
                     if g.dloc[j] != Loc::Limbo {
                         let mut i = 0;
-                        //⟨ Make a table of all potential exits, ploc [0] through ploc [i − 1] 166 ⟩;
+                        //⟨ Make a table of all potential exits, ploc [0] through ploc [i − 1] 166 ⟩  
+                        //TODO
+
                         if i == 0 {
                             i = 1;
                             g.ploc[0] = g.odloc[j];
@@ -3363,7 +3364,7 @@ fn try_move(g: &mut Game) -> Goto {
             if l == g.loc {
                 "Sorry, but I no longer seem to remember how you got here."
             } else {
-                let dest=g.lookup_instructions();
+                let dest=g.lookup_instructions(false);
                 if dest==Loc::Nowhere {
                     "You can't get there from here." 
                 } else {
@@ -3373,7 +3374,7 @@ fn try_move(g: &mut Game) -> Goto {
             }
        }
     _ => {
-           g.newloc=g.lookup_instructions();
+           g.newloc=g.lookup_instructions(false);
            return Goto::GoForIt
          }
     };
