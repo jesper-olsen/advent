@@ -94,8 +94,6 @@ fn listen() -> Vec<String> {
 }
 
 const N_HINTS: usize = 8;
-
-const HINT_THRESH: [u16; N_HINTS] = [0, 0, 4, 5, 8, 75, 25, 20]; // turns
 const HINT_COST: [i32; N_HINTS] = [5, 10, 2, 2, 2, 4, 5, 3];
 
 static HINT: [(&str,&str); N_HINTS] = [
@@ -783,15 +781,12 @@ fn is_forced(loc: Loc) -> bool {
 }
 
 const fn init_movable() -> [bool; N_OBJECTS] {
+    use Obj::*;
     #[rustfmt::skip]
-    let l=[Obj::Gold, Obj::Diamonds, Obj::Silver, Obj::Jewels,
-     Obj::Coins, Obj::Chest, Obj::Eggs, Obj::Trident,
-     Obj::Vase, Obj::Emerald, Obj::Pyramid,Obj::Pearl,
-     Obj::Spices, Obj::Batteries, Obj::Axe,
-     Obj::Oil, Obj::Water, Obj::Bottle, Obj::Food,
-     Obj::Knife, Obj::Mag, Obj::Oyster, Obj::Clam,
-     Obj::Pillow, Obj::Bird, Obj::Rod2, Obj::Rod,
-     Obj::Cage, Obj::Lamp, Obj::Keys];
+    let l=[Gold, Diamonds, Silver, Jewels, Coins, Chest, Eggs, Trident,
+     Vase, Emerald, Pyramid,Pearl, Spices, Batteries, Axe,
+     Oil, Water, Bottle, Food, Knife, Mag, Oyster, Clam,
+     Pillow, Bird, Rod2, Rod, Cage, Lamp, Keys];
 
     let mut a = [false; N_OBJECTS];
     let mut i = 0;
@@ -815,16 +810,6 @@ const fn init_obj_props() -> [i8; N_OBJECTS] {
     }
     o2p
 }
-
-//const fn init_obj_props() -> [i8; OBJECTS.len()] {
-//    let mut o2p = [0i8; OBJECTS.len()];
-//    let mut i = 0;
-//    while i < OBJECTS.len() {
-//        o2p[i] = if is_treasure(&OBJECTS[i]) { -1 } else { 0 };
-//        i += 1;
-//    }
-//    o2p
-//}
 
 fn init_loc2obj_map() -> [Vec<Obj>; N_LOC] {
     const V: Vec<Obj> = Vec::<Obj>::new();
@@ -941,7 +926,6 @@ struct Game {
     visits: [u16; Loc::Nowhere as usize + 1],
     prop: [i8; N_OBJECTS],
     l2o: [Vec<Obj>; N_LOC],
-
     dflag: u8,             // how angry are the dwarves?
     dkill: u8,             // how many of them have you killed?
     dloc: [Loc; 1 + ND],   //
@@ -1474,6 +1458,7 @@ fn minor(g: &mut Game) -> Goto {
 fn cycle(g: &mut Game) -> Goto {
     //⟨ Check if a hint applies, and give it if requested 195 ⟩ ≡
     let bc = g.here(Obj::Bird) && g.oldobj == Obj::Bird && g.toting(Obj::Rod);
+    let HINT_THRESH = [0, 0, 4, 5, 8, 75, 25, 20]; // turns
 
     for j in 2..N_HINTS {
         if !g.hinted[j] {
