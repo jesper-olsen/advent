@@ -771,7 +771,7 @@ impl Game {
             (Loc::Sewer, _) => Loc::House,
             (Loc::Upnout, _) => Loc::Wpit,
             (Loc::Didit, _) => Loc::W2pit,
-            _ => Loc::Nowhere,
+            _ => Loc::Limbo,
         }
     } // end lookup_instructions
 }
@@ -923,7 +923,7 @@ struct Game {
     hint_count: [u16; N_HINTS],
     hinted: [bool; N_HINTS],
     words: Vec<String>,
-    visits: [u16; Loc::Nowhere as usize + 1],
+    visits: [u16; N_LOC],
     prop: [i8; N_OBJECTS],
     l2o: [Vec<Obj>; N_LOC],
     dflag: u8,             // how angry are the dwarves?
@@ -943,7 +943,7 @@ impl Game {
             dtotal: 0,
             attack: 0,
             stick: 0,
-            ploc: [Loc::Nowhere; 19],
+            ploc: [Loc::Limbo; 19],
             foobar: 0,
             warned: false,
             death_count: 0,
@@ -955,7 +955,7 @@ impl Game {
             panic: false,
             closed: false,
             was_dark: false,
-            knife_loc: Loc::Nowhere,
+            knife_loc: Loc::Limbo,
             west_count: 0,
             w: Word::Action(Act::Abstain),
             loc: Loc::Road,
@@ -973,7 +973,7 @@ impl Game {
             hint_count: [0, 0, 4, 5, 8, 75, 25, 20],
             hinted: [false; N_HINTS],
             words: Vec::new(),
-            visits: [0; Loc::Nowhere as usize + 1],
+            visits: [0; N_LOC],
             prop: init_obj_props(),
             l2o: init_loc2obj_map(),
 
@@ -1362,7 +1362,7 @@ fn major(g: &mut Game) -> Goto {
                         //⟨ Make a table of all potential exits, ploc [0] through ploc [i − 1] 166 ⟩ ≡
                         for m in MOTIONS {
                             let newloc = g.travel(g.dloc[j], m, true);
-                            if newloc != Loc::Nowhere
+                            if newloc != Loc::Limbo
                                 && newloc >= MIN_LOWER_LOC
                                 && newloc != g.odloc[j]
                                 && newloc != g.dloc[j]
@@ -2697,7 +2697,7 @@ fn try_move(g: &mut Game) -> Goto {
                 "Sorry, but I no longer seem to remember how you got here."
             } else {
                 let dest=g.travel(g.loc, g.mot, false);
-                if dest==Loc::Nowhere {
+                if dest==Loc::Limbo {
                     "You can't get there from here." 
                 } else {
                     g.newloc=dest;
@@ -2721,7 +2721,7 @@ fn go_for_it(g: &mut Game) -> Goto {
     g.oldloc = g.loc;
 
     let s = match g.newloc {
-        Loc::Nowhere => {
+        Loc::Limbo => {
             //⟨ Report on inapplicable motion and continue 148 ⟩ ≡
             g.newloc = g.loc;
             match g.mot {
@@ -2749,8 +2749,9 @@ fn go_for_it(g: &mut Game) -> Goto {
         | Loc::Sayit10
         | Loc::Sayit11
         | Loc::Sayit12 => {
+            let q=g.newloc as usize - Loc::Sayit0 as usize;
             g.newloc = g.loc;
-            SAYIT[g.loc as usize - Loc::Sayit0 as usize]
+            SAYIT[q]
         }
         Loc::Ppass if g.holding() == 0 || (g.holding() == 1 && g.toting(Obj::Emerald)) =>
         //⟨ Choose newloc via plover-alcove passage 149 ⟩ ≡

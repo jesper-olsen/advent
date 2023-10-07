@@ -24,8 +24,7 @@ pub enum Loc {
     Crack, Neck, Lose, Cant, Climb, Check, Snaked, Thru, Duck, Sewer, Upnout,
     Didit, Ppass, Pdrop, Troll,
     Sayit0, Sayit1, Sayit2, Sayit3, Sayit4, Sayit5, Sayit6, Sayit7,
-    Sayit8, Sayit9, Sayit10, Sayit11, Sayit12,
-    Nowhere
+    Sayit8, Sayit9, Sayit10, Sayit11, Sayit12
 }
 
 use Loc::*;
@@ -48,7 +47,11 @@ pub static LOCATIONS: [Loc; N_LOC] = [
     Dead0, Dead1, Dead2, Dead3, Dead4, Dead5, Dead6, Dead7,
     Dead8, Dead9, Dead10, Dead11,
     Neside, Corr, Fork, Warm, View, Chamber, Lime, Fbarr, Barr, Neend, 
-    Swend
+    Swend, 
+    Crack, Neck, Lose, Cant, Climb, Check, Snaked, Thru, Duck, Sewer, Upnout,
+    Didit, Ppass, Pdrop, Troll,
+    Sayit0, Sayit1, Sayit2, Sayit3, Sayit4, Sayit5, Sayit6, Sayit7,
+    Sayit8, Sayit9, Sayit10, Sayit11, Sayit12
 ];
 
 impl<T> Index<Loc> for [T; N_LOC] {
@@ -71,7 +74,7 @@ pub const MESSAGE_LOC: Loc = Loc::Pony;
 pub const MIN_IN_CAVE: Loc = Loc::Inside;
 pub const MIN_LOWER_LOC: Loc = Loc::Emist;
 
-pub const N_LOC: usize = Loc::Swend as usize + 1;
+pub const N_LOC: usize = Loc::Sayit12 as usize + 1;
 
 pub fn is_pirate_territory(loc: Loc) -> bool {
     loc >= Loc::Road && loc <= Loc::Dead2
