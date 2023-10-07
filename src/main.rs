@@ -5,6 +5,11 @@ use std::io::{self, Write};
 use std::ops::{Index, IndexMut};
 use std::process;
 
+pub mod motions;
+use motions::*;
+pub mod objects;
+use objects::*;
+
 const OK: &str = "OK.";
 const PITCH_DARK_MSG: &str =
     "It is now pitch dark. If you proceed you will most likely fall into a pit.";
@@ -274,51 +279,6 @@ enum Word {
 }
 
 #[rustfmt::skip]
-#[derive(PartialEq, PartialOrd, Clone, Copy, Debug)]
-enum Mot {
-    N=0, S, E, W, NE, SE, NW, SW, U, D, L, R, In, Out, Forward, Back,
-    Over, Across, Upstream, Downstream, Enter, Crawl, Jump, Climb,
-    Look, Cross, Road, Hill, Woods, Valley, House, Gully, Stream, 
-    Depression, Entrance, Cave, Rock, Slab, Bed, Passage, Cavern, 
-    Canyon, Awkward, Secret, Bedquilt, Reservoir, Giant, Oriental,
-    Shell, Barren, Broken, Debris, View, Fork, Pit, Slit, Crack, Dome,
-    Hole, Wall, Hall, Room, Floor, Stairs, Steps, Cobbles, Surface,
-    Dark, Low, Outdoors, Y2, Xyzzy, Plugh, Plover, Office, Nowhere,
-}
-
-#[rustfmt::skip]
-#[derive(Eq, PartialEq, PartialOrd, Hash, Copy, Clone, Debug)]
-enum Obj {
-    Nothing, Keys, Lamp, Grate, Cage, Age, Rod, Rod2, Treads, 
-    Bird, Door, Pillow, Snake, Crystal, 
-    Tablet, Clam, Oyster, Mag, Dwarf, Knife, Food, Bottle, Water, Oil,
-    Mirror, Plant, Plant2, Stalactite, Shadow, 
-    Axe, Art, Pirate, Dragon, Bridge, Troll, Troll2, 
-    Bear, Message, Geyser, Pony, Batteries, Moss, Gold, Diamonds, Silver,
-    Jewels, Coins, Chest, Eggs, Trident, Vase, Emerald, Pyramid, Pearl,
-    Rug, Spices, Chain,
-}
-const N_OBJECTS: usize = Obj::Chain as usize + 1;
-
-#[rustfmt::skip]
-const TREASURES: [Obj;15] = [ Obj::Gold, Obj::Diamonds, Obj::Silver,
-        Obj::Jewels, Obj::Coins, Obj::Chest, Obj::Eggs, Obj::Trident,
-        Obj::Vase, Obj::Emerald, Obj::Pyramid, Obj::Pearl, Obj::Rug,
-        Obj::Spices, Obj::Chain];
-
-impl<T> Index<Obj> for [T; N_OBJECTS] {
-    type Output = T;
-    fn index(&self, idx: Obj) -> &Self::Output {
-        &self[idx as usize]
-    }
-}
-impl<T> IndexMut<Obj> for [T; N_OBJECTS] {
-    fn index_mut(&mut self, idx: Obj) -> &mut Self::Output {
-        &mut self[idx as usize]
-    }
-}
-
-#[rustfmt::skip]
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
 enum Act {
     Abstain, Take, Drop, Open, Close, On, Off, Wave, Calm, Go, Relax,
@@ -446,6 +406,7 @@ impl<T> IndexMut<Loc> for [T; N_LOC] {
     }
 }
 
+const MAX_NORMAL_LOC: Loc = Loc::Swend;
 const MAX_PIRATE_LOC: Loc = Loc::Dead2;
 const CHEST_LOC: Loc = Loc::Dead2;
 const MESSAGE_LOC: Loc = Loc::Pony;
@@ -668,643 +629,613 @@ const fn lookup_location(loc: Loc) -> (&'static str, &'static str, u16) {
 }
 
 impl Game {
-    fn lookup_instructions(&self, dwarf: bool) -> Loc {
+    fn travel(&self, loc: Loc, mot: Mot, dwarf: bool) -> Loc {
+        use Mot::*;
         match (self.loc, self.mot) {
-            (Loc::Road, Mot::W | Mot::U | Mot::Road) => Loc::Hill,
-            (Loc::Road, Mot::E | Mot::In | Mot::House | Mot::Enter) => Loc::House,
-            (Loc::Road, Mot::S | Mot::D | Mot::Gully | Mot::Stream | Mot::Downstream) => {
-                Loc::Valley
-            }
-            (Loc::Road, Mot::N | Mot::Woods) => Loc::Forest,
-            (Loc::Road, Mot::Depression) => Loc::Woods,
+            (Loc::Road, W | U | Road) => Loc::Hill,
+            (Loc::Road, E | In | House | Enter) => Loc::House,
+            (Loc::Road, S | D | Gully | Stream | Downstream) => Loc::Valley,
+            (Loc::Road, N | Woods) => Loc::Forest,
+            (Loc::Road, Depression) => Loc::Woods,
 
-            (Loc::Hill, Mot::Road | Mot::House | Mot::Forward | Mot::E | Mot::D) => Loc::Road,
-            (Loc::Hill, Mot::Woods | Mot::N | Mot::S) => Loc::Forest,
+            (Loc::Hill, Road | House | Forward | E | D) => Loc::Road,
+            (Loc::Hill, Woods | N | S) => Loc::Forest,
 
-            (Loc::House, Mot::Enter | Mot::Out | Mot::Outdoors | Mot::W) => Loc::Road,
-            (Loc::House, Mot::Xyzzy) => Loc::Debris,
-            (Loc::House, Mot::Plugh) => Loc::Y2,
-            (Loc::House, Mot::Downstream | Mot::Stream) => Loc::Sewer,
+            (Loc::House, Enter | Out | Outdoors | W) => Loc::Road,
+            (Loc::House, Xyzzy) => Loc::Debris,
+            (Loc::House, Plugh) => Loc::Y2,
+            (Loc::House, Downstream | Stream) => Loc::Sewer,
 
-            (Loc::Valley, Mot::Upstream | Mot::House | Mot::N) => Loc::Road,
-            (Loc::Valley, Mot::Woods | Mot::E | Mot::W | Mot::U) => Loc::Forest,
-            (Loc::Valley, Mot::Downstream | Mot::S | Mot::D) => Loc::Slit,
-            (Loc::Valley, Mot::Depression) => Loc::Outside,
+            (Loc::Valley, Upstream | House | N) => Loc::Road,
+            (Loc::Valley, Woods | E | W | U) => Loc::Forest,
+            (Loc::Valley, Downstream | S | D) => Loc::Slit,
+            (Loc::Valley, Depression) => Loc::Outside,
 
-            (Loc::Forest, Mot::Valley | Mot::E | Mot::D) => Loc::Valley,
-            (Loc::Forest, Mot::Woods | Mot::Forward | Mot::N) => {
+            (Loc::Forest, Valley | E | D) => Loc::Valley,
+            (Loc::Forest, Woods | Forward | N) => {
                 if pct(50) {
                     Loc::Forest
                 } else {
                     Loc::Woods
                 }
             }
-            (Loc::Forest, Mot::W | Mot::S) => Loc::Forest,
+            (Loc::Forest, W | S) => Loc::Forest,
 
-            (Loc::Woods, Mot::Road | Mot::N) => Loc::Road,
-            (Loc::Woods, Mot::Valley | Mot::E | Mot::W | Mot::D) => Loc::Valley,
-            (Loc::Woods, Mot::Woods | Mot::S) => Loc::Forest,
+            (Loc::Woods, Road | N) => Loc::Road,
+            (Loc::Woods, Valley | E | W | D) => Loc::Valley,
+            (Loc::Woods, Woods | S) => Loc::Forest,
 
-            (Loc::Slit, Mot::House) => Loc::Road,
-            (Loc::Slit, Mot::Upstream | Mot::N) => Loc::Valley,
-            (Loc::Slit, Mot::Woods | Mot::E | Mot::W) => Loc::Forest,
-            (Loc::Slit, Mot::Downstream | Mot::Rock | Mot::Bed | Mot::S) => Loc::Outside,
-            (Loc::Slit, Mot::Slit | Mot::Stream | Mot::D) => Loc::Sayit0,
+            (Loc::Slit, House) => Loc::Road,
+            (Loc::Slit, Upstream | N) => Loc::Valley,
+            (Loc::Slit, Woods | E | W) => Loc::Forest,
+            (Loc::Slit, Downstream | Rock | Bed | S) => Loc::Outside,
+            (Loc::Slit, Slit | Stream | D) => Loc::Sayit0,
 
-            (Loc::Outside, Mot::Woods | Mot::E | Mot::W | Mot::S) => Loc::Forest,
-            (Loc::Outside, Mot::House) => Loc::Road,
-            (Loc::Outside, Mot::Upstream | Mot::Gully | Mot::N) => Loc::Slit,
-            (Loc::Outside, Mot::Enter | Mot::In | Mot::D) if self.prop[Obj::Grate] != 0 => {
-                Loc::Inside
-            }
-            (Loc::Outside, Mot::Enter | Mot::In | Mot::D) => Loc::Sayit0,
+            (Loc::Outside, Woods | E | W | S) => Loc::Forest,
+            (Loc::Outside, House) => Loc::Road,
+            (Loc::Outside, Upstream | Gully | N) => Loc::Slit,
+            (Loc::Outside, Enter | In | D) if self.prop[Obj::Grate] != 0 => Loc::Inside,
+            (Loc::Outside, Enter | In | D) => Loc::Sayit0,
 
-            (Loc::Inside, Mot::Out | Mot::U) if self.prop[Obj::Grate] != 0 => Loc::Outside,
-            (Loc::Inside, Mot::Out | Mot::U) => Loc::Sayit1,
-            (Loc::Inside, Mot::Crawl | Mot::Cobbles | Mot::In | Mot::W) => Loc::Cobbles,
-            (Loc::Inside, Mot::Pit) => Loc::Spit,
-            (Loc::Inside, Mot::Debris) => Loc::Debris,
+            (Loc::Inside, Out | U) if self.prop[Obj::Grate] != 0 => Loc::Outside,
+            (Loc::Inside, Out | U) => Loc::Sayit1,
+            (Loc::Inside, Crawl | Cobbles | In | W) => Loc::Cobbles,
+            (Loc::Inside, Pit) => Loc::Spit,
+            (Loc::Inside, Debris) => Loc::Debris,
 
-            (Loc::Cobbles, Mot::Out | Mot::Surface | Mot::Nowhere | Mot::E) => Loc::Inside,
-            (Loc::Cobbles, Mot::In | Mot::Dark | Mot::W | Mot::Debris) => Loc::Debris,
-            (Loc::Cobbles, Mot::Pit) => Loc::Spit,
+            (Loc::Cobbles, Out | Surface | Nowhere | E) => Loc::Inside,
+            (Loc::Cobbles, In | Dark | W | Debris) => Loc::Debris,
+            (Loc::Cobbles, Pit) => Loc::Spit,
 
-            (Loc::Debris, Mot::Depression) if self.prop[Obj::Grate] != 0 => Loc::Outside,
-            (Loc::Debris, Mot::Entrance) => Loc::Inside,
-            (Loc::Debris, Mot::Crawl | Mot::Cobbles | Mot::Passage | Mot::Low | Mot::E) => {
-                Loc::Cobbles
-            }
-            (Loc::Debris, Mot::Canyon | Mot::In | Mot::U | Mot::W) => Loc::Awk,
-            (Loc::Debris, Mot::Xyzzy) => Loc::House,
-            (Loc::Debris, Mot::Pit) => Loc::Spit,
+            (Loc::Debris, Depression) if self.prop[Obj::Grate] != 0 => Loc::Outside,
+            (Loc::Debris, Entrance) => Loc::Inside,
+            (Loc::Debris, Crawl | Cobbles | Passage | Low | E) => Loc::Cobbles,
+            (Loc::Debris, Canyon | In | U | W) => Loc::Awk,
+            (Loc::Debris, Xyzzy) => Loc::House,
+            (Loc::Debris, Pit) => Loc::Spit,
 
-            (Loc::Awk, Mot::Depression) if self.prop[Obj::Grate] != 0 => Loc::Outside,
-            (Loc::Awk, Mot::Entrance) => Loc::Inside,
-            (Loc::Awk, Mot::D | Mot::E | Mot::Debris) => Loc::Debris,
-            (Loc::Awk, Mot::In | Mot::U | Mot::W) => Loc::Bird,
-            (Loc::Awk, Mot::Pit) => Loc::Spit,
+            (Loc::Awk, Depression) if self.prop[Obj::Grate] != 0 => Loc::Outside,
+            (Loc::Awk, Entrance) => Loc::Inside,
+            (Loc::Awk, D | E | Debris) => Loc::Debris,
+            (Loc::Awk, In | U | W) => Loc::Bird,
+            (Loc::Awk, Pit) => Loc::Spit,
 
-            (Loc::Bird, Mot::Depression) if self.prop[Obj::Grate] != 0 => Loc::Outside,
-            (Loc::Bird, Mot::Entrance) => Loc::Inside,
-            (Loc::Bird, Mot::Debris) => Loc::Debris,
-            (Loc::Bird, Mot::Canyon | Mot::E) => Loc::Awk,
-            (Loc::Bird, Mot::Passage | Mot::Pit | Mot::W) => Loc::Spit,
+            (Loc::Bird, Depression) if self.prop[Obj::Grate] != 0 => Loc::Outside,
+            (Loc::Bird, Entrance) => Loc::Inside,
+            (Loc::Bird, Debris) => Loc::Debris,
+            (Loc::Bird, Canyon | E) => Loc::Awk,
+            (Loc::Bird, Passage | Pit | W) => Loc::Spit,
 
-            (Loc::Spit, Mot::Depression) if self.prop[Obj::Grate] != 0 => Loc::Outside,
-            (Loc::Spit, Mot::Entrance) => Loc::Inside,
-            (Loc::Spit, Mot::Debris) => Loc::Debris,
-            (Loc::Spit, Mot::Passage | Mot::E) => Loc::Bird,
-            (Loc::Spit, Mot::D | Mot::Pit | Mot::Steps) if self.toting(Obj::Gold) => Loc::Neck,
-            (Loc::Spit, Mot::D) if !self.toting(Obj::Gold) => Loc::Emist,
-            (Loc::Spit, Mot::Crack | Mot::W) => Loc::Crack,
+            (Loc::Spit, Depression) if self.prop[Obj::Grate] != 0 => Loc::Outside,
+            (Loc::Spit, Entrance) => Loc::Inside,
+            (Loc::Spit, Debris) => Loc::Debris,
+            (Loc::Spit, Passage | E) => Loc::Bird,
+            (Loc::Spit, D | Pit | Steps) if self.toting(Obj::Gold) => Loc::Neck,
+            (Loc::Spit, D) if !self.toting(Obj::Gold) => Loc::Emist,
+            (Loc::Spit, Crack | W) => Loc::Crack,
 
-            (Loc::Emist, Mot::L | Mot::S) => Loc::Nugget,
-            (Loc::Emist, Mot::Forward | Mot::Hall | Mot::W) => Loc::Efiss,
-            (Loc::Emist, Mot::Stairs | Mot::D | Mot::N) => Loc::Hmk,
-            (Loc::Emist, Mot::U | Mot::Pit | Mot::Steps | Mot::Dome | Mot::Passage | Mot::E)
-                if self.toting(Obj::Gold) =>
-            {
+            (Loc::Emist, L | S) => Loc::Nugget,
+            (Loc::Emist, Forward | Hall | W) => Loc::Efiss,
+            (Loc::Emist, Stairs | D | N) => Loc::Hmk,
+            (Loc::Emist, U | Pit | Steps | Dome | Passage | E) if self.toting(Obj::Gold) => {
                 Loc::Cant
             }
-            (Loc::Emist, Mot::U) => Loc::Spit,
-            (Loc::Emist, Mot::Y2) => Loc::Jumble,
-
-            (Loc::Nugget, Mot::Hall | Mot::Out | Mot::N) => Loc::Emist,
-
-            (Loc::Efiss, Mot::Hall | Mot::E) => Loc::Emist,
-
-            (Loc::Efiss, Mot::Jump) if self.prop[Obj::Crystal] == 0 => Loc::Sayit2,
-            (Loc::Efiss, Mot::Forward) if self.prop[Obj::Crystal] == 1 => Loc::Lose,
-            (Loc::Efiss, Mot::Over | Mot::Across | Mot::W | Mot::Cross)
-                if self.prop[Obj::Crystal] == 1 =>
-            {
-                Loc::Sayit3
-            }
-            (Loc::Efiss, Mot::Over) => Loc::Wfiss,
-
-            (Loc::Wfiss, Mot::Jump) if self.prop[Obj::Crystal] == 0 => Loc::Sayit2,
-
-            (Loc::Wfiss, Mot::Forward) if self.prop[Obj::Crystal] == 1 => Loc::Lose,
-            (Loc::Wfiss, Mot::Over | Mot::Across | Mot::E | Mot::Cross)
-                if self.prop[Obj::Crystal] == 1 =>
-            {
-                Loc::Sayit3
-            }
-            (Loc::Wfiss, Mot::Over) => Loc::Efiss,
-            (Loc::Wfiss, Mot::N) => Loc::Thru,
-            (Loc::Wfiss, Mot::W) => Loc::Wmist,
-
-            (Loc::Wmist, Mot::S | Mot::U | Mot::Passage | Mot::Climb) => Loc::Like1,
-            (Loc::Wmist, Mot::E) => Loc::Wfiss,
-            (Loc::Wmist, Mot::N) => Loc::Duck,
-            (Loc::Wmist, Mot::W | Mot::Crawl) => Loc::Elong,
-
-            (Loc::Like1, Mot::U) => Loc::Wmist,
-            (Loc::Like1, Mot::N) => Loc::Like1,
-            (Loc::Like1, Mot::E) => Loc::Like2,
-            (Loc::Like1, Mot::S) => Loc::Like4,
-            (Loc::Like1, Mot::W) => Loc::Like11,
-
-            (Loc::Like2, Mot::W) => Loc::Like1,
-            (Loc::Like2, Mot::S) => Loc::Like3,
-            (Loc::Like2, Mot::E) => Loc::Like4,
-
-            (Loc::Like3, Mot::E) => Loc::Like2,
-            (Loc::Like3, Mot::D) => Loc::Dead5,
-            (Loc::Like3, Mot::S) => Loc::Like6,
-            (Loc::Like3, Mot::N) => Loc::Dead9,
-
-            (Loc::Like4, Mot::W) => Loc::Like1,
-            (Loc::Like4, Mot::N) => Loc::Like2,
-            (Loc::Like4, Mot::E) => Loc::Dead3,
-            (Loc::Like4, Mot::S) => Loc::Dead4,
-            (Loc::Like4, Mot::U | Mot::D) => Loc::Like14,
-
-            (Loc::Like5, Mot::E) => Loc::Like6,
-            (Loc::Like5, Mot::W) => Loc::Like7,
-
-            (Loc::Like6, Mot::E) => Loc::Like3,
-            (Loc::Like6, Mot::W) => Loc::Like5,
-            (Loc::Like6, Mot::D) => Loc::Like7,
-            (Loc::Like6, Mot::S) => Loc::Like8,
-
-            (Loc::Like7, Mot::W) => Loc::Like5,
-            (Loc::Like7, Mot::U) => Loc::Like6,
-            (Loc::Like7, Mot::E) => Loc::Like8,
-            (Loc::Like7, Mot::S) => Loc::Like9,
-
-            (Loc::Like8, Mot::W) => Loc::Like6,
-            (Loc::Like8, Mot::E) => Loc::Like7,
-            (Loc::Like8, Mot::S) => Loc::Like8,
-            (Loc::Like8, Mot::U) => Loc::Like9,
-            (Loc::Like8, Mot::N) => Loc::Like10,
-            (Loc::Like8, Mot::D) => Loc::Like11,
-
-            (Loc::Like9, Mot::W) => Loc::Like7,
-            (Loc::Like9, Mot::N) => Loc::Like8,
-            (Loc::Like9, Mot::S) => Loc::Like6,
-
-            (Loc::Like10, Mot::W) => Loc::Like8,
-            (Loc::Like10, Mot::N) => Loc::Like10,
-            (Loc::Like10, Mot::D) => Loc::Dead7,
-            (Loc::Like10, Mot::E) => Loc::Brink,
-
-            (Loc::Like11, Mot::N) => Loc::Like1,
-            (Loc::Like11, Mot::W | Mot::S) => Loc::Like11,
-            (Loc::Like11, Mot::E) => Loc::Dead1,
-
-            (Loc::Like12, Mot::S) => Loc::Brink,
-            (Loc::Like12, Mot::E) => Loc::Like13,
-            (Loc::Like12, Mot::W) => Loc::Dead10,
-
-            (Loc::Like13, Mot::N) => Loc::Brink,
-            (Loc::Like13, Mot::W) => Loc::Like12,
-            (Loc::Like13, Mot::NW) => Loc::Dead2, // dk - a dirty trick!
-
-            (Loc::Like14, Mot::U | Mot::D) => Loc::Like4,
-
-            (Loc::Brink, Mot::D | Mot::Climb) => Loc::Bird,
-            (Loc::Brink, Mot::W) => Loc::Like10,
-            (Loc::Brink, Mot::S) => Loc::Dead8,
-            (Loc::Brink, Mot::N) => Loc::Like12,
-            (Loc::Brink, Mot::E) => Loc::Like13,
-
-            (Loc::Elong, Mot::E | Mot::U | Mot::Crawl | Mot::W) => Loc::Wlong,
-            (Loc::Elong, Mot::N | Mot::D | Mot::Hole) => Loc::Cross,
-
-            (Loc::Wlong, Mot::E) => Loc::Elong,
-            (Loc::Wlong, Mot::N) => Loc::Cross,
-            (Loc::Wlong, Mot::S) if !dwarf => Loc::Diff0,
-
-            (Loc::Diff0, Mot::S) => Loc::Diff1,
-            (Loc::Diff0, Mot::SW) => Loc::Diff2,
-            (Loc::Diff0, Mot::NE) => Loc::Diff3,
-            (Loc::Diff0, Mot::SE) => Loc::Diff4,
-            (Loc::Diff0, Mot::U) => Loc::Diff5,
-            (Loc::Diff0, Mot::NW) => Loc::Diff6,
-            (Loc::Diff0, Mot::E) => Loc::Diff7,
-            (Loc::Diff0, Mot::W) => Loc::Diff8,
-            (Loc::Diff0, Mot::N) => Loc::Diff9,
-            (Loc::Diff0, Mot::D) => Loc::Wlong,
-
-            (Loc::Diff1, Mot::W) => Loc::Diff0,
-            (Loc::Diff1, Mot::SE) => Loc::Diff2,
-            (Loc::Diff1, Mot::NW) => Loc::Diff3,
-            (Loc::Diff1, Mot::SW) => Loc::Diff4,
-            (Loc::Diff1, Mot::NE) => Loc::Diff5,
-            (Loc::Diff1, Mot::U) => Loc::Diff6,
-            (Loc::Diff1, Mot::D) => Loc::Diff7,
-            (Loc::Diff1, Mot::N) => Loc::Diff8,
-            (Loc::Diff1, Mot::S) => Loc::Diff9,
-            (Loc::Diff1, Mot::E) => Loc::Diff10,
-
-            (Loc::Diff2, Mot::NW) => Loc::Diff0,
-            (Loc::Diff2, Mot::U) => Loc::Diff1,
-            (Loc::Diff2, Mot::N) => Loc::Diff3,
-            (Loc::Diff2, Mot::S) => Loc::Diff4,
-            (Loc::Diff2, Mot::W) => Loc::Diff5,
-            (Loc::Diff2, Mot::SW) => Loc::Diff6,
-            (Loc::Diff2, Mot::NE) => Loc::Diff7,
-            (Loc::Diff2, Mot::E) => Loc::Diff8,
-            (Loc::Diff2, Mot::D) => Loc::Diff9,
-            (Loc::Diff2, Mot::SE) => Loc::Diff10,
-
-            (Loc::Diff3, Mot::U) => Loc::Diff0,
-            (Loc::Diff3, Mot::D) => Loc::Diff1,
-            (Loc::Diff3, Mot::W) => Loc::Diff2,
-            (Loc::Diff3, Mot::NE) => Loc::Diff4,
-            (Loc::Diff3, Mot::SW) => Loc::Diff5,
-            (Loc::Diff3, Mot::E) => Loc::Diff6,
-            (Loc::Diff3, Mot::N) => Loc::Diff7,
-            (Loc::Diff3, Mot::NW) => Loc::Diff8,
-            (Loc::Diff3, Mot::SE) => Loc::Diff9,
-            (Loc::Diff3, Mot::S) => Loc::Diff10,
-
-            (Loc::Diff4, Mot::NE) => Loc::Diff0,
-            (Loc::Diff4, Mot::N) => Loc::Diff1,
-            (Loc::Diff4, Mot::NW) => Loc::Diff2,
-            (Loc::Diff4, Mot::SE) => Loc::Diff3,
-            (Loc::Diff4, Mot::E) => Loc::Diff5,
-            (Loc::Diff4, Mot::D) => Loc::Diff6,
-            (Loc::Diff4, Mot::S) => Loc::Diff7,
-            (Loc::Diff4, Mot::U) => Loc::Diff8,
-            (Loc::Diff4, Mot::W) => Loc::Diff9,
-            (Loc::Diff4, Mot::SW) => Loc::Diff10,
-
-            (Loc::Diff5, Mot::N) => Loc::Diff0,
-            (Loc::Diff5, Mot::SE) => Loc::Diff1,
-            (Loc::Diff5, Mot::D) => Loc::Diff2,
-            (Loc::Diff5, Mot::S) => Loc::Diff3,
-            (Loc::Diff5, Mot::E) => Loc::Diff4,
-            (Loc::Diff5, Mot::W) => Loc::Diff6,
-            (Loc::Diff5, Mot::SW) => Loc::Diff7,
-            (Loc::Diff5, Mot::NE) => Loc::Diff8,
-            (Loc::Diff5, Mot::NW) => Loc::Diff9,
-            (Loc::Diff5, Mot::U) => Loc::Diff10,
-
-            (Loc::Diff6, Mot::E) => Loc::Diff0,
-            (Loc::Diff6, Mot::W) => Loc::Diff1,
-            (Loc::Diff6, Mot::U) => Loc::Diff2,
-            (Loc::Diff6, Mot::SW) => Loc::Diff3,
-            (Loc::Diff6, Mot::D) => Loc::Diff4,
-            (Loc::Diff6, Mot::S) => Loc::Diff5,
-            (Loc::Diff6, Mot::NW) => Loc::Diff7,
-            (Loc::Diff6, Mot::SE) => Loc::Diff8,
-            (Loc::Diff6, Mot::NE) => Loc::Diff9,
-            (Loc::Diff6, Mot::N) => Loc::Diff10,
-
-            (Loc::Diff7, Mot::SE) => Loc::Diff0,
-            (Loc::Diff7, Mot::NE) => Loc::Diff1,
-            (Loc::Diff7, Mot::S) => Loc::Diff2,
-            (Loc::Diff7, Mot::D) => Loc::Diff3,
-            (Loc::Diff7, Mot::U) => Loc::Diff4,
-            (Loc::Diff7, Mot::NW) => Loc::Diff5,
-            (Loc::Diff7, Mot::N) => Loc::Diff6,
-            (Loc::Diff7, Mot::SW) => Loc::Diff8,
-            (Loc::Diff7, Mot::E) => Loc::Diff9,
-            (Loc::Diff7, Mot::W) => Loc::Diff10,
-
-            (Loc::Diff8, Mot::D) => Loc::Diff0,
-            (Loc::Diff8, Mot::E) => Loc::Diff1,
-            (Loc::Diff8, Mot::NE) => Loc::Diff2,
-            (Loc::Diff8, Mot::U) => Loc::Diff3,
-            (Loc::Diff8, Mot::W) => Loc::Diff4,
-            (Loc::Diff8, Mot::N) => Loc::Diff5,
-            (Loc::Diff8, Mot::S) => Loc::Diff6,
-            (Loc::Diff8, Mot::SE) => Loc::Diff7,
-            (Loc::Diff8, Mot::SW) => Loc::Diff9,
-            (Loc::Diff8, Mot::NW) => Loc::Diff10,
-
-            (Loc::Diff9, Mot::SW) => Loc::Diff0,
-            (Loc::Diff9, Mot::NW) => Loc::Diff1,
-            (Loc::Diff9, Mot::E) => Loc::Diff2,
-            (Loc::Diff9, Mot::W) => Loc::Diff3,
-            (Loc::Diff9, Mot::N) => Loc::Diff4,
-            (Loc::Diff9, Mot::D) => Loc::Diff5,
-            (Loc::Diff9, Mot::SE) => Loc::Diff6,
-            (Loc::Diff9, Mot::U) => Loc::Diff7,
-            (Loc::Diff9, Mot::S) => Loc::Diff8,
-            (Loc::Diff9, Mot::NE) => Loc::Diff10,
-
-            (Loc::Diff10, Mot::SW) => Loc::Diff1,
-            (Loc::Diff10, Mot::N) => Loc::Diff2,
-            (Loc::Diff10, Mot::E) => Loc::Diff3,
-            (Loc::Diff10, Mot::NW) => Loc::Diff4,
-            (Loc::Diff10, Mot::SE) => Loc::Diff5,
-            (Loc::Diff10, Mot::NE) => Loc::Diff6,
-            (Loc::Diff10, Mot::W) => Loc::Diff7,
-            (Loc::Diff10, Mot::D) => Loc::Diff8,
-            (Loc::Diff10, Mot::U) => Loc::Diff9,
-            (Loc::Diff10, Mot::S) => Loc::Pony,
-
-            (Loc::Pony, Mot::N | Mot::Out) => Loc::Diff10,
-
-            (Loc::Cross, Mot::W) => Loc::Elong,
-            (Loc::Cross, Mot::N) => Loc::Dead0,
-            (Loc::Cross, Mot::E) => Loc::West,
-            (Loc::Cross, Mot::S) => Loc::Wlong,
-
-            (Loc::Hmk, Mot::Stairs | Mot::U | Mot::E) => Loc::Emist,
-            (Loc::Hmk, Mot::N | Mot::L) if self.prop[Obj::Snake] != 0 => Loc::Ns,
-            (Loc::Hmk, Mot::S | Mot::R) if self.prop[Obj::Snake] != 0 => Loc::South,
-            (Loc::Hmk, Mot::W | Mot::Forward) if self.prop[Obj::Snake] != 0 => Loc::West,
-            (Loc::Hmk, Mot::N) => Loc::Snaked,
-            (Loc::Hmk, Mot::SW) if pct(35) => Loc::Secret,
-            (Loc::Hmk, Mot::SW) if self.is_here(Obj::Snake) => Loc::Snaked,
-            (Loc::Hmk, Mot::Secret) => Loc::Secret,
-
-            (Loc::West, Mot::Hall | Mot::Out | Mot::E) => Loc::Hmk,
-            (Loc::West, Mot::W | Mot::U) => Loc::Cross,
-
-            (Loc::South, Mot::Hall | Mot::Out | Mot::N) => Loc::Hmk,
-
-            (Loc::Ns, Mot::Hall | Mot::Out | Mot::S) => Loc::Hmk,
-            (Loc::Ns, Mot::N | Mot::Y2) => Loc::Y2,
-            (Loc::Ns, Mot::D | Mot::Hole) => Loc::Dirty,
-
-            (Loc::Y2, Mot::Plugh) => Loc::House,
-            (Loc::Y2, Mot::S) => Loc::Ns,
-            (Loc::Y2, Mot::E | Mot::Wall | Mot::Broken) => Loc::Jumble,
-            (Loc::Y2, Mot::W) => Loc::Windoe,
-            (Loc::Y2, Mot::Plover) if self.toting(Obj::Emerald) => Loc::Pdrop,
-            (Loc::Y2, Mot::Plover) => Loc::Proom,
-
-            (Loc::Jumble, Mot::D) => Loc::Y2,
-            (Loc::Jumble, Mot::U) => Loc::Emist,
-
-            (Loc::Windoe, Mot::E | Mot::Y2) => Loc::Y2,
-            (Loc::Windoe, Mot::Jump) => Loc::Neck,
-
-            (Loc::Dirty, Mot::E | Mot::Crawl) => Loc::Clean,
-            (Loc::Dirty, Mot::U | Mot::Hole) => Loc::Ns,
-            (Loc::Dirty, Mot::W) => Loc::Dusty,
-            (Loc::Dirty, Mot::Bedquilt) => Loc::Bedquilt,
-
-            (Loc::Clean, Mot::W | Mot::Crawl) => Loc::Dirty,
-            (Loc::Clean, Mot::D | Mot::Pit | Mot::Climb) => Loc::Wet,
-
-            (Loc::Wet, Mot::Climb | Mot::U | Mot::Out) => Loc::Clean,
-            (Loc::Wet, Mot::Slit | Mot::Stream | Mot::D | Mot::Upstream | Mot::Downstream) => {
-                Loc::Sayit0
-            }
-
-            (Loc::Dusty, Mot::E | Mot::Passage) => Loc::Dirty,
-            (Loc::Dusty, Mot::D | Mot::Hole | Mot::Floor) => Loc::Complex,
-            (Loc::Dusty, Mot::Bedquilt) => Loc::Bedquilt,
-
-            (Loc::Complex, Mot::U | Mot::Climb | Mot::Room) => Loc::Dusty,
-            (Loc::Complex, Mot::W | Mot::Bedquilt) => Loc::Bedquilt,
-            (Loc::Complex, Mot::N | Mot::Shell) => Loc::Shell,
-            (Loc::Complex, Mot::E) => Loc::Ante,
-
-            (Loc::Shell, Mot::U | Mot::Hall) => Loc::Arch,
-            (Loc::Shell, Mot::D) => Loc::Ragged,
-            (Loc::Shell, Mot::S) if self.toting(Obj::Clam) => Loc::Sayit4,
-
-            (Loc::Shell, Mot::S) if self.toting(Obj::Oyster) => Loc::Sayit5,
-
-            (Loc::Shell, Mot::S) => Loc::Complex,
-
-            (Loc::Arch, Mot::D | Mot::Shell | Mot::Out) => Loc::Shell,
-
-            (Loc::Ragged, Mot::U | Mot::Shell) => Loc::Shell,
-            (Loc::Ragged, Mot::D) => Loc::Sac,
-
-            (Loc::Sac, Mot::U | Mot::Out) => Loc::Ragged,
-            (Loc::Sac, Mot::Shell) => Loc::Shell,
-
-            (Loc::Ante, Mot::U) => Loc::Complex,
-            (Loc::Ante, Mot::W) => Loc::Bedquilt,
-            (Loc::Ante, Mot::E) => Loc::Witt,
-
-            (
-                Loc::Witt,
-                Mot::E | Mot::N | Mot::S | Mot::NE | Mot::SE | Mot::SW | Mot::NW | Mot::U | Mot::D,
-            ) if pct(95) => Loc::Sayit6,
-            (Loc::Witt, Mot::E) => Loc::Ante, // one chance in 20
-            (Loc::Witt, Mot::W) => Loc::Sayit6,
-
-            (Loc::Bedquilt, Mot::E) => Loc::Complex,
-            (Loc::Bedquilt, Mot::W) => Loc::Cheese,
-            (Loc::Bedquilt, Mot::S) if pct(80) => Loc::Sayit6,
-            (Loc::Bedquilt, Mot::Slab) => Loc::Slab,
-            (Loc::Bedquilt, Mot::U) if pct(50) => Loc::Abovep,
-            (Loc::Bedquilt, Mot::U) => Loc::Dusty,
-            (Loc::Bedquilt, Mot::N) if pct(60) => Loc::Sayit6,
-            (Loc::Bedquilt, Mot::N) if pct(75) => Loc::Low,
-            (Loc::Bedquilt, Mot::N) => Loc::Sjunc,
-            (Loc::Bedquilt, Mot::D) if pct(80) => Loc::Sayit6,
-            (Loc::Bedquilt, Mot::D) => Loc::Ante,
-
-            (Loc::Cheese, Mot::NE) => Loc::Bedquilt,
-            (Loc::Cheese, Mot::W) => Loc::E2pit,
-            (Loc::Cheese, Mot::S) if pct(80) => Loc::Sayit6,
-            (Loc::Cheese, Mot::Canyon) => Loc::Tall,
-            (Loc::Cheese, Mot::E) => Loc::Soft,
-            (Loc::Cheese, Mot::NW) if pct(50) => Loc::Sayit6,
-            (Loc::Cheese, Mot::Oriental) => Loc::Oriental,
-
-            (Loc::Soft, Mot::W | Mot::Out) => Loc::Cheese,
-
-            (Loc::E2pit, Mot::E) => Loc::Cheese,
-            (Loc::E2pit, Mot::W | Mot::Across) => Loc::W2pit,
-            (Loc::E2pit, Mot::D | Mot::Pit) => Loc::Epit,
-
-            (Loc::W2pit, Mot::E) => Loc::E2pit,
-            (Loc::W2pit, Mot::W) => Loc::Slab,
-            (Loc::W2pit, Mot::D) => Loc::Wpit,
-            (Loc::W2pit, Mot::Hole) => Loc::Sayit7,
-
-            (Loc::Epit, Mot::U | Mot::Out) => Loc::E2pit,
-
-            (Loc::Wpit, Mot::U | Mot::Out) => Loc::W2pit,
-            (Loc::Wpit, Mot::Climb) if self.prop[Obj::Plant] != 4 => Loc::Check,
-            (Loc::Wpit, Mot::Climb) => Loc::Climb,
-
-            (Loc::Narrow, Mot::D | Mot::Climb) => Loc::Wpit,
-            (Loc::Narrow, Mot::Jump) => Loc::Neck,
-            (Loc::Narrow, Mot::W | Mot::Giant) => Loc::Giant,
-
-            (Loc::Giant, Mot::S) => Loc::Narrow,
-            (Loc::Giant, Mot::E) => Loc::Block,
-            (Loc::Giant, Mot::N) => Loc::Immense,
-
-            (Loc::Block, Mot::S | Mot::Giant | Mot::Out) => Loc::Giant,
-
-            (Loc::Immense, Mot::S | Mot::Giant | Mot::Passage) => Loc::Giant,
-            (Loc::Immense, Mot::N | Mot::Enter | Mot::Cavern) if self.prop[Obj::Door] != 0 => {
-                Loc::Falls
-            }
-
-            (Loc::Falls, Mot::S | Mot::Out) => Loc::Immense,
-            (Loc::Falls, Mot::Giant) => Loc::Giant,
-            (Loc::Falls, Mot::W) => Loc::Steep,
-
-            (Loc::Steep, Mot::N | Mot::Cavern | Mot::Passage) => Loc::Falls,
-            (Loc::Steep, Mot::D | Mot::Climb) => Loc::Low,
-
-            (Loc::Abovep, Mot::N) => Loc::Sjunc,
-            (Loc::Abovep, Mot::D | Mot::Passage) => Loc::Bedquilt,
-            (Loc::Abovep, Mot::S) => Loc::Tite,
-
-            (Loc::Sjunc, Mot::SE) => Loc::Bedquilt,
-            (Loc::Sjunc, Mot::S) => Loc::Abovep,
-            (Loc::Sjunc, Mot::N) => Loc::Window,
-
-            (Loc::Tite, Mot::N) => Loc::Abovep,
-            (Loc::Tite, Mot::D | Mot::Jump | Mot::Climb) if pct(40) => Loc::Like6,
-            (Loc::Tite, Mot::D | Mot::Jump | Mot::Climb) if pct(50) => Loc::Like9,
-            (Loc::Tite, Mot::D | Mot::Jump | Mot::Climb) => Loc::Like4,
-
-            (Loc::Low, Mot::Bedquilt) => Loc::Bedquilt,
-            (Loc::Low, Mot::SW) => Loc::Scorr,
-            (Loc::Low, Mot::N) => Loc::Crawl,
-            (Loc::Low, Mot::SE | Mot::Oriental) => Loc::Oriental,
-
-            (Loc::Crawl, Mot::S | Mot::Crawl | Mot::Out) => Loc::Low,
-
-            (Loc::Window, Mot::W) => Loc::Sjunc,
-            (Loc::Window, Mot::Jump) => Loc::Neck,
-
-            (Loc::Oriental, Mot::SE) => Loc::Cheese,
-            (Loc::Oriental, Mot::W | Mot::Crawl) => Loc::Low,
-            (Loc::Oriental, Mot::U | Mot::N | Mot::Cavern) => Loc::Misty,
-
-            (Loc::Misty, Mot::S | Mot::Oriental) => Loc::Oriental,
-            (Loc::Misty, Mot::W) => Loc::Alcove,
-
-            (Loc::Alcove, Mot::NW | Mot::Cavern) => Loc::Misty,
-            (Loc::Alcove, Mot::E | Mot::Passage) => Loc::Ppass,
-            (Loc::Alcove, Mot::E) => Loc::Proom, // never performed, but seen by ‘go back’
-
-            (Loc::Proom, Mot::W | Mot::Passage | Mot::Out) => Loc::Ppass,
-            (Loc::Proom, Mot::W) => Loc::Alcove, // never performed, but seen by ‘go back’
-            (Loc::Proom, Mot::Plover) if self.toting(Obj::Emerald) => Loc::Pdrop,
-            (Loc::Proom, Mot::Plover) => Loc::Y2,
-            (Loc::Proom, Mot::NE | Mot::Dark) => Loc::Droom,
-
-            (Loc::Droom, Mot::S | Mot::Plover | Mot::Out) => Loc::Proom,
-
-            (Loc::Slab, Mot::S) => Loc::W2pit,
-            (Loc::Slab, Mot::U | Mot::Climb) => Loc::Abover,
-            (Loc::Slab, Mot::N) => Loc::Bedquilt,
-
-            (Loc::Abover, Mot::D | Mot::Slab) => Loc::Slab,
-            (Loc::Abover, Mot::S) if self.prop[Obj::Dragon] != 0 => Loc::Scan2,
-            (Loc::Abover, Mot::S) => Loc::Scan1,
-            (Loc::Abover, Mot::N) => Loc::Mirror,
-            (Loc::Abover, Mot::Reservoir) => Loc::Res,
-
-            (Loc::Mirror, Mot::S) => Loc::Abover,
-            (Loc::Mirror, Mot::N | Mot::Reservoir) => Loc::Res,
-
-            (Loc::Res, Mot::S | Mot::Out) => Loc::Mirror,
-
-            (Loc::Scan1, Mot::N | Mot::Out) => Loc::Abover,
-
-            (Loc::Immense, Mot::N | Mot::Enter | Mot::Cavern) => Loc::Sayit8,
-            (Loc::Scan1, Mot::E | Mot::Forward) => Loc::Sayit9,
-
-            (Loc::Scan2, Mot::N) => Loc::Abover,
-            (Loc::Scan2, Mot::E) => Loc::Secret,
-
-            (Loc::Scan3, Mot::E | Mot::Out) => Loc::Secret,
-            (Loc::Scan3, Mot::N | Mot::Forward) => Loc::Sayit9,
-
-            (Loc::Secret, Mot::E) => Loc::Hmk,
-            (Loc::Secret, Mot::W) if self.prop[Obj::Dragon] != 0 => Loc::Scan2,
-            (Loc::Secret, Mot::W) => Loc::Scan3,
-            (Loc::Secret, Mot::D) => Loc::Wide,
-
-            (Loc::Wide, Mot::S) => Loc::Tight,
-            (Loc::Wide, Mot::N) => Loc::Tall,
-
-            (Loc::Tight, Mot::N) => Loc::Wide,
-
-            (Loc::Tall, Mot::E) => Loc::Wide,
-            (Loc::Tall, Mot::W) => Loc::Boulders,
-            (Loc::Tall, Mot::N | Mot::Crawl) => Loc::Cheese,
-
-            (Loc::Boulders, Mot::S) => Loc::Tall,
-
-            (Loc::Scorr, Mot::D) => Loc::Low,
-            (Loc::Scorr, Mot::U) => Loc::Swside,
-
-            (Loc::Swside, Mot::SW) => Loc::Scorr,
-            (Loc::Swside, Mot::Over | Mot::Across | Mot::Cross | Mot::NE)
-                if self.is_here(Obj::Troll) =>
-            {
-                Loc::Sayit10
-            }
-            (Loc::Swside, Mot::Over) if self.prop[Obj::Troll] != 0 => Loc::Sayit11,
-            (Loc::Swside, Mot::Over) => Loc::Troll,
-            (Loc::Swside, Mot::Jump) if self.prop[Obj::Troll] != 0 => Loc::Lose,
-            (Loc::Swside, Mot::Jump) => Loc::Sayit2,
-
-            (Loc::Dead0, Mot::S | Mot::Out) => Loc::Cross,
-            (Loc::Dead1, Mot::W | Mot::Out) => Loc::Like11,
-            (Loc::Dead2, Mot::SE) => Loc::Like13,
-            (Loc::Dead3, Mot::W | Mot::Out) => Loc::Like4,
-            (Loc::Dead4, Mot::E | Mot::Out) => Loc::Like4,
-            (Loc::Dead5, Mot::U | Mot::Out) => Loc::Like3,
-            (Loc::Dead6, Mot::W | Mot::Out) => Loc::Like9,
-            (Loc::Dead7, Mot::U | Mot::Out) => Loc::Like10,
-            (Loc::Dead8, Mot::E | Mot::Out) => Loc::Brink,
-            (Loc::Dead9, Mot::S | Mot::Out) => Loc::Like3,
-            (Loc::Dead10, Mot::E | Mot::Out) => Loc::Like12,
-            (Loc::Dead11, Mot::U | Mot::Out) => Loc::Like8,
-
-            (Loc::Neside, Mot::NE) => Loc::Corr,
-            (Loc::Neside, Mot::Over | Mot::Across | Mot::Cross | Mot::SW)
-                if self.is_here(Obj::Troll) =>
-            {
-                Loc::Sayit10
-            }
-            (Loc::Neside, Mot::Over) if self.prop[Obj::Troll] != 0 => Loc::Sayit11,
-            (Loc::Neside, Mot::Over) => Loc::Troll,
-            (Loc::Neside, Mot::Jump) => Loc::Sayit2,
-            (Loc::Neside, Mot::Fork) => Loc::Fork,
-            (Loc::Neside, Mot::View) => Loc::View,
-            (Loc::Neside, Mot::Barren) => Loc::Fbarr,
-
-            (Loc::Corr, Mot::W) => Loc::Neside,
-            (Loc::Corr, Mot::E | Mot::Fork) => Loc::Fork,
-            (Loc::Corr, Mot::View) => Loc::View,
-            (Loc::Corr, Mot::Barren) => Loc::Fbarr,
-
-            (Loc::Fork, Mot::W) => Loc::Corr,
-            (Loc::Fork, Mot::NE | Mot::L) => Loc::Warm,
-            (Loc::Fork, Mot::SE | Mot::R | Mot::D) => Loc::Lime,
-            (Loc::Fork, Mot::View) => Loc::View,
-            (Loc::Fork, Mot::Barren) => Loc::Fbarr,
-
-            (Loc::Warm, Mot::S | Mot::Fork) => Loc::Fork,
-            (Loc::Warm, Mot::N | Mot::View) => Loc::View,
-            (Loc::Warm, Mot::E | Mot::Crawl) => Loc::Chamber,
-            (Loc::View, Mot::S | Mot::Passage | Mot::Out) => Loc::Warm,
-            (Loc::View, Mot::Fork) => Loc::Fork,
-            (Loc::View, Mot::D | Mot::Jump) => Loc::Sayit12,
-
-            (Loc::Chamber, Mot::W | Mot::Out | Mot::Crawl) => Loc::Warm,
-            (Loc::Chamber, Mot::Fork) => Loc::Fork,
-            (Loc::Chamber, Mot::View) => Loc::View,
-
-            (Loc::Lime, Mot::N | Mot::U | Mot::Fork) => Loc::Fork,
-            (Loc::Lime, Mot::S | Mot::D | Mot::Barren) => Loc::Fbarr,
-            (Loc::Lime, Mot::View) => Loc::View,
-            (Loc::Fbarr, Mot::W | Mot::U) => Loc::Lime,
-            (Loc::Fbarr, Mot::Fork) => Loc::Fork,
-            (Loc::Fbarr, Mot::E | Mot::In | Mot::Barren | Mot::Enter) => Loc::Barr,
-            (Loc::Fbarr, Mot::View) => Loc::View,
-
-            (Loc::Barr, Mot::W | Mot::Out) => Loc::Fbarr,
-            (Loc::Barr, Mot::Fork) => Loc::Fork,
-            (Loc::Barr, Mot::View) => Loc::View,
-
-            (Loc::Neend, Mot::SW | Mot::Out) => Loc::Swend,
-
-            (Loc::Swend, Mot::NE) => Loc::Neend,
-            (Loc::Swend, Mot::D) => Loc::Sayit1,
+            (Loc::Emist, U) => Loc::Spit,
+            (Loc::Emist, Y2) => Loc::Jumble,
+
+            (Loc::Nugget, Hall | Out | N) => Loc::Emist,
+
+            (Loc::Efiss, Hall | E) => Loc::Emist,
+
+            (Loc::Efiss, Jump) if self.prop[Obj::Crystal] == 0 => Loc::Sayit2,
+            (Loc::Efiss, Forward) if self.prop[Obj::Crystal] == 1 => Loc::Lose,
+            (Loc::Efiss, Over | Across | W | Cross) if self.prop[Obj::Crystal] == 1 => Loc::Sayit3,
+            (Loc::Efiss, Over) => Loc::Wfiss,
+
+            (Loc::Wfiss, Jump) if self.prop[Obj::Crystal] == 0 => Loc::Sayit2,
+
+            (Loc::Wfiss, Forward) if self.prop[Obj::Crystal] == 1 => Loc::Lose,
+            (Loc::Wfiss, Over | Across | E | Cross) if self.prop[Obj::Crystal] == 1 => Loc::Sayit3,
+            (Loc::Wfiss, Over) => Loc::Efiss,
+            (Loc::Wfiss, N) => Loc::Thru,
+            (Loc::Wfiss, W) => Loc::Wmist,
+
+            (Loc::Wmist, S | U | Passage | Climb) => Loc::Like1,
+            (Loc::Wmist, E) => Loc::Wfiss,
+            (Loc::Wmist, N) => Loc::Duck,
+            (Loc::Wmist, W | Crawl) => Loc::Elong,
+
+            (Loc::Like1, U) => Loc::Wmist,
+            (Loc::Like1, N) => Loc::Like1,
+            (Loc::Like1, E) => Loc::Like2,
+            (Loc::Like1, S) => Loc::Like4,
+            (Loc::Like1, W) => Loc::Like11,
+
+            (Loc::Like2, W) => Loc::Like1,
+            (Loc::Like2, S) => Loc::Like3,
+            (Loc::Like2, E) => Loc::Like4,
+
+            (Loc::Like3, E) => Loc::Like2,
+            (Loc::Like3, D) => Loc::Dead5,
+            (Loc::Like3, S) => Loc::Like6,
+            (Loc::Like3, N) => Loc::Dead9,
+
+            (Loc::Like4, W) => Loc::Like1,
+            (Loc::Like4, N) => Loc::Like2,
+            (Loc::Like4, E) => Loc::Dead3,
+            (Loc::Like4, S) => Loc::Dead4,
+            (Loc::Like4, U | D) => Loc::Like14,
+
+            (Loc::Like5, E) => Loc::Like6,
+            (Loc::Like5, W) => Loc::Like7,
+
+            (Loc::Like6, E) => Loc::Like3,
+            (Loc::Like6, W) => Loc::Like5,
+            (Loc::Like6, D) => Loc::Like7,
+            (Loc::Like6, S) => Loc::Like8,
+
+            (Loc::Like7, W) => Loc::Like5,
+            (Loc::Like7, U) => Loc::Like6,
+            (Loc::Like7, E) => Loc::Like8,
+            (Loc::Like7, S) => Loc::Like9,
+
+            (Loc::Like8, W) => Loc::Like6,
+            (Loc::Like8, E) => Loc::Like7,
+            (Loc::Like8, S) => Loc::Like8,
+            (Loc::Like8, U) => Loc::Like9,
+            (Loc::Like8, N) => Loc::Like10,
+            (Loc::Like8, D) => Loc::Like11,
+
+            (Loc::Like9, W) => Loc::Like7,
+            (Loc::Like9, N) => Loc::Like8,
+            (Loc::Like9, S) => Loc::Like6,
+
+            (Loc::Like10, W) => Loc::Like8,
+            (Loc::Like10, N) => Loc::Like10,
+            (Loc::Like10, D) => Loc::Dead7,
+            (Loc::Like10, E) => Loc::Brink,
+
+            (Loc::Like11, N) => Loc::Like1,
+            (Loc::Like11, W | S) => Loc::Like11,
+            (Loc::Like11, E) => Loc::Dead1,
+
+            (Loc::Like12, S) => Loc::Brink,
+            (Loc::Like12, E) => Loc::Like13,
+            (Loc::Like12, W) => Loc::Dead10,
+
+            (Loc::Like13, N) => Loc::Brink,
+            (Loc::Like13, W) => Loc::Like12,
+            (Loc::Like13, NW) => Loc::Dead2, // dk - a dirty trick!
+
+            (Loc::Like14, U | D) => Loc::Like4,
+
+            (Loc::Brink, D | Climb) => Loc::Bird,
+            (Loc::Brink, W) => Loc::Like10,
+            (Loc::Brink, S) => Loc::Dead8,
+            (Loc::Brink, N) => Loc::Like12,
+            (Loc::Brink, E) => Loc::Like13,
+
+            (Loc::Elong, E | U | Crawl | W) => Loc::Wlong,
+            (Loc::Elong, N | D | Hole) => Loc::Cross,
+
+            (Loc::Wlong, E) => Loc::Elong,
+            (Loc::Wlong, N) => Loc::Cross,
+            (Loc::Wlong, S) if !dwarf => Loc::Diff0,
+
+            (Loc::Diff0, S) => Loc::Diff1,
+            (Loc::Diff0, SW) => Loc::Diff2,
+            (Loc::Diff0, NE) => Loc::Diff3,
+            (Loc::Diff0, SE) => Loc::Diff4,
+            (Loc::Diff0, U) => Loc::Diff5,
+            (Loc::Diff0, NW) => Loc::Diff6,
+            (Loc::Diff0, E) => Loc::Diff7,
+            (Loc::Diff0, W) => Loc::Diff8,
+            (Loc::Diff0, N) => Loc::Diff9,
+            (Loc::Diff0, D) => Loc::Wlong,
+
+            (Loc::Diff1, W) => Loc::Diff0,
+            (Loc::Diff1, SE) => Loc::Diff2,
+            (Loc::Diff1, NW) => Loc::Diff3,
+            (Loc::Diff1, SW) => Loc::Diff4,
+            (Loc::Diff1, NE) => Loc::Diff5,
+            (Loc::Diff1, U) => Loc::Diff6,
+            (Loc::Diff1, D) => Loc::Diff7,
+            (Loc::Diff1, N) => Loc::Diff8,
+            (Loc::Diff1, S) => Loc::Diff9,
+            (Loc::Diff1, E) => Loc::Diff10,
+
+            (Loc::Diff2, NW) => Loc::Diff0,
+            (Loc::Diff2, U) => Loc::Diff1,
+            (Loc::Diff2, N) => Loc::Diff3,
+            (Loc::Diff2, S) => Loc::Diff4,
+            (Loc::Diff2, W) => Loc::Diff5,
+            (Loc::Diff2, SW) => Loc::Diff6,
+            (Loc::Diff2, NE) => Loc::Diff7,
+            (Loc::Diff2, E) => Loc::Diff8,
+            (Loc::Diff2, D) => Loc::Diff9,
+            (Loc::Diff2, SE) => Loc::Diff10,
+
+            (Loc::Diff3, U) => Loc::Diff0,
+            (Loc::Diff3, D) => Loc::Diff1,
+            (Loc::Diff3, W) => Loc::Diff2,
+            (Loc::Diff3, NE) => Loc::Diff4,
+            (Loc::Diff3, SW) => Loc::Diff5,
+            (Loc::Diff3, E) => Loc::Diff6,
+            (Loc::Diff3, N) => Loc::Diff7,
+            (Loc::Diff3, NW) => Loc::Diff8,
+            (Loc::Diff3, SE) => Loc::Diff9,
+            (Loc::Diff3, S) => Loc::Diff10,
+
+            (Loc::Diff4, NE) => Loc::Diff0,
+            (Loc::Diff4, N) => Loc::Diff1,
+            (Loc::Diff4, NW) => Loc::Diff2,
+            (Loc::Diff4, SE) => Loc::Diff3,
+            (Loc::Diff4, E) => Loc::Diff5,
+            (Loc::Diff4, D) => Loc::Diff6,
+            (Loc::Diff4, S) => Loc::Diff7,
+            (Loc::Diff4, U) => Loc::Diff8,
+            (Loc::Diff4, W) => Loc::Diff9,
+            (Loc::Diff4, SW) => Loc::Diff10,
+
+            (Loc::Diff5, N) => Loc::Diff0,
+            (Loc::Diff5, SE) => Loc::Diff1,
+            (Loc::Diff5, D) => Loc::Diff2,
+            (Loc::Diff5, S) => Loc::Diff3,
+            (Loc::Diff5, E) => Loc::Diff4,
+            (Loc::Diff5, W) => Loc::Diff6,
+            (Loc::Diff5, SW) => Loc::Diff7,
+            (Loc::Diff5, NE) => Loc::Diff8,
+            (Loc::Diff5, NW) => Loc::Diff9,
+            (Loc::Diff5, U) => Loc::Diff10,
+
+            (Loc::Diff6, E) => Loc::Diff0,
+            (Loc::Diff6, W) => Loc::Diff1,
+            (Loc::Diff6, U) => Loc::Diff2,
+            (Loc::Diff6, SW) => Loc::Diff3,
+            (Loc::Diff6, D) => Loc::Diff4,
+            (Loc::Diff6, S) => Loc::Diff5,
+            (Loc::Diff6, NW) => Loc::Diff7,
+            (Loc::Diff6, SE) => Loc::Diff8,
+            (Loc::Diff6, NE) => Loc::Diff9,
+            (Loc::Diff6, N) => Loc::Diff10,
+
+            (Loc::Diff7, SE) => Loc::Diff0,
+            (Loc::Diff7, NE) => Loc::Diff1,
+            (Loc::Diff7, S) => Loc::Diff2,
+            (Loc::Diff7, D) => Loc::Diff3,
+            (Loc::Diff7, U) => Loc::Diff4,
+            (Loc::Diff7, NW) => Loc::Diff5,
+            (Loc::Diff7, N) => Loc::Diff6,
+            (Loc::Diff7, SW) => Loc::Diff8,
+            (Loc::Diff7, E) => Loc::Diff9,
+            (Loc::Diff7, W) => Loc::Diff10,
+
+            (Loc::Diff8, D) => Loc::Diff0,
+            (Loc::Diff8, E) => Loc::Diff1,
+            (Loc::Diff8, NE) => Loc::Diff2,
+            (Loc::Diff8, U) => Loc::Diff3,
+            (Loc::Diff8, W) => Loc::Diff4,
+            (Loc::Diff8, N) => Loc::Diff5,
+            (Loc::Diff8, S) => Loc::Diff6,
+            (Loc::Diff8, SE) => Loc::Diff7,
+            (Loc::Diff8, SW) => Loc::Diff9,
+            (Loc::Diff8, NW) => Loc::Diff10,
+
+            (Loc::Diff9, SW) => Loc::Diff0,
+            (Loc::Diff9, NW) => Loc::Diff1,
+            (Loc::Diff9, E) => Loc::Diff2,
+            (Loc::Diff9, W) => Loc::Diff3,
+            (Loc::Diff9, N) => Loc::Diff4,
+            (Loc::Diff9, D) => Loc::Diff5,
+            (Loc::Diff9, SE) => Loc::Diff6,
+            (Loc::Diff9, U) => Loc::Diff7,
+            (Loc::Diff9, S) => Loc::Diff8,
+            (Loc::Diff9, NE) => Loc::Diff10,
+
+            (Loc::Diff10, SW) => Loc::Diff1,
+            (Loc::Diff10, N) => Loc::Diff2,
+            (Loc::Diff10, E) => Loc::Diff3,
+            (Loc::Diff10, NW) => Loc::Diff4,
+            (Loc::Diff10, SE) => Loc::Diff5,
+            (Loc::Diff10, NE) => Loc::Diff6,
+            (Loc::Diff10, W) => Loc::Diff7,
+            (Loc::Diff10, D) => Loc::Diff8,
+            (Loc::Diff10, U) => Loc::Diff9,
+            (Loc::Diff10, S) => Loc::Pony,
+
+            (Loc::Pony, N | Out) => Loc::Diff10,
+
+            (Loc::Cross, W) => Loc::Elong,
+            (Loc::Cross, N) => Loc::Dead0,
+            (Loc::Cross, E) => Loc::West,
+            (Loc::Cross, S) => Loc::Wlong,
+
+            (Loc::Hmk, Stairs | U | E) => Loc::Emist,
+            (Loc::Hmk, N | L) if self.prop[Obj::Snake] != 0 => Loc::Ns,
+            (Loc::Hmk, S | R) if self.prop[Obj::Snake] != 0 => Loc::South,
+            (Loc::Hmk, W | Forward) if self.prop[Obj::Snake] != 0 => Loc::West,
+            (Loc::Hmk, N) => Loc::Snaked,
+            (Loc::Hmk, SW) if pct(35) => Loc::Secret,
+            (Loc::Hmk, SW) if self.is_here(Obj::Snake) => Loc::Snaked,
+            (Loc::Hmk, Secret) => Loc::Secret,
+
+            (Loc::West, Hall | Out | E) => Loc::Hmk,
+            (Loc::West, W | U) => Loc::Cross,
+
+            (Loc::South, Hall | Out | N) => Loc::Hmk,
+
+            (Loc::Ns, Hall | Out | S) => Loc::Hmk,
+            (Loc::Ns, N | Y2) => Loc::Y2,
+            (Loc::Ns, D | Hole) => Loc::Dirty,
+
+            (Loc::Y2, Plugh) => Loc::House,
+            (Loc::Y2, S) => Loc::Ns,
+            (Loc::Y2, E | Wall | Broken) => Loc::Jumble,
+            (Loc::Y2, W) => Loc::Windoe,
+            (Loc::Y2, Plover) if self.toting(Obj::Emerald) => Loc::Pdrop,
+            (Loc::Y2, Plover) => Loc::Proom,
+
+            (Loc::Jumble, D) => Loc::Y2,
+            (Loc::Jumble, U) => Loc::Emist,
+
+            (Loc::Windoe, E | Y2) => Loc::Y2,
+            (Loc::Windoe, Jump) => Loc::Neck,
+
+            (Loc::Dirty, E | Crawl) => Loc::Clean,
+            (Loc::Dirty, U | Hole) => Loc::Ns,
+            (Loc::Dirty, W) => Loc::Dusty,
+            (Loc::Dirty, Bedquilt) => Loc::Bedquilt,
+
+            (Loc::Clean, W | Crawl) => Loc::Dirty,
+            (Loc::Clean, D | Pit | Climb) => Loc::Wet,
+
+            (Loc::Wet, Climb | U | Out) => Loc::Clean,
+            (Loc::Wet, Slit | Stream | D | Upstream | Downstream) => Loc::Sayit0,
+
+            (Loc::Dusty, E | Passage) => Loc::Dirty,
+            (Loc::Dusty, D | Hole | Floor) => Loc::Complex,
+            (Loc::Dusty, Bedquilt) => Loc::Bedquilt,
+
+            (Loc::Complex, U | Climb | Room) => Loc::Dusty,
+            (Loc::Complex, W | Bedquilt) => Loc::Bedquilt,
+            (Loc::Complex, N | Shell) => Loc::Shell,
+            (Loc::Complex, E) => Loc::Ante,
+
+            (Loc::Shell, U | Hall) => Loc::Arch,
+            (Loc::Shell, D) => Loc::Ragged,
+            (Loc::Shell, S) if self.toting(Obj::Clam) => Loc::Sayit4,
+
+            (Loc::Shell, S) if self.toting(Obj::Oyster) => Loc::Sayit5,
+
+            (Loc::Shell, S) => Loc::Complex,
+
+            (Loc::Arch, D | Shell | Out) => Loc::Shell,
+
+            (Loc::Ragged, U | Shell) => Loc::Shell,
+            (Loc::Ragged, D) => Loc::Sac,
+
+            (Loc::Sac, U | Out) => Loc::Ragged,
+            (Loc::Sac, Shell) => Loc::Shell,
+
+            (Loc::Ante, U) => Loc::Complex,
+            (Loc::Ante, W) => Loc::Bedquilt,
+            (Loc::Ante, E) => Loc::Witt,
+
+            (Loc::Witt, E | N | S | NE | SE | SW | NW | U | D) if pct(95) => Loc::Sayit6,
+            (Loc::Witt, E) => Loc::Ante, // one chance in 20
+            (Loc::Witt, W) => Loc::Sayit6,
+
+            (Loc::Bedquilt, E) => Loc::Complex,
+            (Loc::Bedquilt, W) => Loc::Cheese,
+            (Loc::Bedquilt, S) if pct(80) => Loc::Sayit6,
+            (Loc::Bedquilt, Slab) => Loc::Slab,
+            (Loc::Bedquilt, U) if pct(50) => Loc::Abovep,
+            (Loc::Bedquilt, U) => Loc::Dusty,
+            (Loc::Bedquilt, N) if pct(60) => Loc::Sayit6,
+            (Loc::Bedquilt, N) if pct(75) => Loc::Low,
+            (Loc::Bedquilt, N) => Loc::Sjunc,
+            (Loc::Bedquilt, D) if pct(80) => Loc::Sayit6,
+            (Loc::Bedquilt, D) => Loc::Ante,
+
+            (Loc::Cheese, NE) => Loc::Bedquilt,
+            (Loc::Cheese, W) => Loc::E2pit,
+            (Loc::Cheese, S) if pct(80) => Loc::Sayit6,
+            (Loc::Cheese, Canyon) => Loc::Tall,
+            (Loc::Cheese, E) => Loc::Soft,
+            (Loc::Cheese, NW) if pct(50) => Loc::Sayit6,
+            (Loc::Cheese, Oriental) => Loc::Oriental,
+
+            (Loc::Soft, W | Out) => Loc::Cheese,
+
+            (Loc::E2pit, E) => Loc::Cheese,
+            (Loc::E2pit, W | Across) => Loc::W2pit,
+            (Loc::E2pit, D | Pit) => Loc::Epit,
+
+            (Loc::W2pit, E) => Loc::E2pit,
+            (Loc::W2pit, W) => Loc::Slab,
+            (Loc::W2pit, D) => Loc::Wpit,
+            (Loc::W2pit, Hole) => Loc::Sayit7,
+
+            (Loc::Epit, U | Out) => Loc::E2pit,
+
+            (Loc::Wpit, U | Out) => Loc::W2pit,
+            (Loc::Wpit, Climb) if self.prop[Obj::Plant] != 4 => Loc::Check,
+            (Loc::Wpit, Climb) => Loc::Climb,
+
+            (Loc::Narrow, D | Climb) => Loc::Wpit,
+            (Loc::Narrow, Jump) => Loc::Neck,
+            (Loc::Narrow, W | Giant) => Loc::Giant,
+
+            (Loc::Giant, S) => Loc::Narrow,
+            (Loc::Giant, E) => Loc::Block,
+            (Loc::Giant, N) => Loc::Immense,
+
+            (Loc::Block, S | Giant | Out) => Loc::Giant,
+
+            (Loc::Immense, S | Giant | Passage) => Loc::Giant,
+            (Loc::Immense, N | Enter | Cavern) if self.prop[Obj::Door] != 0 => Loc::Falls,
+
+            (Loc::Falls, S | Out) => Loc::Immense,
+            (Loc::Falls, Giant) => Loc::Giant,
+            (Loc::Falls, W) => Loc::Steep,
+
+            (Loc::Steep, N | Cavern | Passage) => Loc::Falls,
+            (Loc::Steep, D | Climb) => Loc::Low,
+
+            (Loc::Abovep, N) => Loc::Sjunc,
+            (Loc::Abovep, D | Passage) => Loc::Bedquilt,
+            (Loc::Abovep, S) => Loc::Tite,
+
+            (Loc::Sjunc, SE) => Loc::Bedquilt,
+            (Loc::Sjunc, S) => Loc::Abovep,
+            (Loc::Sjunc, N) => Loc::Window,
+
+            (Loc::Tite, N) => Loc::Abovep,
+            (Loc::Tite, D | Jump | Climb) if pct(40) => Loc::Like6,
+            (Loc::Tite, D | Jump | Climb) if pct(50) => Loc::Like9,
+            (Loc::Tite, D | Jump | Climb) => Loc::Like4,
+
+            (Loc::Low, Bedquilt) => Loc::Bedquilt,
+            (Loc::Low, SW) => Loc::Scorr,
+            (Loc::Low, N) => Loc::Crawl,
+            (Loc::Low, SE | Oriental) => Loc::Oriental,
+
+            (Loc::Crawl, S | Crawl | Out) => Loc::Low,
+
+            (Loc::Window, W) => Loc::Sjunc,
+            (Loc::Window, Jump) => Loc::Neck,
+
+            (Loc::Oriental, SE) => Loc::Cheese,
+            (Loc::Oriental, W | Crawl) => Loc::Low,
+            (Loc::Oriental, U | N | Cavern) => Loc::Misty,
+
+            (Loc::Misty, S | Oriental) => Loc::Oriental,
+            (Loc::Misty, W) => Loc::Alcove,
+
+            (Loc::Alcove, NW | Cavern) => Loc::Misty,
+            (Loc::Alcove, E | Passage) => Loc::Ppass,
+            (Loc::Alcove, E) => Loc::Proom, // never performed, but seen by ‘go back’
+
+            (Loc::Proom, W | Passage | Out) => Loc::Ppass,
+            (Loc::Proom, W) => Loc::Alcove, // never performed, but seen by ‘go back’
+            (Loc::Proom, Plover) if self.toting(Obj::Emerald) => Loc::Pdrop,
+            (Loc::Proom, Plover) => Loc::Y2,
+            (Loc::Proom, NE | Dark) => Loc::Droom,
+
+            (Loc::Droom, S | Plover | Out) => Loc::Proom,
+
+            (Loc::Slab, S) => Loc::W2pit,
+            (Loc::Slab, U | Climb) => Loc::Abover,
+            (Loc::Slab, N) => Loc::Bedquilt,
+
+            (Loc::Abover, D | Slab) => Loc::Slab,
+            (Loc::Abover, S) if self.prop[Obj::Dragon] != 0 => Loc::Scan2,
+            (Loc::Abover, S) => Loc::Scan1,
+            (Loc::Abover, N) => Loc::Mirror,
+            (Loc::Abover, Reservoir) => Loc::Res,
+
+            (Loc::Mirror, S) => Loc::Abover,
+            (Loc::Mirror, N | Reservoir) => Loc::Res,
+
+            (Loc::Res, S | Out) => Loc::Mirror,
+
+            (Loc::Scan1, N | Out) => Loc::Abover,
+
+            (Loc::Immense, N | Enter | Cavern) => Loc::Sayit8,
+            (Loc::Scan1, E | Forward) => Loc::Sayit9,
+
+            (Loc::Scan2, N) => Loc::Abover,
+            (Loc::Scan2, E) => Loc::Secret,
+
+            (Loc::Scan3, E | Out) => Loc::Secret,
+            (Loc::Scan3, N | Forward) => Loc::Sayit9,
+
+            (Loc::Secret, E) => Loc::Hmk,
+            (Loc::Secret, W) if self.prop[Obj::Dragon] != 0 => Loc::Scan2,
+            (Loc::Secret, W) => Loc::Scan3,
+            (Loc::Secret, D) => Loc::Wide,
+
+            (Loc::Wide, S) => Loc::Tight,
+            (Loc::Wide, N) => Loc::Tall,
+
+            (Loc::Tight, N) => Loc::Wide,
+
+            (Loc::Tall, E) => Loc::Wide,
+            (Loc::Tall, W) => Loc::Boulders,
+            (Loc::Tall, N | Crawl) => Loc::Cheese,
+
+            (Loc::Boulders, S) => Loc::Tall,
+
+            (Loc::Scorr, D) => Loc::Low,
+            (Loc::Scorr, U) => Loc::Swside,
+
+            (Loc::Swside, SW) => Loc::Scorr,
+            (Loc::Swside, Over | Across | Cross | NE) if self.is_here(Obj::Troll) => Loc::Sayit10,
+            (Loc::Swside, Over) if self.prop[Obj::Troll] != 0 => Loc::Sayit11,
+            (Loc::Swside, Over) => Loc::Troll,
+            (Loc::Swside, Jump) if self.prop[Obj::Troll] != 0 => Loc::Lose,
+            (Loc::Swside, Jump) => Loc::Sayit2,
+
+            (Loc::Dead0, S | Out) => Loc::Cross,
+            (Loc::Dead1, W | Out) => Loc::Like11,
+            (Loc::Dead2, SE) => Loc::Like13,
+            (Loc::Dead3, W | Out) => Loc::Like4,
+            (Loc::Dead4, E | Out) => Loc::Like4,
+            (Loc::Dead5, U | Out) => Loc::Like3,
+            (Loc::Dead6, W | Out) => Loc::Like9,
+            (Loc::Dead7, U | Out) => Loc::Like10,
+            (Loc::Dead8, E | Out) => Loc::Brink,
+            (Loc::Dead9, S | Out) => Loc::Like3,
+            (Loc::Dead10, E | Out) => Loc::Like12,
+            (Loc::Dead11, U | Out) => Loc::Like8,
+
+            (Loc::Neside, NE) => Loc::Corr,
+            (Loc::Neside, Over | Across | Cross | SW) if self.is_here(Obj::Troll) => Loc::Sayit10,
+            (Loc::Neside, Over) if self.prop[Obj::Troll] != 0 => Loc::Sayit11,
+            (Loc::Neside, Over) => Loc::Troll,
+            (Loc::Neside, Jump) => Loc::Sayit2,
+            (Loc::Neside, Fork) => Loc::Fork,
+            (Loc::Neside, View) => Loc::View,
+            (Loc::Neside, Barren) => Loc::Fbarr,
+
+            (Loc::Corr, W) => Loc::Neside,
+            (Loc::Corr, E | Fork) => Loc::Fork,
+            (Loc::Corr, View) => Loc::View,
+            (Loc::Corr, Barren) => Loc::Fbarr,
+
+            (Loc::Fork, W) => Loc::Corr,
+            (Loc::Fork, NE | L) => Loc::Warm,
+            (Loc::Fork, SE | R | D) => Loc::Lime,
+            (Loc::Fork, View) => Loc::View,
+            (Loc::Fork, Barren) => Loc::Fbarr,
+
+            (Loc::Warm, S | Fork) => Loc::Fork,
+            (Loc::Warm, N | View) => Loc::View,
+            (Loc::Warm, E | Crawl) => Loc::Chamber,
+            (Loc::View, S | Passage | Out) => Loc::Warm,
+            (Loc::View, Fork) => Loc::Fork,
+            (Loc::View, D | Jump) => Loc::Sayit12,
+
+            (Loc::Chamber, W | Out | Crawl) => Loc::Warm,
+            (Loc::Chamber, Fork) => Loc::Fork,
+            (Loc::Chamber, View) => Loc::View,
+
+            (Loc::Lime, N | U | Fork) => Loc::Fork,
+            (Loc::Lime, S | D | Barren) => Loc::Fbarr,
+            (Loc::Lime, View) => Loc::View,
+            (Loc::Fbarr, W | U) => Loc::Lime,
+            (Loc::Fbarr, Fork) => Loc::Fork,
+            (Loc::Fbarr, E | In | Barren | Enter) => Loc::Barr,
+            (Loc::Fbarr, View) => Loc::View,
+
+            (Loc::Barr, W | Out) => Loc::Fbarr,
+            (Loc::Barr, Fork) => Loc::Fork,
+            (Loc::Barr, View) => Loc::View,
+
+            (Loc::Neend, SW | Out) => Loc::Swend,
+
+            (Loc::Swend, NE) => Loc::Neend,
+            (Loc::Swend, D) => Loc::Sayit1,
 
             (Loc::Crack, _) => Loc::Spit,
             (Loc::Neck, _) => Loc::Limbo,
@@ -1701,13 +1632,13 @@ impl Game {
     }
 
     fn holding(&self) -> usize {
-        let mut n=self.l2o[Loc::Inhand].len();
+        let mut n = self.l2o[Loc::Inhand].len();
         //TODO - bird+cage, bottle+water/oil
-        if self.toting(Obj::Cage) && self.prop[Obj::Bird]==1 {
-            n+=1;
+        if self.toting(Obj::Cage) && self.prop[Obj::Bird] == 1 {
+            n += 1;
         }
-        if self.toting(Obj::Bottle) && self.prop[Obj::Bird]!=1 {
-            n+=1;
+        if self.toting(Obj::Bottle) && self.prop[Obj::Bird] != 1 {
+            n += 1;
         }
         n
     }
@@ -1746,6 +1677,7 @@ impl Game {
         let (flag, obj) = match obj {
             Obj::Water => (self.prop[Obj::Bottle] == 0, Obj::Bottle),
             Obj::Oil => (self.prop[Obj::Bottle] == 2, Obj::Bottle),
+            Obj::Bird => (self.prop[Obj::Bird] == 1, Obj::Cage),
             _ => (true, obj),
         };
         flag && self.l2o[Loc::Inhand].iter().any(|&o| o == obj)
@@ -2042,8 +1974,26 @@ fn major(g: &mut Game) -> Goto {
                 for j in 0..g.dloc.len() {
                     if g.dloc[j] != Loc::Limbo {
                         let mut i = 0;
-                        //⟨ Make a table of all potential exits, ploc [0] through ploc [i − 1] 166 ⟩  
-                        //TODO
+                        //⟨ Make a table of all potential exits, ploc [0] through ploc [i − 1] 166 ⟩ ≡
+                        for m in MOTIONS {
+                            let newloc = g.travel(g.dloc[j], g.mot, true);
+                            if newloc != Loc::Nowhere
+                                && newloc >= MIN_LOWER_LOC
+                                && newloc != g.odloc[j]
+                                && newloc != g.dloc[j]
+                                && (i == 0 || newloc != g.ploc[i - 1])
+                                && i < 19
+                                && newloc
+                                    <= if j == 0 {
+                                        MAX_PIRATE_LOC
+                                    } else {
+                                        MAX_NORMAL_LOC
+                                    }
+                            {
+                                g.ploc[i] = newloc;
+                                i += 1;
+                            }
+                        }
 
                         if i == 0 {
                             i = 1;
@@ -3227,7 +3177,7 @@ fn intransitive(g: &mut Game) -> Goto {
         }
     }
 
-    Goto::Minor  
+    Goto::Minor
 }
 
 fn score(g: &Game) -> i32 {
@@ -3364,7 +3314,7 @@ fn try_move(g: &mut Game) -> Goto {
             if l == g.loc {
                 "Sorry, but I no longer seem to remember how you got here."
             } else {
-                let dest=g.lookup_instructions(false);
+                let dest=g.travel(g.loc, g.mot, false);
                 if dest==Loc::Nowhere {
                     "You can't get there from here." 
                 } else {
@@ -3374,7 +3324,7 @@ fn try_move(g: &mut Game) -> Goto {
             }
        }
     _ => {
-           g.newloc=g.lookup_instructions(false);
+           g.newloc=g.travel(g.loc, g.mot, false);
            return Goto::GoForIt
          }
     };
