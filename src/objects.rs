@@ -150,5 +150,3 @@ pub const fn object_notes(obj: Obj, prop: i8) -> &'static str {
         _ => "",
     }
 }
-
-

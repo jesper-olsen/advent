@@ -1,6 +1,5 @@
 use rand::random;
 use std::cmp::Ordering;
-use std::collections::hash_map::{Entry, HashMap};
 use std::io::{self, Write};
 use std::process;
 
@@ -51,7 +50,7 @@ fn yes(q: &str, y: &str, n: &str) -> bool {
     loop {
         print!("{q}\n** ");
         let _ = io::stdout().flush();
-        if let Some(c) = get_input().chars().nth(0) {
+        if let Some(c) = get_input().chars().next() {
             match c {
                 'Y' | 'y' => {
                     if y != "" {
@@ -69,10 +68,6 @@ fn yes(q: &str, y: &str, n: &str) -> bool {
             }
         }
     }
-}
-
-fn wcap(s: String) -> String {
-    s.chars().take(5).collect()
 }
 
 fn listen() -> Vec<String> {
@@ -349,7 +344,7 @@ static HINT: [(&str,&str); N_HINTS] = [
    you'll have to enter \"NORTHEAST\" as \"NE\" to distinguish it from \
    \"NORTH\". Should you get stuck, type \"HELP\" for some general hints. \
    For information on how to end your adventure, etc., type \"INFO\". \
-   \n                        −  −  −\nThe first adventure program was\
+   \n                        −  −  −\nThe first adventure program was \
    developed by Willie Crowther. Most of the features of the current \
    program were added by Don Woods."),
 
@@ -382,8 +377,6 @@ static HINT: [(&str,&str); N_HINTS] = [
   ("Do you need help getting out of here?", "Don't go west."),
 ];
 
-
-
 fn pct(n: u8) -> bool {
     random::<u8>() % 100 < n
 }
@@ -395,7 +388,7 @@ fn ran(n: usize) -> usize {
 impl Game {
     fn travel(&self, loc: Loc, mot: Mot, dwarf: bool) -> Loc {
         use Mot::*;
-        match (self.loc, self.mot) {
+        match (loc, mot) {
             (Loc::Road, W | U | Road) => Loc::Hill,
             (Loc::Road, E | In | House | Enter) => Loc::House,
             (Loc::Road, S | D | Gully | Stream | Downstream) => Loc::Valley,
@@ -474,14 +467,16 @@ impl Game {
             (Loc::Spit, Entrance) => Loc::Inside,
             (Loc::Spit, Debris) => Loc::Debris,
             (Loc::Spit, Passage | E) => Loc::Bird,
-            (Loc::Spit, D | Pit | Steps) if self.toting(Obj::Gold) => Loc::Neck,
-            (Loc::Spit, D) if !self.toting(Obj::Gold) => Loc::Emist,
+            (Loc::Spit, D | Pit | Steps) if !dwarf && self.toting(Obj::Gold) => Loc::Neck,
+            (Loc::Spit, D) if !dwarf && !self.toting(Obj::Gold) => Loc::Emist,
             (Loc::Spit, Crack | W) => Loc::Crack,
 
             (Loc::Emist, L | S) => Loc::Nugget,
             (Loc::Emist, Forward | Hall | W) => Loc::Efiss,
             (Loc::Emist, Stairs | D | N) => Loc::Hmk,
-            (Loc::Emist, U | Pit | Steps | Dome | Passage | E) if self.toting(Obj::Gold) => {
+            (Loc::Emist, U | Pit | Steps | Dome | Passage | E)
+                if !dwarf && self.toting(Obj::Gold) =>
+            {
                 Loc::Cant
             }
             (Loc::Emist, U) => Loc::Spit,
@@ -736,7 +731,7 @@ impl Game {
             (Loc::Y2, S) => Loc::Ns,
             (Loc::Y2, E | Wall | Broken) => Loc::Jumble,
             (Loc::Y2, W) => Loc::Windoe,
-            (Loc::Y2, Plover) if self.toting(Obj::Emerald) => Loc::Pdrop,
+            (Loc::Y2, Plover) if !dwarf && self.toting(Obj::Emerald) => Loc::Pdrop,
             (Loc::Y2, Plover) => Loc::Proom,
 
             (Loc::Jumble, D) => Loc::Y2,
@@ -767,9 +762,9 @@ impl Game {
 
             (Loc::Shell, U | Hall) => Loc::Arch,
             (Loc::Shell, D) => Loc::Ragged,
-            (Loc::Shell, S) if self.toting(Obj::Clam) => Loc::Sayit4,
+            (Loc::Shell, S) if !dwarf && self.toting(Obj::Clam) => Loc::Sayit4,
 
-            (Loc::Shell, S) if self.toting(Obj::Oyster) => Loc::Sayit5,
+            (Loc::Shell, S) if !dwarf && self.toting(Obj::Oyster) => Loc::Sayit5,
 
             (Loc::Shell, S) => Loc::Complex,
 
@@ -882,7 +877,7 @@ impl Game {
 
             (Loc::Proom, W | Passage | Out) => Loc::Ppass,
             (Loc::Proom, W) => Loc::Alcove, // never performed, but seen by ‘go back’
-            (Loc::Proom, Plover) if self.toting(Obj::Emerald) => Loc::Pdrop,
+            (Loc::Proom, Plover) if !dwarf && self.toting(Obj::Emerald) => Loc::Pdrop,
             (Loc::Proom, Plover) => Loc::Y2,
             (Loc::Proom, NE | Dark) => Loc::Droom,
 
@@ -1482,13 +1477,13 @@ fn death(g: &mut Game) -> Goto {
     g.remove(Obj::Oil);
     g.loc = Loc::House;
     g.oldloc = Loc::House;
-    return Goto::Commence;
+    Goto::Commence
 }
 
 fn pitch_dark(g: &mut Game) -> Goto {
     println!("You fell into a pit and broke every bone in your body!");
     g.oldoldloc = g.loc;
-    return Goto::Quit;
+    Goto::Quit
 }
 
 fn dwarves_upset() -> Goto {
@@ -1532,10 +1527,8 @@ fn make_pirate_track_you(g: &mut Game) {
             //⟨ Take booty and hide it in the chest 173 ⟩ ≡
             //⟨ Snatch all treasures that are snatchable here 174 ⟩ ≡
             for o in TREASURES {
-                if !too_easy(g, o) {
-                    if g.is_movable[o] && g.is_here(o) {
-                        g.drop(o, CHEST_LOC)
-                    }
+                if !too_easy(g, o) && g.is_movable[o] && g.is_here(o) {
+                    g.drop(o, CHEST_LOC)
                 }
 
                 if pirate_not_spotted(g) {
@@ -1578,14 +1571,13 @@ fn major(g: &mut Game) -> Goto {
     if g.closing() && g.newloc < MIN_IN_CAVE && g.newloc != Loc::Limbo {
         g.newloc = g.loc;
         println!("{}", panic_at_closing_time(g));
-    } else if g.newloc != g.loc {
+    } else if g.newloc != g.loc
+        && g.newloc <= MAX_PIRATE_LOC
+        && (1..g.odloc.len()).any(|j| g.odloc[j] == g.newloc && g.dseen[j])
+    {
         //⟨ Stay in loc if a dwarf is blocking the way to newloc 176 ⟩ ≡
-        if g.newloc <= MAX_PIRATE_LOC {
-            if (1..g.odloc.len()).any(|j| g.odloc[j] == g.newloc && g.dseen[j]) {
-                println!("A little dwarf with a big knife blocks your way.");
-                g.newloc = g.loc;
-            }
-        }
+        g.newloc = g.loc;
+        println!("A little dwarf with a big knife blocks your way.");
     }
     g.loc = g.newloc; // hey, we actually moved you
 
@@ -1596,7 +1588,7 @@ fn major(g: &mut Game) -> Goto {
             1 if g.loc >= MIN_LOWER_LOC && pct(5) => {
                 //⟨ Advance dflag to 2 162 ⟩ ≡
                 g.dflag = 2;
-                for j in 0..2 {
+                for _ in 0..2 {
                     if pct(50) {
                         g.dloc[1 + ran(ND)] = Loc::Limbo;
                     }
@@ -1621,7 +1613,7 @@ fn major(g: &mut Game) -> Goto {
                         let mut i = 0;
                         //⟨ Make a table of all potential exits, ploc [0] through ploc [i − 1] 166 ⟩ ≡
                         for m in MOTIONS {
-                            let newloc = g.travel(g.dloc[j], g.mot, true);
+                            let newloc = g.travel(g.dloc[j], m, true);
                             if newloc != Loc::Nowhere
                                 && newloc >= MIN_LOWER_LOC
                                 && newloc != g.odloc[j]
@@ -1712,7 +1704,7 @@ fn minor(g: &mut Game) -> Goto {
     g.oldverb = Act::Abstain;
     g.oldobj = g.obj;
     g.obj = Obj::Nothing;
-    return Goto::Cycle;
+    Goto::Cycle
 }
 
 fn cycle(g: &mut Game) -> Goto {
@@ -1989,12 +1981,10 @@ fn branch(g: &mut Game) -> Goto {
                     Obj::Water
                         if water_here(g.loc) || (g.here(Obj::Bottle) && g.object_in_bottle(*o)) =>
                     {
-                        ()
                     }
                     Obj::Oil
                         if oil_here(g.loc) || (g.here(Obj::Bottle) && g.object_in_bottle(*o)) =>
                     {
-                        ()
                     }
 
                     _ => return Goto::CantSeeIt,
@@ -2036,7 +2026,7 @@ fn branch(g: &mut Game) -> Goto {
     }
 
     g.words.remove(0);
-    return Goto::Parse;
+    Goto::Parse
 }
 
 fn get_object(g: &Game) -> Goto {
@@ -2666,19 +2656,19 @@ fn intransitive(g: &mut Game) -> Goto {
     match g.verb {
         Act::Go | Act::Relax => {
             print_default_msg(g.verb);
-            return Goto::Minor;
+            Goto::Minor
         }
         Act::On | Act::Off | Act::Pour | Act::Fill | Act::Drink | Act::Blast | Act::Kill => {
-            return Goto::Transitive
+            Goto::Transitive
         }
         //⟨ Handle cases of intransitive verbs and continue 92 ⟩ ≡
         Act::Take if g.l2o[g.loc].len() == 1 && !g.dwarf() => {
             g.obj = g.l2o[g.loc][0];
-            return Goto::Transitive;
+            Goto::Transitive
         }
         Act::Eat if g.here(Obj::Food) => {
             g.obj = Obj::Food;
-            return Goto::Transitive;
+            Goto::Transitive
         }
         Act::Open | Act::Close => {
             if g.is_here(Obj::Grate) {
@@ -2699,9 +2689,9 @@ fn intransitive(g: &mut Game) -> Goto {
             }
             if g.obj == Obj::Nothing {
                 println!("There is nothing here with a lock!");
-                return Goto::Minor;
+                Goto::Minor
             } else {
-                return Goto::Transitive;
+                Goto::Transitive
             }
         }
         Act::Read if !g.dark() => {
@@ -2715,13 +2705,13 @@ fn intransitive(g: &mut Game) -> Goto {
                 g.obj = Obj::Oyster;
             }
             if g.obj != Obj::Nothing {
-                return Goto::Transitive;
+                Goto::Transitive
             } else {
-                return Goto::GetObject;
+                Goto::GetObject
             }
         }
         Act::Inventory => {
-            if g.l2o[Loc::Inhand].len() == 0 {
+            if g.l2o[Loc::Inhand].is_empty() {
                 println!("You're not carrying anything.");
             } else {
                 println!("You are currently holding the following:");
@@ -2750,13 +2740,13 @@ fn intransitive(g: &mut Game) -> Goto {
             if g.toting(Obj::Bear) {
                 println!("You are being followed by a very large, tame bear.");
             }
-            return Goto::Minor;
+            Goto::Minor
         }
         Act::Brief => {
             g.interval = 10000;
             g.look_count = 3;
             println!("Okay, from now on I'll only describe a place in full the first time you come to it. To get the full description, say \"LOOK\".");
-            return Goto::Minor;
+            Goto::Minor
         }
         Act::Score => {
             println!(
@@ -2764,16 +2754,16 @@ fn intransitive(g: &mut Game) -> Goto {
                 score(g) - 4
             );
             if !yes("Do you indeed wish to quit now?", OK, OK) {
-                return Goto::Minor;
+                Goto::Minor
             } else {
-                return Goto::GiveUp;
+                Goto::GiveUp
             }
         }
         Act::Quit => {
             if !yes("Do you really wish to quit now?", OK, OK) {
-                return Goto::Minor;
+                Goto::Minor
             } else {
-                return Goto::Quit;
+                Goto::Quit
             }
         }
         Act::Feefie => {
@@ -2809,20 +2799,21 @@ fn intransitive(g: &mut Game) -> Goto {
                 println!("{}", object_notes(Obj::Eggs, g.k as i8));
                 return Goto::Minor;
             }
-            if g.foobar == 0 {
-                print_default_msg(Act::Wave); // nada sucede
-                return Goto::Minor;
-            }
-            println!("What's the matter, can't you read? Now you'd best start over.");
-            return Goto::Minor;
+            println!(
+                "{}",
+                if g.foobar == 0 {
+                    default_msg(Act::Wave) // nada sucede
+                } else {
+                    "What's the matter, can't you read? Now you'd best start over."
+                }
+            );
+            Goto::Minor
         }
         _ => {
             println!("{} what?", g.words[0]);
-            return Goto::Cycle;
+            Goto::Cycle
         }
     }
-
-    Goto::Minor
 }
 
 fn score(g: &Game) -> i32 {
@@ -3083,7 +3074,7 @@ fn go_for_it(g: &mut Game) -> Goto {
         println!("{s}")
     }
 
-    return Goto::Major;
+    Goto::Major
 }
 
 fn main() {
