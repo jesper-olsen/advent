@@ -1,10 +1,10 @@
-# Collosal Cave Adventure
+# Colosal Cave Adventure
 
 Rusty port of Will Crowther and Don Woods' classic text adventure game from 1977.
 
 
 Credits:
-* [Collosal Cave Adventure](https://en.wikipedia.org/wiki/Colossal_Cave_Adventure/). 
+* [Colosal Cave Adventure](https://en.wikipedia.org/wiki/Colossal_Cave_Adventure/). 
 
 * [Adventure - CWEB port - Donald Knuth](https://www-cs-faculty.stanford.edu/~knuth/programs/advent.w.gz)
 
