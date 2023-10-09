@@ -797,10 +797,6 @@ const fn init_movable() -> [bool; N_OBJECTS] {
     a
 }
 
-fn is_treasure(obj: Obj) -> bool {
-    obj >= Obj::Gold
-}
-
 const fn init_obj_props() -> [i8; N_OBJECTS] {
     let mut o2p = [0i8; N_OBJECTS];
     let mut i = Obj::Gold as usize;
@@ -1658,7 +1654,7 @@ fn pre_parse(g: &mut Game) -> Goto {
         if let Word::Object(o) = Word::from_string(&g.words[1]) {
             if (g.words[0] == "water" || g.words[0] == "oil")
                 && matches!(o, Obj::Plant | Obj::Door)
-                && g.is_at(o, g.loc)
+                && g.is_here(o)
             {
                 g.words[1] = String::from("pour");
             }
@@ -2066,7 +2062,7 @@ fn transitive(g: &mut Game) -> Goto {
                 g.remove(Obj::Snake);
                 g.prop[Obj::Snake]=1; // used in conditional instructions 
                 ""
-            } else if g.is_at(Obj::Dragon, g.loc) && g.prop[Obj::Dragon]==0 {
+            } else if g.is_here(Obj::Dragon) && g.prop[Obj::Dragon]==0 {
                 g.remove(Obj::Bird);
                 g.prop[Obj::Bird]=0;
                 if g.is_at(Obj::Snake, Loc::Hmk) {
@@ -2081,7 +2077,7 @@ fn transitive(g: &mut Game) -> Goto {
 
         Act::Drop if g.obj==Obj::Vase && g.loc!=Loc::Soft => {
             //⟨ Check special cases for dropping the vase 121 ⟩ ≡ 
-            if g.is_at(Obj::Pillow, g.loc) {
+            if g.is_here(Obj::Pillow) {
                 g.prop[Obj::Vase]=0;
             } else {
                 g.is_movable[Obj::Vase] = false;
@@ -2090,7 +2086,7 @@ fn transitive(g: &mut Game) -> Goto {
             Obj::Vase.note(g.prop[Obj::Vase])
         }
 
-        Act::Drop if g.obj==Obj::Bear && g.is_at(Obj::Troll, g.loc) => {
+        Act::Drop if g.obj==Obj::Bear && g.is_here(Obj::Troll) => {
             //⟨ Chase the troll away 119 ⟩ ≡ 
             g.remove(Obj::Troll);
             g.drop(Obj::Troll2, Loc::Swside);
@@ -2116,9 +2112,11 @@ fn transitive(g: &mut Game) -> Goto {
                 g.dkill+=1;
                 if g.dkill ==1 {
                     "You killed a little dwarf. The body vanishes in a cloud of greasy black smoke."
-                } else {"You␣killed␣a␣little␣dwarf."}
+                } else {
+                    "You killed a little dwarf."
+                }
             } else {
-             "You attack a little dwarf, but he dodges out of the way."
+                "You attack a little dwarf, but he dodges out of the way."
             };
                println!("{s}");
               g.drop(Obj::Axe,g.loc);
@@ -2133,7 +2131,7 @@ fn transitive(g: &mut Game) -> Goto {
                 ""
             }
 
-        Act::Toss if g.toting(g.obj) && is_treasure(g.obj) && g.is_at(Obj::Troll, g.loc) => {
+        Act::Toss if g.toting(g.obj) && g.obj.treasure() && g.is_here(Obj::Troll) => {
             //⟨ Snarf a treasure for the troll 124 ⟩ ≡ 
             g.drop(g.obj, Loc::Limbo);
             g.remove(Obj::Troll);
@@ -2157,9 +2155,9 @@ fn transitive(g: &mut Game) -> Goto {
         }
 
         Act::Toss if g.toting(g.obj) && g.obj==Obj::Axe => {
-            let s=if g.is_at(Obj::Dragon, g.loc) && g.prop[Obj::Dragon] == 0 {
+            let s=if g.is_here(Obj::Dragon) && g.prop[Obj::Dragon] == 0 {
                 "The axe bounces harmlessly off the dragon's thick scales." 
-            } else if g.is_at(Obj::Troll,g.loc) {
+            } else if g.is_here(Obj::Troll) {
                 "The troll deftly catches the axe, examines it carefully, and tosses it back, declaring, \"Good workmanship, but it's not valuable enough.\""
             } else if g.here(Obj::Bear) && g.prop[Obj::Bear]==0 {
                 //⟨Throw the axe at the bear 123⟩ ≡
@@ -2188,11 +2186,11 @@ fn transitive(g: &mut Game) -> Goto {
                      g.k+=1;
                      g.obj=Obj::Snake;
                  }
-                 if g.is_at(Obj::Dragon,g.loc) && g.prop[Obj::Dragon]==0 {
+                 if g.is_here(Obj::Dragon) && g.prop[Obj::Dragon]==0 {
                      g.k+=1;
                      g.obj=Obj::Dragon;
                  }
-                 if g.is_at(Obj::Troll, g.loc) {
+                 if g.is_here(Obj::Troll) {
                      g.k+=1;
                      g.obj=Obj::Troll;
                  }

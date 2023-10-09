@@ -33,6 +33,10 @@ impl<T> IndexMut<Obj> for [T; N_OBJECTS] {
 }
 
 impl Obj {
+    pub fn treasure(self) -> bool {
+        self >= Obj::Gold
+    }
+
     pub fn name(self) -> &'static str {
         match self {
             Rug => "Persian rug",
