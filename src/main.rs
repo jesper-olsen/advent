@@ -44,6 +44,12 @@ static DEATH_WISHES: [&str; 2*MAX_DEATHS] = [
 "Now you've really done it! I'm out of orange smoke! You don't expect me to do a decent reincarnation without any orange smoke, do you?",
 "Okay, if you're so smart, do it yourself! I'm leaving!"];
 
+fn printif(s: &str) {
+    if s != "" {
+        println!("{s}")
+    }
+}
+
 fn get_input() -> String {
     let mut s = String::new();
     io::stdin().read_line(&mut s).ok();
@@ -1304,9 +1310,7 @@ fn make_pirate_track_you(g: &mut Game) {
         } else {
             ""
         };
-        if s != "" {
-            println!("{s}")
-        };
+        printif(s);
     }
 }
 
@@ -2387,9 +2391,7 @@ fn transitive(g: &mut Game) -> Goto {
         }
         _ => g.verb.msg(),
     };
-    if s != "" {
-        println!("{s}");
-    }
+    printif(s);
 
     Goto::Minor
 }
@@ -2655,9 +2657,7 @@ fn commence(g: &mut Game) -> Goto {
                 } else {
                     o.note(g.prop[o])
                 };
-                if s != "" {
-                    println!("{s}");
-                }
+                printif(s);
             }
         }
     }
@@ -2707,9 +2707,7 @@ fn try_move(g: &mut Game) -> Goto {
            return Goto::GoForIt
          }
     };
-    if s != "" {
-        println!("{s}")
-    }
+    printif(s);
     Goto::Major
 }
 
@@ -2802,7 +2800,6 @@ fn go_for_it(g: &mut Game) -> Goto {
                 g.is_movable[Obj::Bear] = false;
                 g.prop[Obj::Bear] = 3; // the bear is dead
                 for o in [Obj::Spices, Obj::Chain] {
-                    //if g.prop[o] < 0 && g.place(o) >= Loc::Neside {
                     if g.prop[o] < 0 && g.place(o).iter().any(|p| *p >= Loc::Neside) {
                         g.lost_treasures += 1;
                     }
@@ -2814,9 +2811,7 @@ fn go_for_it(g: &mut Game) -> Goto {
         }
         _ => "",
     };
-    if s != "" {
-        println!("{s}")
-    }
+    printif(s);
 
     Goto::Major
 }
