@@ -1,6 +1,6 @@
 # Colosal Cave Adventure
 
-Rusty port of Will Crowther and Don Woods' classic text adventure game from 1977.
+Rusty port of Will Crowther and Don Woods' classic text adventure from 1977.
 
 
 Credits:

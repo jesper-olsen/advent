@@ -1495,8 +1495,7 @@ fn cycle(g: &mut Game) -> Goto {
 
     if g.closed {
         if g.prop[Obj::Oyster] < 0 && g.toting(Obj::Oyster) {
-            let note = object_notes(Obj::Oyster, g.prop[Obj::Oyster]);
-            println!("{note}");
+            println!("{}", Obj::Oyster.note(g.prop[Obj::Oyster]));
         }
         for o in g.l2o[Loc::Inhand].iter() {
             if g.prop[*o] < 0 {
@@ -1836,7 +1835,7 @@ fn transitive(g: &mut Game) -> Goto {
         }
         Act::Wave if g.obj==Obj::Rod && g.toting(Obj::Rod) && matches!(g.loc, Loc::Efiss | Loc::Wfiss) && !g.closing() => {
             g.prop[Obj::Crystal] = 1 - g.prop[Obj::Crystal];
-            object_notes(Obj::Crystal, 2 - g.prop[Obj::Crystal])
+            Obj::Crystal.note(2 - g.prop[Obj::Crystal])
         }
         Act::Wave if !g.toting(g.obj) =>
                Act::Drop.msg(), // don't carry it 
@@ -1946,7 +1945,7 @@ fn transitive(g: &mut Game) -> Goto {
                     if g.obj != Obj::Water {
                         "The plant indignantly shakes the oil off its leaves and asks, \"Water?\""
                     } else {
-                        println!("{}", object_notes(Obj::Plant, g.prop[Obj::Plant]));
+                        println!("{}", Obj::Plant.note(g.prop[Obj::Plant]));
                         g.prop[Obj::Plant] += 2;
                         if g.prop[Obj::Plant] > 4 {
                             g.prop[Obj::Plant] = 0;
@@ -2056,7 +2055,7 @@ fn transitive(g: &mut Game) -> Goto {
             g.remove(Obj::Coins);
             g.drop(Obj::Batteries, g.loc);
             g.prop[Obj::Batteries]=0;
-            object_notes(Obj::Batteries,0)
+            Obj::Batteries.note(0)
         }
 
         Act::Drop if g.obj==Obj::Bird =>
@@ -2088,7 +2087,7 @@ fn transitive(g: &mut Game) -> Goto {
                 g.is_movable[Obj::Vase] = false;
                 g.prop[Obj::Vase]=2;
             };
-            object_notes(Obj::Vase, g.prop[Obj::Vase])
+            Obj::Vase.note(g.prop[Obj::Vase])
         }
 
         Act::Drop if g.obj==Obj::Bear && g.is_at(Obj::Troll, g.loc) => {
@@ -2252,7 +2251,7 @@ fn transitive(g: &mut Game) -> Goto {
                     }
                     g.loc = Loc::Scan2;
                     stay_put(g);
-                    object_notes(Obj::Dragon, 1)
+                    Obj::Dragon.note(1)
                 }
                 Obj::Dragon if g.prop[Obj::Dragon]!=0 =>
                    "For crying out loud, the poor thing is already dead!",
@@ -2465,21 +2464,21 @@ fn intransitive(g: &mut Game) -> Goto {
                     match *o {
                         Obj::Bear => (),
                         Obj::Cage => {
-                            println!(" {}", object_name(*o));
+                            println!(" {}", o.name());
                             if g.prop[Obj::Bird] == 1 {
-                                println!(" {}", object_name(Obj::Bird))
+                                println!(" {}", Obj::Bird.name())
                             }
                         }
                         Obj::Bottle => {
-                            println!(" {}", object_name(*o));
+                            println!(" {}", o.name());
                             match g.prop[Obj::Bottle] {
-                                0 => println!(" {}", object_name(Obj::Water)),
+                                0 => println!(" {}", Obj::Water.name()),
                                 1 => (),
-                                2 => println!(" {}", object_name(Obj::Oil)),
+                                2 => println!(" {}", Obj::Oil.name()),
                                 _ => panic!("Not valid"),
                             }
                         }
-                        _ => println!(" {}", object_name(*o)),
+                        _ => println!(" {}", o.name()),
                     }
                 }
             }
@@ -2542,7 +2541,7 @@ fn intransitive(g: &mut Game) -> Goto {
                 };
                 g.remove(Obj::Eggs);
                 g.l2o[Loc::Giant].push(Obj::Eggs);
-                println!("{}", object_notes(Obj::Eggs, g.k as i8));
+                println!("{}", Obj::Eggs.note(g.k as i8));
                 return Goto::Minor;
             }
             println!(
@@ -2654,9 +2653,9 @@ fn commence(g: &mut Game) -> Goto {
             }
             if o != Obj::Treads || g.toting(Obj::Gold) {
                 let s = if o == Obj::Treads && g.loc == Loc::Emist {
-                    object_notes(o, g.prop[o] + 1)
+                    o.note(g.prop[o] + 1)
                 } else {
-                    object_notes(o, g.prop[o])
+                    o.note(g.prop[o])
                 };
                 if s != "" {
                     println!("{s}");
@@ -2785,7 +2784,7 @@ fn go_for_it(g: &mut Game) -> Goto {
             g.put(Obj::Bridge, Loc::Swside);
             g.put(Obj::Bridge, Loc::Neside);
             g.newloc = g.loc;
-            object_notes(Obj::Troll, 1)
+            Obj::Troll.note(1)
         }
         Loc::Troll => {
             //⟨ Cross troll bridge if possible 151 ⟩ ≡
