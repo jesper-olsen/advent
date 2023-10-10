@@ -1146,7 +1146,6 @@ enum Goto {
     GetObject,
     Cycle,
     Death,
-    PitchDark,
     TryMove,
     Commence,
     Major,
@@ -2617,7 +2616,7 @@ fn commence(g: &mut Game) -> Goto {
     }
     let s = if g.dark() && !is_forced(g.loc) {
         if g.was_dark && pct(35) {
-            return Goto::PitchDark;
+            return pitch_dark(g)
         }
         PITCH_DARK_MSG
     } else if short_desc(g.loc) != "" || g.visits() % g.interval == 0 {
@@ -2845,7 +2844,6 @@ fn main() {
             Goto::Minor => minor(&mut g),
             Goto::Cycle => cycle(&mut g),
             Goto::Death => death(&mut g),
-            Goto::PitchDark => pitch_dark(&mut g),
             Goto::Commence => commence(&mut g),
             Goto::Transitive => transitive(&mut g),
             Goto::Intransitive => intransitive(&mut g),

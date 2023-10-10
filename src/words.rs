@@ -22,6 +22,7 @@ impl Word {
         "east" | "e" => Word::Motion(Mot::E),
         "west" | "w" => Word::Motion(Mot::W),
         "ne" => Word::Motion(Mot::NE),
+        "nw" => Word::Motion(Mot::NW),
         "se" => Word::Motion(Mot::SE),
         "sw" => Word::Motion(Mot::SW),
         "upwar" | "up" | "u" | "above" | "ascen" => Word::Motion(Mot::U),
