@@ -44,6 +44,10 @@ static DEATH_WISHES: [&str; 2*MAX_DEATHS] = [
 "Now you've really done it! I'm out of orange smoke! You don't expect me to do a decent reincarnation without any orange smoke, do you?",
 "Okay, if you're so smart, do it yourself! I'm leaving!"];
 
+fn debug(g: &Game, m: &str) {
+    println!("###{m} l: {:?} v: {:?} o: {:?}", g.loc, g.verb, g.obj)
+}
+
 fn printif(s: &str) {
     if s != "" {
         println!("{s}")
@@ -63,16 +67,12 @@ fn yes(q: &str, y: &str, n: &str) -> bool {
         if let Some(c) = get_input().chars().next() {
             match c {
                 'Y' | 'y' => {
-                    if y != "" {
-                        println!("{y}");
-                        return true;
-                    }
+                    printif(y);
+                    return true;
                 }
                 'N' | 'n' => {
-                    if n != "" {
-                        println!("{n}");
-                        return false;
-                    }
+                    printif(n);
+                    return false;
                 }
                 _ => println!(" Please answer Yes or No."),
             }
@@ -254,15 +254,15 @@ impl Game {
 
             (Loc::Efiss, Hall | E) => Loc::Emist,
 
-            (Loc::Efiss, Jump) if self.prop[Obj::Crystal] == 0 => Loc::Sayit2,
-            (Loc::Efiss, Forward) if self.prop[Obj::Crystal] == 1 => Loc::Lose,
-            (Loc::Efiss, Over | Across | W | Cross) if self.prop[Obj::Crystal] == 1 => Loc::Sayit3,
+            (Loc::Efiss, Jump) if self.prop[Obj::Crystal] != 0 => Loc::Sayit2,
+            (Loc::Efiss, Forward) if self.prop[Obj::Crystal] != 1 => Loc::Lose,
+            (Loc::Efiss, Over | Across | W | Cross) if self.prop[Obj::Crystal] != 1 => Loc::Sayit3,
             (Loc::Efiss, Over) => Loc::Wfiss,
 
-            (Loc::Wfiss, Jump) if self.prop[Obj::Crystal] == 0 => Loc::Sayit2,
+            (Loc::Wfiss, Jump) if self.prop[Obj::Crystal] != 0 => Loc::Sayit2,
 
-            (Loc::Wfiss, Forward) if self.prop[Obj::Crystal] == 1 => Loc::Lose,
-            (Loc::Wfiss, Over | Across | E | Cross) if self.prop[Obj::Crystal] == 1 => Loc::Sayit3,
+            (Loc::Wfiss, Forward) if self.prop[Obj::Crystal] != 1 => Loc::Lose,
+            (Loc::Wfiss, Over | Across | E | Cross) if self.prop[Obj::Crystal] != 1 => Loc::Sayit3,
             (Loc::Wfiss, Over) => Loc::Efiss,
             (Loc::Wfiss, N) => Loc::Thru,
             (Loc::Wfiss, W) => Loc::Wmist,
@@ -788,11 +788,11 @@ fn is_forced(loc: Loc) -> bool {
 
 const fn init_movable() -> [bool; N_OBJECTS] {
     use Obj::*;
-    #[rustfmt::skip]
-    let l=[Gold, Diamonds, Silver, Jewels, Coins, Chest, Eggs, Trident,
-     Vase, Emerald, Pyramid,Pearl, Spices, Batteries, Axe,
-     Oil, Water, Bottle, Food, Knife, Mag, Oyster, Clam,
-     Pillow, Bird, Rod2, Rod, Cage, Lamp, Keys];
+    let l = [
+        Gold, Diamonds, Silver, Jewels, Coins, Chest, Eggs, Trident, Vase, Emerald, Pyramid, Pearl,
+        Spices, Batteries, Axe, Oil, Water, Bottle, Food, Knife, Mag, Oyster, Clam, Pillow, Bird,
+        Rod2, Rod, Cage, Lamp, Keys,
+    ];
 
     let mut a = [false; N_OBJECTS];
     let mut i = 0;
@@ -1315,6 +1315,7 @@ fn make_pirate_track_you(g: &mut Game) {
 }
 
 fn major(g: &mut Game) -> Goto {
+    debug(g, "major");
     //⟨ Check for interference with the proposed move to newloc 153 ⟩ ≡
     if g.closing() && g.newloc < MIN_IN_CAVE && g.newloc != Loc::Limbo {
         g.newloc = g.loc;
@@ -1447,6 +1448,7 @@ fn major(g: &mut Game) -> Goto {
 }
 
 fn minor(g: &mut Game) -> Goto {
+    debug(g, "minor");
     //⟨ Get user input; goto try move if motion is requested 76 ⟩ ≡
     g.verb = Act::Abstain;
     g.oldverb = Act::Abstain;
@@ -1456,6 +1458,7 @@ fn minor(g: &mut Game) -> Goto {
 }
 
 fn cycle(g: &mut Game) -> Goto {
+    debug(g, "cycle");
     //⟨ Check if a hint applies, and give it if requested 195 ⟩ ≡
     let bc = g.here(Obj::Bird) && g.oldobj == Obj::Bird && g.toting(Obj::Rod);
     let HINT_THRESH = [0, 0, 4, 5, 8, 75, 25, 20]; // turns
@@ -1510,6 +1513,7 @@ fn cycle(g: &mut Game) -> Goto {
 }
 
 fn pre_parse(g: &mut Game) -> Goto {
+    debug(g, "pre_parse");
     g.turns += 1;
     //⟨ Handle special cases of input 82 ⟩ ≡
     if g.verb == Act::Say {
@@ -1669,6 +1673,7 @@ fn pre_parse(g: &mut Game) -> Goto {
 }
 
 fn parse(g: &mut Game) -> Goto {
+    debug(g, "parse");
     //⟨ Give advice about going WEST 80 ⟩ ≡
     if g.words[0] == "west" {
         g.west_count += 1;
@@ -1686,6 +1691,7 @@ fn parse(g: &mut Game) -> Goto {
 }
 
 fn branch(g: &mut Game) -> Goto {
+    debug(g, "branch");
     match &g.w {
         Word::None => {
             println!("Sorry, I don't know the word \"{}\".", g.words[0]);
@@ -1800,6 +1806,7 @@ fn change_to(g: &mut Game, verb: Act) -> Goto {
 }
 
 fn transitive(g: &mut Game) -> Goto {
+    debug(g, "transitive");
     g.k = 0;
     let s=match g.verb {
         //⟨ Handle cases of transitive verbs and continue 97 ⟩ ≡
@@ -2397,6 +2404,7 @@ fn transitive(g: &mut Game) -> Goto {
 }
 
 fn intransitive(g: &mut Game) -> Goto {
+    debug(g, "intransitive");
     g.k = 0;
     match g.verb {
         Act::Go | Act::Relax => {
@@ -2601,6 +2609,7 @@ fn score(g: &Game) -> i32 {
 }
 
 fn commence(g: &mut Game) -> Goto {
+    debug(g, "commence");
     //⟨ Report the current state 86 ⟩ ≡
     if g.loc == Loc::Limbo {
         return Goto::Death;
@@ -2666,6 +2675,7 @@ fn commence(g: &mut Game) -> Goto {
 }
 
 fn try_move(g: &mut Game) -> Goto {
+    debug(g, "try_move");
     //⟨ Handle special motion words 140 ⟩ ≡
     g.newloc = g.loc; // by default we will stay put
 
@@ -2712,6 +2722,7 @@ fn try_move(g: &mut Game) -> Goto {
 }
 
 fn go_for_it(g: &mut Game) -> Goto {
+    debug(g, "go_for_it");
     g.oldoldloc = g.oldloc;
     g.oldloc = g.loc;
 
