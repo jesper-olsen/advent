@@ -1144,7 +1144,6 @@ impl Game {
 enum Goto {
     Branch,
     GetObject,
-    GiveUp,
     Cycle,
     Death,
     PitchDark,
@@ -1628,7 +1627,8 @@ fn pre_parse(g: &mut Game) -> Goto {
                 }
             } else if g.limit < 0 && g.loc < MIN_IN_CAVE {
                 println!("There's not much point in wandering around out here, and you can't explore the cave without a lamp. So let's just call it a day.");
-                return Goto::GiveUp;
+                g.gave_up=true;
+                quit(g)
             } else if g.limit <= 30 && !g.warned && g.here(Obj::Lamp) {
                 let s = if g.prop[Obj::Batteries] == 1 {
                     ", and you're out of spare batteries. You'd best start wrapping this up."
@@ -2507,18 +2507,18 @@ fn intransitive(g: &mut Game) -> Goto {
                 "If you were to quit now, you would score {} out of a possible {MAX_SCORE}.",
                 score(g) - 4
             );
-            if !yes("Do you indeed wish to quit now?", OK, OK) {
-                Goto::Minor
-            } else {
-                Goto::GiveUp
+            g.gave_up=yes("Do you indeed wish to quit now?", OK, OK); 
+            if g.gave_up {
+                quit(g);
             }
+            Goto::Minor
         }
         Act::Quit => {
-            if !yes("Do you really wish to quit now?", OK, OK) {
-                Goto::Minor
-            } else {
-                quit(g)
+            g.gave_up=yes("Do you really wish to quit now?", OK, OK);
+            if g.gave_up {
+                quit(g);
             }
+            Goto::Minor
         }
         Act::Feefie => {
             //TODO - end guard?
@@ -2840,7 +2840,6 @@ fn main() {
             Goto::Branch => branch(&mut g),
             Goto::GetObject => get_object(&g),
             Goto::TryMove => try_move(&mut g),
-            Goto::GiveUp => major(&mut g),
             Goto::CantSeeIt => cant_see_it(&mut g),
             Goto::Major => major(&mut g),
             Goto::Minor => minor(&mut g),
