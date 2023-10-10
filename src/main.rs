@@ -45,7 +45,7 @@ static DEATH_WISHES: [&str; 2*MAX_DEATHS] = [
 "Okay, if you're so smart, do it yourself! I'm leaving!"];
 
 fn debug(g: &Game, m: &str) {
-    println!("###{m} l: {:?} v: {:?} o: {:?}", g.loc, g.verb, g.obj)
+    println!("###{m} l: {:?} m: {:?} v: {:?} o: {:?} d: {:?}", g.loc, g.mot, g.verb, g.obj, g.dflag)
 }
 
 fn printif(s: &str) {
