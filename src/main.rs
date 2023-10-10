@@ -45,7 +45,10 @@ static DEATH_WISHES: [&str; 2*MAX_DEATHS] = [
 "Okay, if you're so smart, do it yourself! I'm leaving!"];
 
 fn debug(g: &Game, m: &str) {
-    println!("###{m} l: {:?} m: {:?} v: {:?} o: {:?} d: {:?}", g.loc, g.mot, g.verb, g.obj, g.dflag)
+    println!(
+        "###{m} l: {:?} m: {:?} v: {:?} o: {:?} d: {:?}",
+        g.loc, g.mot, g.verb, g.obj, g.dflag
+    )
 }
 
 fn printif(s: &str) {
@@ -1147,7 +1150,6 @@ enum Goto {
     Death,
     PitchDark,
     TryMove,
-    Quit,
     Commence,
     Major,
     Minor,
@@ -1159,7 +1161,7 @@ enum Goto {
     CantSeeIt,
 }
 
-fn quit(g: &Game) -> Goto {
+fn quit(g: &Game) -> ! {
     //⟨ Print the score and say adieu 198 ⟩=;
     static CLASS_SCORE: [i32; 9] = [35, 100, 130, 200, 250, 300, 330, 349, std::i32::MAX];
 
@@ -1204,7 +1206,7 @@ fn death(g: &mut Game) -> Goto {
     g.death_count += 1;
     if g.closing() {
         println!("It looks as though you're dead. Well, seeing as how it's so close to closing time anyway, let's just call it a day.");
-        return Goto::Quit;
+        quit(g)
     }
     if !yes(
         DEATH_WISHES[2 * g.death_count - 2],
@@ -1212,7 +1214,7 @@ fn death(g: &mut Game) -> Goto {
         OK,
     ) || g.death_count == MAX_DEATHS
     {
-        return Goto::Quit;
+        quit(g)
     }
 
     if g.toting(Obj::Lamp) {
@@ -1230,10 +1232,10 @@ fn death(g: &mut Game) -> Goto {
     Goto::Commence
 }
 
-fn pitch_dark(g: &mut Game) -> Goto {
+fn pitch_dark(g: &mut Game) -> ! {
     println!("You fell into a pit and broke every bone in your body!");
     g.oldoldloc = g.loc;
-    Goto::Quit
+    quit(g)
 }
 
 fn dwarves_upset() -> Goto {
@@ -1858,7 +1860,7 @@ fn transitive(g: &mut Game) -> Goto {
                 g.bonus=45;
                 "There is a loud explosion, and a twenty-foot hole appears in the far wall, burying the dwarves in the rubble. You march through the hole and find yourself in the main office, where a cheering band of friendly elves carry the conquering adventurer off into the sunset."
             });
-            return Goto::Quit;
+            quit(g)
         }
         Act::Rub if g.obj != Obj::Lamp => Act::Toss.msg(),
         Act::Find | Act::Inventory if g.toting(g.obj) => Act::Take.msg(),
@@ -2516,7 +2518,7 @@ fn intransitive(g: &mut Game) -> Goto {
             if !yes("Do you really wish to quit now?", OK, OK) {
                 Goto::Minor
             } else {
-                Goto::Quit
+                quit(g)
             }
         }
         Act::Feefie => {
@@ -2847,7 +2849,6 @@ fn main() {
             Goto::Cycle => cycle(&mut g),
             Goto::Death => death(&mut g),
             Goto::PitchDark => pitch_dark(&mut g),
-            Goto::Quit => quit(&g),
             Goto::Commence => commence(&mut g),
             Goto::Transitive => transitive(&mut g),
             Goto::Intransitive => intransitive(&mut g),
