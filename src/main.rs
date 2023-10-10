@@ -1142,7 +1142,6 @@ impl Game {
 }
 
 enum Goto {
-    DwarvesUpset,
     Branch,
     GetObject,
     GiveUp,
@@ -1225,22 +1224,22 @@ fn death(g: &mut Game) -> Goto {
         g.drop(o, g.oldoldloc);
     }
 
-    g.remove(Obj::Water);
+    g.remove(Obj::Water); // TODO do without Water & Oil objects?
     g.remove(Obj::Oil);
     g.loc = Loc::House;
     g.oldloc = Loc::House;
     Goto::Commence
 }
 
-fn pitch_dark(g: &mut Game) -> ! {
+fn pitch_dark(g: &mut Game) -> Goto {
     println!("You fell into a pit and broke every bone in your body!");
     g.oldoldloc = g.loc;
-    quit(g)
+    death(g)
 }
 
-fn dwarves_upset() -> Goto {
+fn dwarves_upset(g: &Game) -> ! {
     println!("The resulting ruckus has awakened the dwarves. There are now several threatening little dwarves in the room with you! Most of them throw knives at you! All of them get you!");
-    Goto::PitchDark
+    quit(g)
 }
 
 fn panic_at_closing_time(g: &mut Game) -> &str {
@@ -1880,7 +1879,7 @@ fn transitive(g: &mut Game) -> Goto {
         Act::Break if g.obj == Obj::Mirror => {
             if g.closed {
                 println!("You strike the mirror a resounding blow, whereupon it shatters into a myriad tiny fragments.");
-                return Goto::DwarvesUpset;
+                dwarves_upset(g)
             } else {
                 "It is too far up for you to reach"
             }
@@ -1895,7 +1894,7 @@ fn transitive(g: &mut Game) -> Goto {
 
         Act::Wake if g.closed && g.obj == Obj::Dwarf => {
             println!("You prod the nearest dwarf, who wakes up grumpily, takes one look at you, curses, and grabs for his axe.");
-            return Goto::DwarvesUpset;
+            dwarves_upset(g)
         }
 
         Act::On if g.here(Obj::Lamp) => {
@@ -2071,7 +2070,7 @@ fn transitive(g: &mut Game) -> Goto {
             //⟨ Check special cases for dropping the bird 120 ⟩ ≡ 
             if g.here(Obj::Snake) {
                 println!("The little bird attacks the green snake, and in an astounding flurry drives the snake away."); 
-                if g.closed {return Goto::DwarvesUpset};
+                if g.closed {dwarves_upset(g)};
                 g.remove(Obj::Snake);
                 g.prop[Obj::Snake]=1; // used in conditional instructions 
                 ""
@@ -2270,7 +2269,7 @@ fn transitive(g: &mut Game) -> Goto {
                    "The shell is very strong and impervious to attack.",
                 Obj::Snake =>
                    "Attacking the snake both doesn't work and is very dangerous.",
-                Obj::Dwarf if g.closed => return Goto::DwarvesUpset,
+                Obj::Dwarf if g.closed => dwarves_upset(g),
                 Obj::Dwarf => "With what? Your bare hands?",
                 Obj::Troll => "Trolls are close relatives with the rocks and have skin as tough as a rhinoceros hide. The troll fends off your blows effortlessly.",
                 Obj::Bear if g.prop[Obj::Bear]==0 =>
@@ -2838,7 +2837,6 @@ fn main() {
     let mut state = Goto::Major;
     loop {
         state = match state {
-            Goto::DwarvesUpset => dwarves_upset(),
             Goto::Branch => branch(&mut g),
             Goto::GetObject => get_object(&g),
             Goto::TryMove => try_move(&mut g),
