@@ -1334,8 +1334,8 @@ fn major(g: &mut Game) -> Goto {
     //⟨ Possibly move dwarves and the pirate 161 ⟩ ≡
     if g.loc <= MAX_PIRATE_LOC && g.loc != Loc::Limbo {
         match g.dflag {
-            0 if g.loc >= MIN_LOWER_LOC => g.dflag = 1,
-            1 if g.loc >= MIN_LOWER_LOC && pct(5) => {
+            0 => if g.loc >= MIN_LOWER_LOC {g.dflag = 1},
+            1 => if g.loc >= MIN_LOWER_LOC && pct(5) {
                 //⟨ Advance dflag to 2 162 ⟩ ≡
                 g.dflag = 2;
                 for _ in 0..2 {
