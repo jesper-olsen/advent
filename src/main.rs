@@ -107,7 +107,7 @@ const HINT_COST: [i32; N_HINTS] = [5, 10, 2, 2, 2, 4, 5, 3];
 
 static HINT: [(&str,&str); N_HINTS] = [
    ("Welcome to Adventure!! Would you like instructions?", 
-   "Somewhere nearby is␣Colossal Cave, where others have found fortunes in \
+   "Somewhere nearby is Colossal Cave, where others have found fortunes in \
    treasure and gold, though it is rumored that some who enter are never \
    seen again. Magic is said to work in the cave. I will be your eyes \
    and hands. Direct me with commands of one or two words. I should \
@@ -180,13 +180,8 @@ impl Game {
             (Loc::Valley, Depression) => Loc::Outside,
 
             (Loc::Forest, Valley | E | D) => Loc::Valley,
-            (Loc::Forest, Woods | Forward | N) => {
-                if pct(50) {
-                    Loc::Forest
-                } else {
-                    Loc::Woods
-                }
-            }
+            (Loc::Forest, Woods | Forward | N) if pct(50) => Loc::Forest,
+            (Loc::Forest, Woods | Forward | N) => Loc::Woods,
             (Loc::Forest, W | S) => Loc::Forest,
 
             (Loc::Woods, Road | N) => Loc::Road,
@@ -820,25 +815,25 @@ fn init_loc2obj_map() -> [Vec<Obj>; N_LOC] {
     const V: Vec<Obj> = Vec::<Obj>::new();
     let mut a = [V; N_LOC];
     for tup in [
-        (
-            Loc::Limbo,
-            vec![
-                Obj::Troll2,
-                Obj::Mirror,
-                Obj::Pearl,
-                Obj::Chest,
-                Obj::Batteries,
-                Obj::Message,
-                Obj::Pirate,
-                Obj::Axe,
-                Obj::Oil,
-                Obj::Water,
-                Obj::Knife,
-                Obj::Dwarf,
-                Obj::Oyster,
-                Obj::Rod2,
-            ],
-        ),
+        //(
+        //    Loc::Limbo,
+        //    vec![
+        //        Obj::Troll2,
+        //        Obj::Mirror,
+        //        Obj::Pearl,
+        //        Obj::Chest,
+        //        Obj::Batteries,
+        //        Obj::Message,
+        //        Obj::Pirate,
+        //        Obj::Axe,
+        //        Obj::Oil,
+        //        Obj::Water,
+        //        Obj::Knife,
+        //        Obj::Dwarf,
+        //        Obj::Oyster,
+        //        Obj::Rod2,
+        //    ],
+        //),
         (Loc::Scan3, vec![Obj::Rug, Obj::Dragon]),
         (Loc::Scan1, vec![Obj::Rug, Obj::Dragon]),
         (Loc::Neside, vec![Obj::Troll, Obj::Bridge]),
@@ -1252,7 +1247,8 @@ fn panic_at_closing_time(g: &mut Game) -> &str {
 fn pirate_not_spotted(g: &Game) -> bool {
     //#define pirate not spotted (place[MESSAGE] ≡ limbo)
     //TODO limbo vs empty
-    g.place(Obj::Message).is_empty() || g.is_at(Obj::Message, Loc::Limbo)
+    //g.place(Obj::Message).is_empty() || g.is_at(Obj::Message, Loc::Limbo)
+    g.place(Obj::Message).is_empty() 
 }
 
 fn too_easy(g: &Game, o: Obj) -> bool {
@@ -1332,24 +1328,30 @@ fn major(g: &mut Game) -> Goto {
     //⟨ Possibly move dwarves and the pirate 161 ⟩ ≡
     if g.loc <= MAX_PIRATE_LOC && g.loc != Loc::Limbo {
         match g.dflag {
-            0 => if g.loc >= MIN_LOWER_LOC {g.dflag = 1},
-            1 => if g.loc >= MIN_LOWER_LOC && pct(5) {
-                //⟨ Advance dflag to 2 162 ⟩ ≡
-                g.dflag = 2;
-                for _ in 0..2 {
-                    if pct(50) {
-                        g.dloc[1 + ran(ND)] = Loc::Limbo;
-                    }
+            0 => {
+                if g.loc >= MIN_LOWER_LOC {
+                    g.dflag = 1
                 }
+            }
+            1 => {
+                if g.loc >= MIN_LOWER_LOC && pct(5) {
+                    //⟨ Advance dflag to 2 162 ⟩ ≡
+                    g.dflag = 2;
+                    for _ in 0..2 {
+                        if pct(50) {
+                            g.dloc[1 + ran(ND)] = Loc::Limbo;
+                        }
+                    }
 
-                for j in 1..=ND {
-                    if g.dloc[j] == g.loc {
-                        g.dloc[j] = Loc::Nugget;
+                    for j in 1..=ND {
+                        if g.dloc[j] == g.loc {
+                            g.dloc[j] = Loc::Nugget;
+                        }
+                        g.odloc[j] = g.dloc[j];
                     }
-                    g.odloc[j] = g.dloc[j];
+                    println!("A little dwarf just walked around a corner, saw you, threw a little axe at you, cursed, and ran away. (The axe missed.)");
+                    g.drop(Obj::Axe, g.loc);
                 }
-                println!("A little dwarf just walked around a corner, saw you, threw a little axe at you, cursed, and ran away. (The axe missed.)");
-                g.drop(Obj::Axe, g.loc);
             }
             _ => {
                 //⟨ Move dwarves and the pirate 164 ⟩ ≡
@@ -1460,13 +1462,13 @@ fn cycle(g: &mut Game) -> Goto {
     debug(g, "cycle");
     //⟨ Check if a hint applies, and give it if requested 195 ⟩ ≡
     let bc = g.here(Obj::Bird) && g.oldobj == Obj::Bird && g.toting(Obj::Rod);
-    let HINT_THRESH = [0, 0, 4, 5, 8, 75, 25, 20]; // turns
+    let hint_thresh = [0, 0, 4, 5, 8, 75, 25, 20]; // turns
 
     for j in 2..N_HINTS {
         if !g.hinted[j] {
             if (condition(g.loc) & 2u16.pow(1 + j as u32)) == 0 {
                 g.hint_count[j] = 0;
-            } else if g.hint_count[j] >= HINT_THRESH[j] {
+            } else if g.hint_count[j] >= hint_thresh[j] {
                 if match j {
                     2 => g.prop[Obj::Grate] == 0 && !g.here(Obj::Keys),
                     3 if !bc => continue,
@@ -1626,12 +1628,13 @@ fn pre_parse(g: &mut Game) -> Goto {
                 }
             } else if g.limit < 0 && g.loc < MIN_IN_CAVE {
                 println!("There's not much point in wandering around out here, and you can't explore the cave without a lamp. So let's just call it a day.");
-                g.gave_up=true;
+                g.gave_up = true;
                 quit(g)
             } else if g.limit <= 30 && !g.warned && g.here(Obj::Lamp) {
                 let s = if g.prop[Obj::Batteries] == 1 {
                     ", and you're out of spare batteries. You'd best start wrapping this up."
-                } else if g.is_at(Obj::Batteries, Loc::Limbo) {
+                //} else if g.is_at(Obj::Batteries, Loc::Limbo) {
+                } else if g.place(Obj::Batteries).is_empty() {
                     //TODO - Limbo or removed?
                     ". You'd best start wrapping this up, unless you can find some fresh batteries. I seem to recall that there's a vending machine in the maze. Bring some coins with you."
                 } else {
@@ -2090,6 +2093,7 @@ fn transitive(g: &mut Game) -> Goto {
             //⟨ Check special cases for dropping the vase 121 ⟩ ≡ 
             if g.is_here(Obj::Pillow) {
                 g.prop[Obj::Vase]=0;
+                g.drop(Obj::Vase, g.loc);
             } else {
                 g.is_movable[Obj::Vase] = false;
                 g.prop[Obj::Vase]=2;
@@ -2144,7 +2148,8 @@ fn transitive(g: &mut Game) -> Goto {
 
         Act::Toss if g.toting(g.obj) && g.obj.treasure() && g.is_here(Obj::Troll) => {
             //⟨ Snarf a treasure for the troll 124 ⟩ ≡ 
-            g.drop(g.obj, Loc::Limbo);
+            //g.drop(g.obj, Loc::Limbo);
+            g.remove(g.obj);
             g.remove(Obj::Troll);
             g.drop(Obj::Troll2,Loc::Swside);
             g.drop(Obj::Troll2,Loc::Neside);
@@ -2506,14 +2511,14 @@ fn intransitive(g: &mut Game) -> Goto {
                 "If you were to quit now, you would score {} out of a possible {MAX_SCORE}.",
                 score(g) - 4
             );
-            g.gave_up=yes("Do you indeed wish to quit now?", OK, OK); 
+            g.gave_up = yes("Do you indeed wish to quit now?", OK, OK);
             if g.gave_up {
                 quit(g);
             }
             Goto::Minor
         }
         Act::Quit => {
-            g.gave_up=yes("Do you really wish to quit now?", OK, OK);
+            g.gave_up = yes("Do you really wish to quit now?", OK, OK);
             if g.gave_up {
                 quit(g);
             }
@@ -2536,8 +2541,10 @@ fn intransitive(g: &mut Game) -> Goto {
                     Act::Wave.print_msg(); // nada sucede
                     return Goto::Minor;
                 }
-                if g.is_at(Obj::Eggs, Loc::Limbo)
-                    && g.is_at(Obj::Troll, Loc::Limbo)
+                //if g.is_at(Obj::Eggs, Loc::Limbo)
+                if g.place(Obj::Eggs).is_empty()
+                    //&& g.is_at(Obj::Troll, Loc::Limbo)
+                    && g.place(Obj::Troll).is_empty()
                     && g.prop[Obj::Troll] == 0
                 {
                     g.prop[Obj::Troll] = 1;
@@ -2616,7 +2623,7 @@ fn commence(g: &mut Game) -> Goto {
     }
     let s = if g.dark() && !is_forced(g.loc) {
         if g.was_dark && pct(35) {
-            return pitch_dark(g)
+            return pitch_dark(g);
         }
         PITCH_DARK_MSG
     } else if short_desc(g.loc) != "" || g.visits() % g.interval == 0 {
