@@ -255,7 +255,7 @@ impl Game {
             (Loc::Efiss, Jump) if self.prop[Obj::Crystal] != 0 => Loc::Sayit2,
             (Loc::Efiss, Forward) if self.prop[Obj::Crystal] != 1 => Loc::Lose,
             (Loc::Efiss, Over | Across | W | Cross) if self.prop[Obj::Crystal] != 1 => Loc::Sayit3,
-            (Loc::Efiss, Over) => Loc::Wfiss,
+            (Loc::Efiss, Over | Across | W | Cross) => Loc::Wfiss,
 
             (Loc::Wfiss, Jump) if self.prop[Obj::Crystal] != 0 => Loc::Sayit2,
 
@@ -1021,7 +1021,6 @@ impl Game {
 
     fn holding(&self) -> usize {
         let mut n = self.l2o[Loc::Inhand].len();
-        //TODO - bird+cage, bottle+water/oil
         if self.toting(Obj::Cage) && self.prop[Obj::Bird] == 1 {
             n += 1;
         }
