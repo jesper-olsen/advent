@@ -46,15 +46,12 @@ static DEATH_WISHES: [&str; 2*MAX_DEATHS] = [
 
 fn debug(g: &Game, m: &str) {
     println!(
-        "###{m} l: {:?} m: {:?} v: {:?} o: {:?} d: {:?} troll {}/{:?}, k:{}",
+        "###{m} l: {:?} t: {} Rod2:{:?}, clock1:{} clock2:{}",
         g.loc,
-        g.mot,
-        g.verb,
-        g.obj,
-        g.dflag,
-        g.prop[Obj::Troll],
-        g.place(Obj::Troll),
-        g.k
+        g.tally,
+        g.place(Obj::Rod2),
+        g.clock1,
+        g.clock2
     )
 }
 
@@ -925,7 +922,7 @@ struct Game {
     obj: Obj,
     oldobj: Obj,
     turns: u32,
-    tally: u8,
+    tally: u8,            // treasures not seen yet
     lost_treasures: u8,
     hint_count: [u16; N_HINTS],
     hinted: [bool; N_HINTS],
@@ -2523,8 +2520,7 @@ fn intransitive(g: &mut Game) -> Goto {
         }
         Act::Feefie => {
             //TODO - end guard?
-            while g.words[0] == INCANTATION[g.k as usize] {
-                println!("yes! {} {}", g.k, g.foobar);
+            while g.words[0] != INCANTATION[g.k as usize] {
                 g.k += 1;
             }
             if g.foobar == -g.k {
