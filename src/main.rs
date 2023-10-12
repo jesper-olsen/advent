@@ -46,8 +46,15 @@ static DEATH_WISHES: [&str; 2*MAX_DEATHS] = [
 
 fn debug(g: &Game, m: &str) {
     println!(
-        "###{m} l: {:?} m: {:?} v: {:?} o: {:?} d: {:?}",
-        g.loc, g.mot, g.verb, g.obj, g.dflag
+        "###{m} l: {:?} m: {:?} v: {:?} o: {:?} d: {:?} troll {}/{:?}, k:{}",
+        g.loc,
+        g.mot,
+        g.verb,
+        g.obj,
+        g.dflag,
+        g.prop[Obj::Troll],
+        g.place(Obj::Troll),
+        g.k
     )
 }
 
@@ -88,11 +95,11 @@ fn listen() -> Vec<String> {
         print!("* ");
         let _ = io::stdout().flush();
         let words: Vec<String> = get_input()
-            .to_lowercase()
-            .split_whitespace()
-            .map(|s| s.to_string())
-            .map(|s| s.chars().take(5).collect())
-            .collect();
+        .to_lowercase()
+        .split_whitespace()
+        .map(|s| s.to_string())
+        .map(|s| s.chars().take(5).collect())
+        .collect();
 
         match words.len() {
             0 => println!(" Tell me to do something."),
@@ -696,9 +703,9 @@ impl Game {
 
             (Loc::Swside, SW) => Loc::Scorr,
             (Loc::Swside, Over | Across | Cross | NE) if self.is_here(Obj::Troll) => Loc::Sayit10,
-            (Loc::Swside, Over) if self.prop[Obj::Troll] != 0 => Loc::Sayit11,
+            (Loc::Swside, Over) if self.prop[Obj::Bridge] != 0 => Loc::Sayit11,
             (Loc::Swside, Over) => Loc::Troll,
-            (Loc::Swside, Jump) if self.prop[Obj::Troll] != 0 => Loc::Lose,
+            (Loc::Swside, Jump) if self.prop[Obj::Bridge] != 0 => Loc::Lose,
             (Loc::Swside, Jump) => Loc::Sayit2,
 
             (Loc::Dead0, S | Out) => Loc::Cross,
@@ -716,7 +723,7 @@ impl Game {
 
             (Loc::Neside, NE) => Loc::Corr,
             (Loc::Neside, Over | Across | Cross | SW) if self.is_here(Obj::Troll) => Loc::Sayit10,
-            (Loc::Neside, Over) if self.prop[Obj::Troll] != 0 => Loc::Sayit11,
+            //(Loc::Neside, Over) if self.prop[Obj::Troll] != 0 => Loc::Sayit11,
             (Loc::Neside, Over) => Loc::Troll,
             (Loc::Neside, Jump) => Loc::Sayit2,
             (Loc::Neside, Fork) => Loc::Fork,
@@ -1247,7 +1254,7 @@ fn pirate_not_spotted(g: &Game) -> bool {
     //#define pirate not spotted (place[MESSAGE] ≡ limbo)
     //TODO limbo vs empty
     //g.place(Obj::Message).is_empty() || g.is_at(Obj::Message, Loc::Limbo)
-    g.place(Obj::Message).is_empty() 
+    g.place(Obj::Message).is_empty()
 }
 
 fn too_easy(g: &Game, o: Obj) -> bool {
@@ -1309,7 +1316,6 @@ fn make_pirate_track_you(g: &mut Game) {
 }
 
 fn major(g: &mut Game) -> Goto {
-    debug(g, "major");
     //⟨ Check for interference with the proposed move to newloc 153 ⟩ ≡
     if g.closing() && g.newloc < MIN_IN_CAVE && g.newloc != Loc::Limbo {
         g.newloc = g.loc;
@@ -1403,7 +1409,7 @@ fn major(g: &mut Game) -> Goto {
                                         g.knife_loc = g.loc;
                                     }
                                     if (ran(1000) as i32) < 95 * (g.dflag as i32 - 2) {
-                                        g.stick += 1;
+                                        //TODO g.stick += 1;
                                     }
                                 }
                             }
@@ -1448,7 +1454,6 @@ fn major(g: &mut Game) -> Goto {
 }
 
 fn minor(g: &mut Game) -> Goto {
-    debug(g, "minor");
     //⟨ Get user input; goto try move if motion is requested 76 ⟩ ≡
     g.verb = Act::Abstain;
     g.oldverb = Act::Abstain;
@@ -1513,7 +1518,6 @@ fn cycle(g: &mut Game) -> Goto {
 }
 
 fn pre_parse(g: &mut Game) -> Goto {
-    debug(g, "pre_parse");
     g.turns += 1;
     //⟨ Handle special cases of input 82 ⟩ ≡
     if g.verb == Act::Say {
@@ -1675,7 +1679,6 @@ fn pre_parse(g: &mut Game) -> Goto {
 }
 
 fn parse(g: &mut Game) -> Goto {
-    debug(g, "parse");
     //⟨ Give advice about going WEST 80 ⟩ ≡
     if g.words[0] == "west" {
         g.west_count += 1;
@@ -1693,7 +1696,6 @@ fn parse(g: &mut Game) -> Goto {
 }
 
 fn branch(g: &mut Game) -> Goto {
-    debug(g, "branch");
     match &g.w {
         Word::None => {
             println!("Sorry, I don't know the word \"{}\".", g.words[0]);
@@ -1796,11 +1798,6 @@ fn cant_see_it(g: &mut Game) -> Goto {
     Goto::Minor
 }
 
-fn stay_put(g: &mut Game) -> Goto {
-    g.mot = Mot::Nowhere;
-    Goto::TryMove
-}
-
 fn change_to(g: &mut Game, verb: Act) -> Goto {
     g.oldverb = verb;
     g.verb = verb;
@@ -1808,7 +1805,6 @@ fn change_to(g: &mut Game, verb: Act) -> Goto {
 }
 
 fn transitive(g: &mut Game) -> Goto {
-    debug(g, "transitive");
     g.k = 0;
     let s=match g.verb {
         //⟨ Handle cases of transitive verbs and continue 97 ⟩ ≡
@@ -2018,7 +2014,7 @@ fn transitive(g: &mut Game) -> Goto {
             }
         }
         Act::Take if g.holding()>=7 => {
-            "You can't carry anything more. You'll hae to drop something first."
+            "You can't carry anything more. You'll have to drop something first."
         }
         Act::Take if g.obj==Obj::Bird && !g.toting(Obj::Cage) => "You can catch the bird, but you cannot carry it.",
         Act::Take if g.obj==Obj::Bird && g.toting(Obj::Rod) => "The bird was unafraid when you entered, but as you approach it becomes disturbed and you cannot catch it.",
@@ -2132,9 +2128,10 @@ fn transitive(g: &mut Game) -> Goto {
             } else {
                 "You attack a little dwarf, but he dodges out of the way."
             };
-               println!("{s}");
+              println!("{s}");
               g.drop(Obj::Axe,g.loc);
-              stay_put(g);
+              g.mot = Mot::Nowhere;
+              return Goto::TryMove
         }
         ""
         }
@@ -2185,9 +2182,10 @@ fn transitive(g: &mut Game) -> Goto {
                 change_to(g,Act::Kill);
                 ""
             };
+            printif(s);
             g.drop(Obj::Axe,g.loc);
-            stay_put(g);
-            s
+            g.mot = Mot::Nowhere;
+            return Goto::TryMove
          }
 
          Act::Kill  => {
@@ -2263,8 +2261,9 @@ fn transitive(g: &mut Game) -> Goto {
                         }
                     }
                     g.loc = Loc::Scan2;
-                    stay_put(g);
-                    Obj::Dragon.note(1)
+                    println!("{}",Obj::Dragon.note(1));
+                    g.mot = Mot::Nowhere;
+                    return Goto::TryMove
                 }
                 Obj::Dragon if g.prop[Obj::Dragon]!=0 =>
                    "For crying out loud, the poor thing is already dead!",
@@ -2329,7 +2328,7 @@ fn transitive(g: &mut Game) -> Goto {
         Act::Open if g.obj==Obj::Clam => {
             g.remove(Obj::Clam);
             g.drop(Obj::Oyster,g.loc);
-            g.drop(Obj::Pearl,g.loc);
+            g.drop(Obj::Pearl,Loc::Sac);
             "A glistening pearl falls out of the clam and rolls away. Goodness, this must really be an oyster. (I never was very good at identifying bivalves.) Whatever it is, it has now snapped shut again."
         }
         Act::Open if g.obj==Obj::Oyster =>
@@ -2408,7 +2407,6 @@ fn transitive(g: &mut Game) -> Goto {
 }
 
 fn intransitive(g: &mut Game) -> Goto {
-    debug(g, "intransitive");
     g.k = 0;
     match g.verb {
         Act::Go | Act::Relax => {
@@ -2526,6 +2524,7 @@ fn intransitive(g: &mut Game) -> Goto {
         Act::Feefie => {
             //TODO - end guard?
             while g.words[0] == INCANTATION[g.k as usize] {
+                println!("yes! {} {}", g.k, g.foobar);
                 g.k += 1;
             }
             if g.foobar == -g.k {
@@ -2615,7 +2614,6 @@ fn score(g: &Game) -> i32 {
 }
 
 fn commence(g: &mut Game) -> Goto {
-    debug(g, "commence");
     //⟨ Report the current state 86 ⟩ ≡
     if g.loc == Loc::Limbo {
         return Goto::Death;
@@ -2681,7 +2679,6 @@ fn commence(g: &mut Game) -> Goto {
 }
 
 fn try_move(g: &mut Game) -> Goto {
-    debug(g, "try_move");
     //⟨ Handle special motion words 140 ⟩ ≡
     g.newloc = g.loc; // by default we will stay put
 
@@ -2728,7 +2725,6 @@ fn try_move(g: &mut Game) -> Goto {
 }
 
 fn go_for_it(g: &mut Game) -> Goto {
-    debug(g, "go_for_it");
     g.oldoldloc = g.oldloc;
     g.oldloc = g.loc;
 
@@ -2838,6 +2834,15 @@ fn main() {
 
     g.offer(0);
     g.limit = if g.hinted[0] { 1000 } else { 330 };
+
+    //g.newloc=Loc::Swside;
+    //g.newloc=Loc::Neside;
+    //g.drop(Obj::Lamp, Loc::Inhand);
+    //g.drop(Obj::Eggs, Loc::Inhand);
+    //g.drop(Obj::Food, Loc::Inhand);
+    //g.drop(Obj::Keys, Loc::Inhand);
+    //g.prop[Obj::Door]=1;
+    //g.prop[Obj::Lamp]=1;
 
     let mut state = Goto::Major;
     loop {
