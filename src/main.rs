@@ -34,7 +34,6 @@ const SAYIT: [&str; 13] = [
     "Don't be ridiculous!",
 ];
 
-static INCANTATION: [&str; 5] = ["fee", "fie", "foe", "foo", "fum"];
 const MAX_DEATHS: usize = 3;
 static DEATH_WISHES: [&str; 2*MAX_DEATHS] = [
 "Oh␣dear, you seem to have gotten yourself killed. I might be␣able to help you out, but I've never really done this before. Do you want me to try to reincarnate you?", 
@@ -92,11 +91,11 @@ fn listen() -> Vec<String> {
         print!("* ");
         let _ = io::stdout().flush();
         let words: Vec<String> = get_input()
-        .to_lowercase()
-        .split_whitespace()
-        .map(|s| s.to_string())
-        .map(|s| s.chars().take(5).collect())
-        .collect();
+            .to_lowercase()
+            .split_whitespace()
+            .map(|s| s.to_string())
+            .map(|s| s.chars().take(5).collect())
+            .collect();
 
         match words.len() {
             0 => println!(" Tell me to do something."),
@@ -922,7 +921,7 @@ struct Game {
     obj: Obj,
     oldobj: Obj,
     turns: u32,
-    tally: u8,            // treasures not seen yet
+    tally: u8, // treasures not seen yet
     lost_treasures: u8,
     hint_count: [u16; N_HINTS],
     hinted: [bool; N_HINTS],
@@ -2083,9 +2082,9 @@ fn transitive(g: &mut Game) -> Goto {
 
         Act::Drop if g.obj==Obj::Vase && g.loc!=Loc::Soft => {
             //⟨ Check special cases for dropping the vase 121 ⟩ ≡ 
+            g.drop(Obj::Vase, g.loc);
             if g.is_here(Obj::Pillow) {
                 g.prop[Obj::Vase]=0;
-                g.drop(Obj::Vase, g.loc);
             } else {
                 g.is_movable[Obj::Vase] = false;
                 g.prop[Obj::Vase]=2;
@@ -2519,40 +2518,42 @@ fn intransitive(g: &mut Game) -> Goto {
             Goto::Minor
         }
         Act::Feefie => {
-            //TODO - end guard?
-            while g.words[0] != INCANTATION[g.k as usize] {
-                g.k += 1;
-            }
-            if g.foobar == -g.k {
-                //⟨ Proceed foobarically 139 ⟩ ≡
-                g.foobar = g.k + 1;
-                if g.foobar != 4 {
-                    Act::Relax.print_msg();
+            if let Some(k) = ["fee", "fie", "foe", "foo", "fum"]
+                .iter()
+                .position(|&s| s == g.words[0])
+            {
+                let k = k as i32;
+                if g.foobar == -k {
+                    //⟨ Proceed foobarically 139 ⟩ ≡
+                    g.foobar = k + 1;
+                    if g.foobar != 4 {
+                        Act::Relax.print_msg();
+                        return Goto::Minor;
+                    }
+                    g.foobar = 0;
+                    if g.is_at(Obj::Eggs, Loc::Giant)
+                        || (g.toting(Obj::Eggs) && g.loc == Loc::Giant)
+                    {
+                        Act::Wave.print_msg(); // nada sucede
+                        return Goto::Minor;
+                    }
+                    if g.place(Obj::Eggs).is_empty()
+                        && g.place(Obj::Troll).is_empty()
+                        && g.prop[Obj::Troll] == 0
+                    {
+                        g.prop[Obj::Troll] = 1;
+                    }
+                    g.k = match (g.loc == Loc::Giant, g.here(Obj::Eggs)) {
+                        (true, _) => 0,
+                        (_, true) => 1,
+                        (_, false) => 2,
+                    };
+                    g.remove(Obj::Eggs);
+                    g.l2o[Loc::Giant].push(Obj::Eggs);
+                    println!("{}", Obj::Eggs.note(g.k as i8));
                     return Goto::Minor;
                 }
-                g.foobar = 0;
-                if g.is_at(Obj::Eggs, Loc::Giant) || (g.toting(Obj::Eggs) && g.loc == Loc::Giant) {
-                    Act::Wave.print_msg(); // nada sucede
-                    return Goto::Minor;
-                }
-                //if g.is_at(Obj::Eggs, Loc::Limbo)
-                if g.place(Obj::Eggs).is_empty()
-                    //&& g.is_at(Obj::Troll, Loc::Limbo)
-                    && g.place(Obj::Troll).is_empty()
-                    && g.prop[Obj::Troll] == 0
-                {
-                    g.prop[Obj::Troll] = 1;
-                }
-                g.k = match (g.loc == Loc::Giant, g.here(Obj::Eggs)) {
-                    (true, _) => 0,
-                    (_, true) => 1,
-                    (_, false) => 2,
-                };
-                g.remove(Obj::Eggs);
-                g.l2o[Loc::Giant].push(Obj::Eggs);
-                println!("{}", Obj::Eggs.note(g.k as i8));
-                return Goto::Minor;
-            }
+            };
             println!(
                 "{}",
                 if g.foobar == 0 {
