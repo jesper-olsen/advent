@@ -1285,7 +1285,7 @@ fn make_pirate_track_you_172(g: &mut Game) {
                 g.odloc[0] = CHEST_LOC;
                 g.dseen[0] = false;
             }
-            "Out from the shadows behind you pounces a bearded pirate! \"Har, har,\" he␣chortles, \"I’ll just take all this booty and hide it away with me chest deep in the maze!\" He snatches your treasure and vanishes into the gloom."
+            "Out from the shadows behind you pounces a bearded pirate! \"Har, har,\" he chortles, \"I’ll just take all this booty and hide it away with me chest deep in the maze!\" He snatches your treasure and vanishes into the gloom."
         } else if g.tally == g.lost_treasures + 1
             && g.k == 0
             && pirate_not_spotted(g)
