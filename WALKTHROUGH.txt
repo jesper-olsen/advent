@@ -1,0 +1,994 @@
+Welcome to Adventure!! Would you like instructions?
+** Somewhere nearby is Colossal Cave, where others have found fortunes in treasure and gold, though it is rumored that some who enter are never seen again. Magic is said to work in the cave. I will be your eyes and hands. Direct me with commands of one or two words. I should warn you that I look at only the first five letters of each word, so you'll have to enter "NORTHEAST" as "NE" to distinguish it from "NORTH". Should you get stuck, type "HELP" for some general hints. For information on how to end your adventure, etc., type "INFO".
+−  −  −
+The first adventure program was developed by Willie Crowther. Most of the features of the current program were added by Don Woods.
+
+You are standing at the end of a road before a small brick building. Around you is a forest. A small stream flows out of the building and down a gully.
+* ### 0. [Road] in
+
+You are inside a building, a well house for a large spring.
+There is a bottle of water here.
+There is food here.
+There is a shiny brass lamp nearby.
+There are some keys on the ground here.
+* ### 1. [House] get lamp
+OK.
+* ### 2. [House] on
+Your lamp is now on.
+* ### 3. [House] plugh
+
+You are in a large room, with a passage to the south, a passage to the west, and a wall of broken rock to the east. There is a large "Y2" on a rock in the room's center.
+A hollow voice says "PLUGH".
+* ### 4. [Y2] plover
+
+You're in a small chamber lit by an eerie green light. An extremely narrow tunnel exits to the west. A dark corridor leads NE.
+There is an emerald here the size of a plover's egg!
+* ### 5. [Proom] ne
+
+You're in the Dark-Room. A corridor leading south is the only exit.
+There is a platinum pyramid here, 8 inches on a side!
+A massive stone tablet embedded in the wall reads:
+"CONGRATULATIONS ON BRINGING LIGHT INTO THE DARK-ROOM!"
+* ### 6. [Droom] get pyramid
+OK.
+* ### 7. [Droom] s
+
+You're in a small chamber lit by an eerie green light. An extremely narrow tunnel exits to the west. A dark corridor leads NE.
+There is an emerald here the size of a plover's egg!
+* ### 8. [Proom] plover
+
+You are in a large room, with a passage to the south, a passage to the west, and a wall of broken rock to the east. There is a large "Y2" on a rock in the room's center.
+* ### 9. [Y2] s
+
+You are in a low N/S passage at a hole in the floor. The hole goes down to an E/W passage.
+There are bars of silver here
+* ### 10. [Ns] get silver
+OK.
+* ### 11. [Ns] n
+
+You are in a large room, with a passage to the south, a passage to the west, and a wall of broken rock to the east. There is a large "Y2" on a rock in the room's center.
+* ### 12. [Y2] plugh
+
+You are inside a building, a well house for a large spring.
+There is a bottle of water here.
+There is food here.
+There are some keys on the ground here.
+* ### 13. [House] drop pyramid
+OK.
+* ### 14. [House] drop silver
+OK.
+* ### 15. [House] get bottle
+OK.
+* ### 16. [House] plugh
+
+You are in a large room, with a passage to the south, a passage to the west, and a wall of broken rock to the east. There is a large "Y2" on a rock in the room's center.
+* ### 17. [Y2] s
+
+You are in a low N/S passage at a hole in the floor. The hole goes down to an E/W passage.
+* ### 18. [Ns] d
+
+You are in a dirty broken passage. To the east is a crawl. To the west is a large passage. Above you is a hole to another passage.
+* ### 19. [Dirty] bedquilt
+
+You are in Bedquilt, a long east/west passage with holes everywhere. To explore at random select north, south, up or down.
+* ### 20. [Bedquilt] slab
+
+You are in a large low circular chamber whose floor is an immense slab fallen from the ceiling (Slab Room). There once where large passages to the east and west, but they are now filled with boulders. Low small passages go north and south, and the south one quickly bends west around the boulders.
+* ### 21. [Slab] s
+
+You are at the west end of the Twopit Room. There is a large hole in the wall above the pit at this end of the room.
+The top of a 12-foot-tall beanstalk is poking out of the west pit.
+* ### 22. [W2pit] d
+
+You are at the bottom of the western pit in the Twopit Room. There is a large hole in the wall about 25 feet above you.
+There is a tiny little plant in the pit, murmuring 'Water, water, ..."
+* ### 23. [Wpit] water plant
+There is a tiny little plant in the pit, murmuring 'Water, water, ..."
+
+You are at the bottom of the western pit in the Twopit Room. There is a large hole in the wall about 25 feet above you.
+There is a 12-foot-tall beanstalk stretching up out of the pit, bellowing "Water!! Water!!"
+* ### 24. [Wpit] u
+
+You are at the west end of the Twopit Room. There is a large hole in the wall above the pit at this end of the room.
+There is a huge beanstalk growing out of the west pit up to the hold.
+* ### 25. [W2pit] w
+
+You are in a large low circular chamber whose floor is an immense slab fallen from the ceiling (Slab Room). There once where large passages to the east and west, but they are now filled with boulders. Low small passages go north and south, and the south one quickly bends west around the boulders.
+* ### 26. [Slab] u
+
+You are in a secret N/S canyon above a large room.
+* ### 27. [Abover] reservoir
+
+You are at the edge of a large underground reservoir. An opaque cloud of white mist fills the room and rises rapidly upward. The lake is fed by a stream, which tumbles out of a hole in the wall about 10 feet overhead and splashes noisily into the water somewhere within the mist. The only passage goes back toward the south.
+* ### 28. [Res] get water
+Your bottle is now full of water.
+* ### 29. [Res] s
+
+You are in a north/south canyon about 25 feet across. The floor is covered by white mist seeping in from the north. The walls extend upward for well over 100 feet. Suspended from some unseen point far above you, an enormous two-sided mirror is hanging parallel to and midway between the canyon walls. (The mirror is obviously provided for the use of the dwarves, who as you know are extremely vain.) A small window can be seen in either wall, some fifty feet up.
+* ### 30. [Mirror] s
+* ### 31. [Abover] d
+
+You are in a large low circular chamber whose floor is an immense slab fallen from the ceiling (Slab Room). There once where large passages to the east and west, but they are now filled with boulders. Low small passages go north and south, and the south one quickly bends west around the boulders.
+* ### 32. [Slab] s
+
+You are at the west end of the Twopit Room. There is a large hole in the wall above the pit at this end of the room.
+There is a huge beanstalk growing out of the west pit up to the hold.
+* ### 33. [W2pit] d
+
+You are at the bottom of the western pit in the Twopit Room. There is a large hole in the wall about 25 feet above you.
+There is a 12-foot-tall beanstalk stretching up out of the pit, bellowing "Water!! Water!!"
+* ### 34. [Wpit] water plant
+There is a 12-foot-tall beanstalk stretching up out of the pit, bellowing "Water!! Water!!"
+
+You are at the bottom of the western pit in the Twopit Room. There is a large hole in the wall about 25 feet above you.
+There is a gigantic beanstalk stretching all the way up to the hole
+* ### 35. [Wpit] u
+
+You are at the west end of the Twopit Room. There is a large hole in the wall above the pit at this end of the room.
+* ### 36. [W2pit] e
+
+You are at the east end of the Twopit Room. The floor here is littered with thin rock slabs, which make it easy to descend the pits. There is a path here bypassing the pits to connect passages from east and west. There are holes all over, but the only big one is on the wall directly over the west pit where you can't get to it.
+* ### 37. [E2pit] d
+
+You are at the bottom of the eastern pit in the Twopit Room. There is a small pool of oil in one corner of the pit.
+* ### 38. [Epit] get oil
+Your bottle is now full of oil.
+* ### 39. [Epit] u
+
+You are at the east end of the Twopit Room. The floor here is littered with thin rock slabs, which make it easy to descend the pits. There is a path here bypassing the pits to connect passages from east and west. There are holes all over, but the only big one is on the wall directly over the west pit where you can't get to it.
+* ### 40. [E2pit] w
+
+You are at the west end of the Twopit Room. There is a large hole in the wall above the pit at this end of the room.
+* ### 41. [W2pit] d
+
+You are at the bottom of the western pit in the Twopit Room. There is a large hole in the wall about 25 feet above you.
+There is a gigantic beanstalk stretching all the way up to the hole
+* ### 42. [Wpit] climb
+
+You clamber up the plant and scurry through the hole at the top.
+
+You are in a long, narrow corridor stretching out of sight to the west. At the eastern end is a hole through which you can see a profusion of leaves.
+* ### 43. [Narrow] w
+
+You are in the Giant Room. The ceiling here is too high up for your lamp to show it. Cavernous passages lead east, north, and south. On the west wall is scrawled the inscription, "FEE FIE FOE FOO" [sic].
+There is a large nest here, full of golden eggs!
+* ### 44. [Giant] n
+
+You are at one end of an immense north/south passage
+The way north is barred by a massive, rusty, iron door.
+* ### 45. [Immense] oil door
+The oil has freed up the hinges so that the door will now open.
+* ### 46. [Immense] drop bottle
+OK.
+* ### 47. [Immense] n
+
+You are in a magnificent cavern with a rushing stream, which cascades over a sparkling waterfall into a roaring whirlpool that disappears through a hole in the floor. Passages exist to the south and west.
+There is a jewel-encrusted trident here!
+* ### 48. [Falls] get trident
+OK.
+* ### 49. [Falls] w
+
+You are at the top of a steep incline above a large room. You could climb down here, but you would not be able to climb up. There is a passage leading back to the north.
+* ### 50. [Steep] d
+
+You are in a large low room. Crawls lead north, SE and SW.
+* ### 51. [Low] se
+
+This is the Oriental Room. Ancient oriental cave drawings cover the walls. A gently sloping passage leads upward to the north, another passage leads SE, and a hands-and-knees crawl leads west.
+There is a delicate, precious, Ming vase here!
+* ### 52. [Oriental] n
+
+You are following a wide path around the outer edge of a large cavern. Far below, through a heavy white mist, strange splashing noises can be heard. The mist rises up through a fissure in the ceiling. The path exists to the south and west.
+* ### 53. [Misty] w
+
+You are in an alcove. A small NW path seems to widen after a short distance. An extremely thight tunnel leads east. It looks like a very tight squeeze. An eerie light can be seen at the other end.
+* ### 54. [Alcove] drop trident
+OK.
+* ### 55. [Alcove] drop lamp
+OK.
+* ### 56. [Alcove] e
+
+It is now pitch dark. If you proceed you will most likely fall into a pit.
+* ### 57. [Proom] get emerald
+OK.
+* ### 58. [Proom] w
+
+You are in an alcove. A small NW path seems to widen after a short distance. An extremely thight tunnel leads east. It looks like a very tight squeeze. An eerie light can be seen at the other end.
+There is a jewel-encrusted trident here!
+There is a lamp shining nearby.
+* ### 59. [Alcove] get trident
+OK.
+* ### 60. [Alcove] get lamp
+OK.
+* ### 61. [Alcove] nw
+
+You are following a wide path around the outer edge of a large cavern. Far below, through a heavy white mist, strange splashing noises can be heard. The mist rises up through a fissure in the ceiling. The path exists to the south and west.
+* ### 62. [Misty] s
+
+This is the Oriental Room. Ancient oriental cave drawings cover the walls. A gently sloping passage leads upward to the north, another passage leads SE, and a hands-and-knees crawl leads west.
+There is a delicate, precious, Ming vase here!
+* ### 63. [Oriental] get vase
+OK.
+* ### 64. [Oriental] se
+
+You are in a room whose walls resemble Swiss cheese. Obvious passages go west, east, NE and NW. Part of the room is occupied by a large bedrock block.
+* ### 65. [Cheese] e
+
+You are in the Soft Room. The walls are covered with heavy curtains, the floor with a thick pile carpet. Moss covers the ceiling.
+A small velvet pillow lies on the floor.
+* ### 66. [Soft] get pillow
+OK.
+* ### 67. [Soft] w
+A little dwarf just walked around a corner, saw you, threw a little axe at you, cursed, and ran away. (The axe missed.)
+
+You are in a room whose walls resemble Swiss cheese. Obvious passages go west, east, NE and NW. Part of the room is occupied by a large bedrock block.
+There is a little axe here.
+* ### 68. [Cheese] get axe
+OK.
+* ### 69. [Cheese] ne
+
+You are in Bedquilt, a long east/west passage with holes everywhere. To explore at random select north, south, up or down.
+* ### 70. [Bedquilt] e
+
+You are at a complex junction. A low hands-and-knees passage from the north joins a higher crawl from the east to make a walking passage going west. There is also a large room above. The air is damp here.
+* ### 71. [Complex] n
+
+You're in a large room carved out of sedimentary rock. The floor and walls are littered with bits of shells embedded in the stone. A shallow passage proceeds downward, and a somewhat steeper one leads up. A low hands-and-knees passage enters from the south.
+There is an enourmous clam here with its shell tightly closed
+* ### 72. [Shell] open clam
+A glistening pearl falls out of the clam and rolls away. Goodness, this must really be an oyster. (I never was very good at identifying bivalves.) Whatever it is, it has now snapped shut again.
+* ### 73. [Shell] d
+
+You are in a long sloping corridor with ragged sharp walls.
+* ### 74. [Ragged] d
+
+You are in a cul-de-sac about eight feet across.
+Off to one side lies a glistening pearl!
+* ### 75. [Sac] get pearl
+OK.
+* ### 76. [Sac] u
+* ### 77. [Ragged] u
+
+You're in a large room carved out of sedimentary rock. The floor and walls are littered with bits of shells embedded in the stone. A shallow passage proceeds downward, and a somewhat steeper one leads up. A low hands-and-knees passage enters from the south.
+There is an enormous oyster here with its shell tightly closed.
+* ### 78. [Shell] s
+
+You are at a complex junction. A low hands-and-knees passage from the north joins a higher crawl from the east to make a walking passage going west. There is also a large room above. The air is damp here.
+* ### 79. [Complex] u
+
+You are in a large room full of dusty rocks. There is a big hold in the floor. There are cracks everywhere, and a passage leading east.
+* ### 80. [Dusty] e
+There is a threatening little dwarf in the room with you!
+One sharp nasty knife is thrown at you --- it misses!
+
+You are in a dirty broken passage. To the east is a crawl. To the west is a large passage. Above you is a hole to another passage.
+* ### 81. [Dirty] toss axe
+You attack a little dwarf, but he dodges out of the way.
+* ### 82. [Dirty] get axe
+OK.
+* ### 83. [Dirty] toss axe
+You killed a little dwarf. The body vanishes in a cloud of greasy black smoke.
+* ### 84. [Dirty] get axe
+OK.
+* ### 85. [Dirty] u
+There is a threatening little dwarf in the room with you!
+
+You are in a low N/S passage at a hole in the floor. The hole goes down to an E/W passage.
+* ### 86. [Ns] e
+There is no way to go in that direction.
+There is a threatening little dwarf in the room with you!
+One sharp nasty knife is thrown at you --- it misses!
+
+You are in a low N/S passage at a hole in the floor. The hole goes down to an E/W passage.
+* ### 87. [Ns] toss axe
+You killed a little dwarf.
+* ### 88. [Ns] get axe
+OK.
+* ### 89. [Ns] e
+There is no way to go in that direction.
+
+You are in a low N/S passage at a hole in the floor. The hole goes down to an E/W passage.
+* ### 90. [Ns] n
+
+You are in a large room, with a passage to the south, a passage to the west, and a wall of broken rock to the east. There is a large "Y2" on a rock in the room's center.
+A hollow voice says "PLUGH".
+* ### 91. [Y2] plugh
+
+You are inside a building, a well house for a large spring.
+There are bars of silver here
+There is food here.
+There are some keys on the ground here.
+There is a platinum pyramid here, 8 inches on a side!
+* ### 92. [House] drop pillow
+OK.
+* ### 93. [House] drop vase
+There is a delicate, precious, Ming vase here!
+* ### 94. [House] drop trident
+OK.
+* ### 95. [House] drop pearl
+OK.
+* ### 96. [House] drop emerald
+OK.
+* ### 97. [House] inventory
+You are currently holding the following:
+Brass lantern
+Dwarf's axe
+* ### 98. [House] xyzzy
+
+You are in a debris room filled with stuff washed in from the surface. A low wide passage with cobbles becomes plugged with mud and debris here, but an awkward canyon leads upward and west. A note on the wall says "MAGIC WORD XYZZY".
+A three-foot black rod with a rusty star on an end lies nearby
+* ### 99. [Debris] get rod
+OK.
+* ### 100. [Debris] e
+
+You are crawling over cobbles in a low passage. There is a dim light at the east end of the passage.
+There is a small wicker cage discarded nearby
+* ### 101. [Cobbles] get cage
+OK.
+* ### 102. [Cobbles] pit
+
+At your feet is a small pit breathing traces of white mist. An east passage ends here except for a small crack leading on.
+* ### 103. [Spit] e
+
+You are in a splendid chamber thirty feet high. The walls are frozen rivers of orange stone. An Awkward canyon and a good passage exist from east and west sides of the chamber
+A cheerful little bird is sitting here singing.
+* ### 104. [Bird] drop rod
+OK.
+* ### 105. [Bird] get bird
+OK.
+* ### 106. [Bird] get rod
+OK.
+* ### 107. [Bird] w
+
+At your feet is a small pit breathing traces of white mist. An east passage ends here except for a small crack leading on.
+* ### 108. [Spit] d
+
+You are at one end of a vast hall stretching forward out of sight to the west. There are openings to either side. Nearby, a wide stone staircase leads downward. The hall is filled with wisps of white mist swaying to and fro almost as if alive. A cold wind blows up the stairscase. There is a passage at the top of a dome behind you.
+* ### 109. [Emist] n
+
+You are in the Hall of the Mountain King, with passages off in all directions.
+A huge green fierce snake bars the way!
+* ### 110. [Hmk] free bird
+The little bird attacks the green snake, and in an astounding flurry drives the snake away.
+* ### 111. [Hmk] drop cage
+OK.
+* ### 112. [Hmk] sw
+
+You are in a secret canyon, which here runs E/W. It crosses over a very tight canyon 15 feet below. If you go down you may not be able to get back up.
+* ### 113. [Secret] w
+The dragon is sprawled out on a Persian rug!!
+A huge green fierce dragon bars the way!
+* ### 114. [Scan3] kill dragon
+With what? Your bare hands?
+* ### 115. [Scan3] yes
+Congratulations! You have just vanquished a dragon with your bare hands! (Unbelievable, isn't it?)
+* ### 115. [Scan2] get rug
+OK.
+* ### 116. [Scan2] e
+
+You are in a secret canyon, which here runs E/W. It crosses over a very tight canyon 15 feet below. If you go down you may not be able to get back up.
+* ### 117. [Secret] e
+There is a threatening little dwarf in the room with you!
+
+You are in the Hall of the Mountain King, with passages off in all directions.
+There is a small wicker cage discarded nearby
+* ### 118. [Hmk] w
+There is a threatening little dwarf in the room with you!
+
+You are in the west side chamber of the Hall of the Mountain King. A passage continues west and up here.
+There are many coins here!
+* ### 119. [West] toss axe
+You killed a little dwarf.
+* ### 120. [West] get axe
+OK.
+* ### 121. [West] get coins
+OK.
+* ### 122. [West] e
+
+You are in the Hall of the Mountain King, with passages off in all directions.
+There is a small wicker cage discarded nearby
+* ### 123. [Hmk] s
+
+You are in the south side chamber.
+There is precious jewelry here!
+* ### 124. [South] get jewelry
+OK.
+* ### 125. [South] n
+
+You are in the Hall of the Mountain King, with passages off in all directions.
+There is a small wicker cage discarded nearby
+* ### 126. [Hmk] e
+There is a threatening little dwarf in the room with you!
+
+You are at one end of a vast hall stretching forward out of sight to the west. There are openings to either side. Nearby, a wide stone staircase leads downward. The hall is filled with wisps of white mist swaying to and fro almost as if alive. A cold wind blows up the stairscase. There is a passage at the top of a dome behind you.
+* ### 127. [Emist] toss axe
+You killed a little dwarf.
+* ### 128. [Emist] get axe
+OK.
+* ### 129. [Emist] w
+
+You are on the east bank of a fissure slicing clear across the hall. The mist is quite thick here, and the fissure is too wide to jump.
+* ### 130. [Efiss] wave rod
+A crystal bridge now spans the fissure.
+* ### 131. [Efiss] drop rod
+OK.
+* ### 132. [Efiss] over
+
+You are on the west side of the fissure in the Hall of Mists.
+There are diamonds here!
+* ### 133. [Wfiss] get diamonds
+OK.
+* ### 134. [Wfiss] over
+
+You are on the east bank of a fissure slicing clear across the hall. The mist is quite thick here, and the fissure is too wide to jump.
+A crystal bridge now spans the fissure.
+A three-foot black rod with a rusty star on an end lies nearby
+* ### 135. [Efiss] e
+
+You are at one end of a vast hall stretching forward out of sight to the west. There are openings to either side. Nearby, a wide stone staircase leads downward. The hall is filled with wisps of white mist swaying to and fro almost as if alive. A cold wind blows up the stairscase. There is a passage at the top of a dome behind you.
+* ### 136. [Emist] s
+
+This is a low room with a crude note on the wall. The note says, "You won't get it up the steps".
+There is a large sparkling nugget of gold here!
+* ### 137. [Nugget] get gold
+OK.
+* ### 138. [Nugget] n
+
+You are at one end of a vast hall stretching forward out of sight to the west. There are openings to either side. Nearby, a wide stone staircase leads downward. The hall is filled with wisps of white mist swaying to and fro almost as if alive. A cold wind blows up the stairscase. There is a passage at the top of a dome behind you.
+Rough stone steps lead up the dome.
+* ### 139. [Emist] y2
+
+You are in a jumble of rock, with cracks everywhere.
+* ### 140. [Jumble] d
+
+You are in a large room, with a passage to the south, a passage to the west, and a wall of broken rock to the east. There is a large "Y2" on a rock in the room's center.
+* ### 141. [Y2] plugh
+
+You are inside a building, a well house for a large spring.
+There are bars of silver here
+There is food here.
+There are some keys on the ground here.
+There is a platinum pyramid here, 8 inches on a side!
+A small velvet pillow lies on the floor.
+There is a delicate, precious, Ming vase here!
+There is a jewel-encrusted trident here!
+Off to one side lies a glistening pearl!
+There is an emerald here the size of a plover's egg!
+* ### 142. [House] drop rug
+OK.
+* ### 143. [House] drop coins
+OK.
+* ### 144. [House] drop jewelry
+OK.
+* ### 145. [House] drop diamonds
+OK.
+* ### 146. [House] drop gold
+OK.
+* ### 147. [House] get food
+OK.
+* ### 148. [House] get keys
+OK.
+* ### 149. [House] inventory
+You are currently holding the following:
+Brass lantern
+Dwarf's axe
+Tasty food.
+Set of keys
+* ### 150. [House] plugh
+
+You are in a large room, with a passage to the south, a passage to the west, and a wall of broken rock to the east. There is a large "Y2" on a rock in the room's center.
+* ### 151. [Y2] s
+
+You are in a low N/S passage at a hole in the floor. The hole goes down to an E/W passage.
+* ### 152. [Ns] d
+
+You are in a dirty broken passage. To the east is a crawl. To the west is a large passage. Above you is a hole to another passage.
+* ### 153. [Dirty] bedquilt
+
+You are in Bedquilt, a long east/west passage with holes everywhere. To explore at random select north, south, up or down.
+* ### 154. [Bedquilt] w
+
+You are in a room whose walls resemble Swiss cheese. Obvious passages go west, east, NE and NW. Part of the room is occupied by a large bedrock block.
+* ### 155. [Cheese] w
+
+You are at the east end of the Twopit Room. The floor here is littered with thin rock slabs, which make it easy to descend the pits. There is a path here bypassing the pits to connect passages from east and west. There are holes all over, but the only big one is on the wall directly over the west pit where you can't get to it.
+* ### 156. [E2pit] w
+
+You are at the west end of the Twopit Room. There is a large hole in the wall above the pit at this end of the room.
+* ### 157. [W2pit] d
+
+You are at the bottom of the western pit in the Twopit Room. There is a large hole in the wall about 25 feet above you.
+There is a gigantic beanstalk stretching all the way up to the hole
+* ### 158. [Wpit] climb
+
+You clamber up the plant and scurry through the hole at the top.
+There are faint rustling noises from the darkness behind you.
+
+You are in a long, narrow corridor stretching out of sight to the west. At the eastern end is a hole through which you can see a profusion of leaves.
+* ### 159. [Narrow] w
+
+You are in the Giant Room. The ceiling here is too high up for your lamp to show it. Cavernous passages lead east, north, and south. On the west wall is scrawled the inscription, "FEE FIE FOE FOO" [sic].
+There is a large nest here, full of golden eggs!
+* ### 160. [Giant] get eggs
+OK.
+* ### 161. [Giant] n
+Out from the shadows behind you pounces a bearded pirate! "Har, har," he␣chortles, "I’ll just take all this booty and hide it away with me chest deep in the maze!" He snatches your treasure and vanishes into the gloom.
+The way north leads through a massive, rusty, iron door
+There is an empty bottle here.
+* ### 162. [Immense] n
+
+You are in a magnificent cavern with a rushing stream, which cascades over a sparkling waterfall into a roaring whirlpool that disappears through a hole in the floor. Passages exist to the south and west.
+* ### 163. [Falls] w
+
+You are at the top of a steep incline above a large room. You could climb down here, but you would not be able to climb up. There is a passage leading back to the north.
+* ### 164. [Steep] d
+* ### 165. [Low] sw
+
+You are in a long winding corridor sloping out of sight in both directions.
+* ### 166. [Scorr] u
+
+You are on one side of a large, dep chasm. A heavy white mist rising up from below obscures all view of the far side. A SW path leads away from the chasm into a winding corridor.
+A burly troll stands by the bridge and insists you throw him a treasure before you may cross.
+A rickety wooden bridge extends across the chasm, vanishing into the mist. A sign posted on the bridge reads, "STOP! PAY TROLL!"
+* ### 167. [Swside] toss eggs
+The troll catches your treasure and scurries away out of sight.
+* ### 168. [Swside] over
+
+You are on the far side of the chasm. A NE path leads away from the chasm on this side.
+The troll is nowhere to be seen.
+A rickety wooden bridge extends across the chasm, vanishing into the mist. A sign posted on the bridge reads, "STOP! PAY TROLL!"
+* ### 169. [Neside] ne
+
+You're in a long east/west corridor. A faint rumbling noise can be heard in the distance.
+* ### 170. [Corr] barren
+
+You are standing at the entrance to a large, barren room. A sign posted above the entrance reads: "CAUTION! BEAR IN ROOM!"
+* ### 171. [Fbarr] in
+
+You are inside a barren room. The center of the room is completely empty except for some dust. Marks in the dust lead away toward the far end of the room. The only exit is the way you came in.
+The bear is locked to the wall with a golden chain!
+There is a ferocious cave bear eying you from the far end of the room!
+* ### 172. [Barr] feed bear
+The bear eagerly wolfs down your food, after which he seems to calm down considerably and even becomes rather friendly.
+* ### 173. [Barr] get bear
+The bear is still chained to the wall.
+* ### 174. [Barr] unlock chain
+The chain is now unlocked.
+* ### 175. [Barr] get bear
+OK.
+* ### 176. [Barr] get chain
+OK.
+* ### 177. [Barr] w
+You are being followed by a very large, tame bear.
+
+You are standing at the entrance to a large, barren room. A sign posted above the entrance reads: "CAUTION! BEAR IN ROOM!"
+* ### 178. [Fbarr] fork
+You are being followed by a very large, tame bear.
+
+The path forks here. The left fork leads northeast. A dull rumbling seems to get louder in that direction. The right fork leads southeast down a gentle slope. The main corridor enters from the west.
+* ### 179. [Fork] ne
+You are being followed by a very large, tame bear.
+
+The walls are quite warm here. From the north can be heard a steady roar, so loud that the entire cave seems to be trembling. Another passage leads south, and a low crawl goes east.
+* ### 180. [Warm] e
+You are being followed by a very large, tame bear.
+
+You are in a small chamber filled with large boulders. The walls are very warm, causing the air in the room to be almost stifling from the heat. The only exit is a crawl heading west, through which a low rubling noise is coming
+There are rare spices here!
+* ### 181. [Chamber] get spices
+OK.
+* ### 182. [Chamber] fork
+You are being followed by a very large, tame bear.
+
+The path forks here. The left fork leads northeast. A dull rumbling seems to get louder in that direction. The right fork leads southeast down a gentle slope. The main corridor enters from the west.
+* ### 183. [Fork] w
+You are being followed by a very large, tame bear.
+
+You're in a long east/west corridor. A faint rumbling noise can be heard in the distance.
+* ### 184. [Corr] w
+You are being followed by a very large, tame bear.
+
+You are on the far side of the chasm. A NE path leads away from the chasm on this side.
+The troll is nowhere to be seen.
+A rickety wooden bridge extends across the chasm, vanishing into the mist. A sign posted on the bridge reads, "STOP! PAY TROLL!"
+* ### 185. [Neside] over
+The troll steps out from beneath the bridge and blocks your way.
+You are being followed by a very large, tame bear.
+
+You are on the far side of the chasm. A NE path leads away from the chasm on this side.
+A burly troll stands by the bridge and insists you throw him a treasure before you may cross.
+A rickety wooden bridge extends across the chasm, vanishing into the mist. A sign posted on the bridge reads, "STOP! PAY TROLL!"
+* ### 186. [Neside] free bear
+The bear lumbers toward the troll, who lets out a startled shriek and scurries away. The bear soon gives up the pursuit and wanders back.
+* ### 187. [Neside] drop bear
+OK.
+* ### 188. [Neside] over
+
+You are on one side of a large, dep chasm. A heavy white mist rising up from below obscures all view of the far side. A SW path leads away from the chasm into a winding corridor.
+A rickety wooden bridge extends across the chasm, vanishing into the mist. A sign posted on the bridge reads, "STOP! PAY TROLL!"
+* ### 189. [Swside] sw
+
+You are in a long winding corridor sloping out of sight in both directions.
+* ### 190. [Scorr] d
+* ### 191. [Low] se
+
+This is the Oriental Room. Ancient oriental cave drawings cover the walls. A gently sloping passage leads upward to the north, another passage leads SE, and a hands-and-knees crawl leads west.
+* ### 192. [Oriental] se
+
+You are in a room whose walls resemble Swiss cheese. Obvious passages go west, east, NE and NW. Part of the room is occupied by a large bedrock block.
+* ### 193. [Cheese] w
+
+You are at the east end of the Twopit Room. The floor here is littered with thin rock slabs, which make it easy to descend the pits. There is a path here bypassing the pits to connect passages from east and west. There are holes all over, but the only big one is on the wall directly over the west pit where you can't get to it.
+* ### 194. [E2pit] w
+
+You are at the west end of the Twopit Room. There is a large hole in the wall above the pit at this end of the room.
+* ### 195. [W2pit] d
+
+You are at the bottom of the western pit in the Twopit Room. There is a large hole in the wall about 25 feet above you.
+There is a gigantic beanstalk stretching all the way up to the hole
+* ### 196. [Wpit] climb
+
+You clamber up the plant and scurry through the hole at the top.
+
+You are in a long, narrow corridor stretching out of sight to the west. At the eastern end is a hole through which you can see a profusion of leaves.
+* ### 197. [Narrow] w
+
+You are in the Giant Room. The ceiling here is too high up for your lamp to show it. Cavernous passages lead east, north, and south. On the west wall is scrawled the inscription, "FEE FIE FOE FOO" [sic].
+* ### 198. [Giant] fee
+OK.
+* ### 199. [Giant] fie
+OK.
+* ### 200. [Giant] foe
+OK.
+* ### 201. [Giant] foo
+There is a large nest here, full of golden eggs!
+* ### 202. [Giant] get eggs
+OK.
+* ### 203. [Giant] s
+
+You are in a long, narrow corridor stretching out of sight to the west. At the eastern end is a hole through which you can see a profusion of leaves.
+* ### 204. [Narrow] d
+
+You are at the bottom of the western pit in the Twopit Room. There is a large hole in the wall about 25 feet above you.
+There is a gigantic beanstalk stretching all the way up to the hole
+* ### 205. [Wpit] u
+
+You are at the west end of the Twopit Room. There is a large hole in the wall above the pit at this end of the room.
+* ### 206. [W2pit] w
+
+You are in a large low circular chamber whose floor is an immense slab fallen from the ceiling (Slab Room). There once where large passages to the east and west, but they are now filled with boulders. Low small passages go north and south, and the south one quickly bends west around the boulders.
+* ### 207. [Slab] u
+There is a threatening little dwarf in the room with you!
+* ### 208. [Abover] toss axe
+You killed a little dwarf.
+* ### 209. [Abover] take axe
+OK.
+* ### 210. [Abover] s
+The body of a huge green dead dragon is lying off to one side.
+* ### 211. [Scan2] e
+
+You are in a secret canyon, which here runs E/W. It crosses over a very tight canyon 15 feet below. If you go down you may not be able to get back up.
+* ### 212. [Secret] e
+
+You are in the Hall of the Mountain King, with passages off in all directions.
+There is a small wicker cage discarded nearby
+* ### 213. [Hmk] n
+
+You are in a low N/S passage at a hole in the floor. The hole goes down to an E/W passage.
+* ### 214. [Ns] y2
+
+You are in a large room, with a passage to the south, a passage to the west, and a wall of broken rock to the east. There is a large "Y2" on a rock in the room's center.
+* ### 215. [Y2] plugh
+
+You are inside a building, a well house for a large spring.
+There are bars of silver here
+There is a large sparkling nugget of gold here!
+There are diamonds here!
+There is a platinum pyramid here, 8 inches on a side!
+A small velvet pillow lies on the floor.
+There is a delicate, precious, Ming vase here!
+There is a jewel-encrusted trident here!
+Off to one side lies a glistening pearl!
+There is an emerald here the size of a plover's egg!
+There is a Persian rug spread out on the floor!
+There are many coins here!
+There is precious jewelry here!
+* ### 216. [House] drop spices
+OK.
+* ### 217. [House] drop chain
+OK.
+* ### 218. [House] drop eggs
+OK.
+* ### 219. [House] plugh
+
+You are in a large room, with a passage to the south, a passage to the west, and a wall of broken rock to the east. There is a large "Y2" on a rock in the room's center.
+* ### 220. [Y2] s
+
+You are in a low N/S passage at a hole in the floor. The hole goes down to an E/W passage.
+* ### 221. [Ns] s
+
+You are in the Hall of the Mountain King, with passages off in all directions.
+There is a small wicker cage discarded nearby
+* ### 222. [Hmk] e
+
+You are at one end of a vast hall stretching forward out of sight to the west. There are openings to either side. Nearby, a wide stone staircase leads downward. The hall is filled with wisps of white mist swaying to and fro almost as if alive. A cold wind blows up the stairscase. There is a passage at the top of a dome behind you.
+* ### 223. [Emist] w
+
+You are on the east bank of a fissure slicing clear across the hall. The mist is quite thick here, and the fissure is too wide to jump.
+A crystal bridge now spans the fissure.
+A three-foot black rod with a rusty star on an end lies nearby
+* ### 224. [Efiss] w
+* ### 225. [Wfiss] over
+
+You are on the east bank of a fissure slicing clear across the hall. The mist is quite thick here, and the fissure is too wide to jump.
+A crystal bridge now spans the fissure.
+A three-foot black rod with a rusty star on an end lies nearby
+* ### 226. [Efiss] over
+* ### 227. [Wfiss] w
+
+You are at the west end of the Hall of Mists. A low wide crawl continues west and another goes north. To the south is a little passage 6 feet off the floor.
+* ### 228. [Wmist] s
+* ### 229. [Like1] s
+* ### 230. [Like4] e
+
+Dead end.
+* ### 231. [Dead3] s
+There is no way to go in that direction.
+* ### 232. [Dead3] s
+There is no way to go in that direction.
+* ### 233. [Dead3] s
+There is no way to go in that direction.
+* ### 234. [Dead3] out
+* ### 235. [Like4] n
+* ### 236. [Like2] e
+* ### 237. [Like4] n
+* ### 238. [Like2] w
+* ### 239. [Like1] u
+
+You are at the west end of the Hall of Mists. A low wide crawl continues west and another goes north. To the south is a little passage 6 feet off the floor.
+* ### 240. [Wmist] s
+* ### 241. [Like1] s
+* ### 242. [Like4] e
+* ### 243. [Dead3] s
+There is no way to go in that direction.
+
+Dead end.
+* ### 244. [Dead3] s
+There is no way to go in that direction.
+* ### 245. [Dead3] w
+* ### 246. [Like4] n
+* ### 247. [Like2] s
+* ### 248. [Like3] s
+* ### 249. [Like6] s
+* ### 250. [Like8] n
+* ### 251. [Like10] e
+
+You are on the brink of a thirty-foot pit with a massive orange column down one wall. You could climb down here but you could not get back up. The maze continues at this level.
+* ### 252. [Brink] e
+* ### 253. [Like13] nw
+
+Dead end.
+The pirate's treasure chest is here!
+* ### 254. [Dead2] get chest
+OK.
+* ### 255. [Dead2] se
+* ### 256. [Like13] n
+
+You are on the brink of a thirty-foot pit with a massive orange column down one wall. You could climb down here but you could not get back up. The maze continues at this level.
+* ### 257. [Brink] d
+
+You are in a splendid chamber thirty feet high. The walls are frozen rivers of orange stone. An Awkward canyon and a good passage exist from east and west sides of the chamber
+* ### 258. [Bird] e
+
+You are in an awkward sloping east/west canyon
+* ### 259. [Awk] e
+
+You are in a debris room filled with stuff washed in from the surface. A low wide passage with cobbles becomes plugged with mud and debris here, but an awkward canyon leads upward and west. A note on the wall says "MAGIC WORD XYZZY".
+* ### 260. [Debris] xyzzy
+
+You are inside a building, a well house for a large spring.
+There are bars of silver here
+There is a large sparkling nugget of gold here!
+There are diamonds here!
+There is a platinum pyramid here, 8 inches on a side!
+A small velvet pillow lies on the floor.
+There is a delicate, precious, Ming vase here!
+There is a jewel-encrusted trident here!
+Off to one side lies a glistening pearl!
+There is an emerald here the size of a plover's egg!
+There is a Persian rug spread out on the floor!
+There are many coins here!
+There is precious jewelry here!
+There are rare spices here!
+There is a golden chain lying in a heap on the floor!
+There is a large nest here, full of golden eggs!
+* ### 261. [House] drop chest
+OK.
+* ### 262. [House] plugh
+
+You are in a large room, with a passage to the south, a passage to the west, and a wall of broken rock to the east. There is a large "Y2" on a rock in the room's center.
+* ### 263. [Y2] s
+
+You are in a low N/S passage at a hole in the floor. The hole goes down to an E/W passage.
+* ### 264. [Ns] d
+
+You are in a dirty broken passage. To the east is a crawl. To the west is a large passage. Above you is a hole to another passage.
+* ### 265. [Dirty] w
+
+You are in a large room full of dusty rocks. There is a big hold in the floor. There are cracks everywhere, and a passage leading east.
+* ### 266. [Dusty] d
+
+You are at a complex junction. A low hands-and-knees passage from the north joins a higher crawl from the east to make a walking passage going west. There is also a large room above. The air is damp here.
+* ### 267. [Complex] e
+
+You are in an anteroom leading to a large passage to the east. Small passages go west and up. The remnants of recent digging are evident. A sign in midair here says "CAVE UNDER CONSTRUCTION BEYOND THIS POINT.PROCEED AT OWN RISK. [WITT CONSTRUCTION COMPANY]"
+There are a few recent issues of "Spelunker Today" magazine here.
+* ### 268. [Ante] get magazine
+OK.
+* ### 269. [Ante] inventory
+You are currently holding the following:
+Brass lantern
+Dwarf's axe
+Set of keys
+Spelunker Today
+* ### 270. [Ante] e
+
+You are at Witt's End. Passages lead off in "all" directions.
+* ### 271. [Witt] drop magazine
+OK.
+* ### 272. [Witt] e
+You have crawled around in some little holes and wound up back in the main passage
+
+You are at Witt's End. Passages lead off in "all" directions.
+There are a few recent issues of "Spelunker Today" magazine here.
+* ### 273. [Witt] e
+You have crawled around in some little holes and wound up back in the main passage
+
+You are at Witt's End. Passages lead off in "all" directions.
+There are a few recent issues of "Spelunker Today" magazine here.
+* ### 274. [Witt] e
+A sepulchral voice, reverberating through the cave, says, "Cave closing soon. All adventurers exit immediately through main office."
+You have crawled around in some little holes and wound up back in the main passage
+
+You are at Witt's End. Passages lead off in "all" directions.
+There are a few recent issues of "Spelunker Today" magazine here.
+* ### 275. [Witt] e
+You have crawled around in some little holes and wound up back in the main passage
+
+You are at Witt's End. Passages lead off in "all" directions.
+There are a few recent issues of "Spelunker Today" magazine here.
+* ### 276. [Witt] e
+You have crawled around in some little holes and wound up back in the main passage
+
+You are at Witt's End. Passages lead off in "all" directions.
+There are a few recent issues of "Spelunker Today" magazine here.
+* ### 277. [Witt] e
+You have crawled around in some little holes and wound up back in the main passage
+
+You are at Witt's End. Passages lead off in "all" directions.
+There are a few recent issues of "Spelunker Today" magazine here.
+* ### 278. [Witt] e
+
+You are in an anteroom leading to a large passage to the east. Small passages go west and up. The remnants of recent digging are evident. A sign in midair here says "CAVE UNDER CONSTRUCTION BEYOND THIS POINT.PROCEED AT OWN RISK. [WITT CONSTRUCTION COMPANY]"
+* ### 279. [Ante] w
+
+You are in Bedquilt, a long east/west passage with holes everywhere. To explore at random select north, south, up or down.
+* ### 280. [Bedquilt] n
+You have crawled around in some little holes and wound up back in the main passage
+
+You are in Bedquilt, a long east/west passage with holes everywhere. To explore at random select north, south, up or down.
+* ### 281. [Bedquilt] s
+You have crawled around in some little holes and wound up back in the main passage
+
+You are in Bedquilt, a long east/west passage with holes everywhere. To explore at random select north, south, up or down.
+* ### 282. [Bedquilt] n
+You have crawled around in some little holes and wound up back in the main passage
+
+You are in Bedquilt, a long east/west passage with holes everywhere. To explore at random select north, south, up or down.
+* ### 283. [Bedquilt] s
+You have crawled around in some little holes and wound up back in the main passage
+
+You are in Bedquilt, a long east/west passage with holes everywhere. To explore at random select north, south, up or down.
+* ### 284. [Bedquilt] n
+You have crawled around in some little holes and wound up back in the main passage
+
+You are in Bedquilt, a long east/west passage with holes everywhere. To explore at random select north, south, up or down.
+* ### 285. [Bedquilt] s
+You have crawled around in some little holes and wound up back in the main passage
+
+You are in Bedquilt, a long east/west passage with holes everywhere. To explore at random select north, south, up or down.
+* ### 286. [Bedquilt] n
+You have crawled around in some little holes and wound up back in the main passage
+
+You are in Bedquilt, a long east/west passage with holes everywhere. To explore at random select north, south, up or down.
+* ### 287. [Bedquilt] s
+You have crawled around in some little holes and wound up back in the main passage
+
+You are in Bedquilt, a long east/west passage with holes everywhere. To explore at random select north, south, up or down.
+* ### 288. [Bedquilt] n
+* ### 289. [Low] s
+There is no way to go in that direction.
+* ### 290. [Low] bedquilt
+
+You are in Bedquilt, a long east/west passage with holes everywhere. To explore at random select north, south, up or down.
+* ### 291. [Bedquilt] s
+You have crawled around in some little holes and wound up back in the main passage
+
+You are in Bedquilt, a long east/west passage with holes everywhere. To explore at random select north, south, up or down.
+* ### 292. [Bedquilt] s
+You have crawled around in some little holes and wound up back in the main passage
+
+You are in Bedquilt, a long east/west passage with holes everywhere. To explore at random select north, south, up or down.
+* ### 293. [Bedquilt] e
+
+You are at a complex junction. A low hands-and-knees passage from the north joins a higher crawl from the east to make a walking passage going west. There is also a large room above. The air is damp here.
+* ### 294. [Complex] u
+
+You are in a large room full of dusty rocks. There is a big hold in the floor. There are cracks everywhere, and a passage leading east.
+* ### 295. [Dusty] e
+
+You are in a dirty broken passage. To the east is a crawl. To the west is a large passage. Above you is a hole to another passage.
+* ### 296. [Dirty] hole
+
+You are in a low N/S passage at a hole in the floor. The hole goes down to an E/W passage.
+* ### 297. [Ns] s
+
+You are in the Hall of the Mountain King, with passages off in all directions.
+There is a small wicker cage discarded nearby
+* ### 298. [Hmk] e
+
+You are at one end of a vast hall stretching forward out of sight to the west. There are openings to either side. Nearby, a wide stone staircase leads downward. The hall is filled with wisps of white mist swaying to and fro almost as if alive. A cold wind blows up the stairscase. There is a passage at the top of a dome behind you.
+* ### 299. [Emist] w
+
+You are on the east bank of a fissure slicing clear across the hall. The mist is quite thick here, and the fissure is too wide to jump.
+A three-foot black rod with a rusty star on an end lies nearby
+* ### 300. [Efiss] w
+There is no way across the fissure.
+
+You are on the east bank of a fissure slicing clear across the hall. The mist is quite thick here, and the fissure is too wide to jump.
+A three-foot black rod with a rusty star on an end lies nearby
+* ### 301. [Efiss] e
+
+You are at one end of a vast hall stretching forward out of sight to the west. There are openings to either side. Nearby, a wide stone staircase leads downward. The hall is filled with wisps of white mist swaying to and fro almost as if alive. A cold wind blows up the stairscase. There is a passage at the top of a dome behind you.
+* ### 302. [Emist] stairs
+
+You are in the Hall of the Mountain King, with passages off in all directions.
+There is a small wicker cage discarded nearby
+* ### 303. [Hmk] secret
+
+You are in a secret canyon, which here runs E/W. It crosses over a very tight canyon 15 feet below. If you go down you may not be able to get back up.
+* ### 304. [Secret] w
+The sepulchral voice intones, "The cave is now closed." As the echoes fade, there is a blinding flash of light (and a small puff of orange smoke). . . . Then your eyes refocus; you look around and find...
+
+You are at the northeast end of an immense room, even larger than the Giant Room. It appears to be a repository for the "Adventure" program. Massive torches far overhead bathe the room with smoky yellow light. Scattered about you can be seen a pile of bottles (all of them empty), a nursery of young beanstalks murmuring quietly, a bed of oysters, a bundle of black rods with rusty stars on their ends, and a collection of brass lanterns. Off to one side a great many dwarves are sleeping on the floor, snoring loudly. A sign nearby reads: "DO NOT DISTURB THE DWARVES!" An immense mirror is hanging against one wall, and stretches to the other end of the room, where various other sundry objects can be glimpsed dimly in the distance.
+* ### 305. [Neend] out
+
+You are at the southwest end of the repository. To one side is a pit full of fierce green snakes. On the other side is a row of small wicker cages, each of which contains a little sulking bird. In one corner is a bundle of black rods with rusty marks on their ends. A large number of velvet pillows are scattered about on the floor. A vast mirror stretches off to the northeast. At your feet is a large steel grate, next to which is a sign that reads, "TREASURE VAULT. KEYS IN MAIN OFFICE."
+The grate is locked.
+* ### 306. [Swend] get rod
+OK.
+* ### 307. [Swend] sw
+There is no way to go in that direction.
+
+You are at the southwest end of the repository. To one side is a pit full of fierce green snakes. On the other side is a row of small wicker cages, each of which contains a little sulking bird. In one corner is a bundle of black rods with rusty marks on their ends. A large number of velvet pillows are scattered about on the floor. A vast mirror stretches off to the northeast. At your feet is a large steel grate, next to which is a sign that reads, "TREASURE VAULT. KEYS IN MAIN OFFICE."
+The grate is locked.
+* ### 308. [Swend] ne
+
+You are at the northeast end of an immense room, even larger than the Giant Room. It appears to be a repository for the "Adventure" program. Massive torches far overhead bathe the room with smoky yellow light. Scattered about you can be seen a pile of bottles (all of them empty), a nursery of young beanstalks murmuring quietly, a bed of oysters, a bundle of black rods with rusty stars on their ends, and a collection of brass lanterns. Off to one side a great many dwarves are sleeping on the floor, snoring loudly. A sign nearby reads: "DO NOT DISTURB THE DWARVES!" An immense mirror is hanging against one wall, and stretches to the other end of the room, where various other sundry objects can be glimpsed dimly in the distance.
+* ### 309. [Neend] drop rod
+OK.
+* ### 310. [Neend] look
+Sorry, but I am not allowed to give more detail. I will repeat the long description of your location.
+
+You are at the northeast end of an immense room, even larger than the Giant Room. It appears to be a repository for the "Adventure" program. Massive torches far overhead bathe the room with smoky yellow light. Scattered about you can be seen a pile of bottles (all of them empty), a nursery of young beanstalks murmuring quietly, a bed of oysters, a bundle of black rods with rusty stars on their ends, and a collection of brass lanterns. Off to one side a great many dwarves are sleeping on the floor, snoring loudly. A sign nearby reads: "DO NOT DISTURB THE DWARVES!" An immense mirror is hanging against one wall, and stretches to the other end of the room, where various other sundry objects can be glimpsed dimly in the distance.
+A three-foot black rod with a rusty mark on an end lies nearby.
+* ### 311. [Neend] sw
+
+You are at the southwest end of the repository. To one side is a pit full of fierce green snakes. On the other side is a row of small wicker cages, each of which contains a little sulking bird. In one corner is a bundle of black rods with rusty marks on their ends. A large number of velvet pillows are scattered about on the floor. A vast mirror stretches off to the northeast. At your feet is a large steel grate, next to which is a sign that reads, "TREASURE VAULT. KEYS IN MAIN OFFICE."
+The grate is locked.
+* ### 312. [Swend] blast
+There is a loud explosion, and a twenty-foot hole appears in the far wall, burying the dwarves in the rubble. You march through the hole and find yourself in the main office, where a cheering band of friendly elves carry the conquering adventurer off into the sunset.
+You scored 345 points out of a possible 350, using 313 turns.
+
+Your score puts you in Master Adventurer Class A.
+To achieve the next higher rating, you need 4 more points.

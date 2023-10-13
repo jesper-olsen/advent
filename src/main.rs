@@ -88,11 +88,14 @@ fn yes(q: &str, y: &str, n: &str) -> bool {
     }
 }
 
-fn listen() -> Vec<String> {
+fn listen(g: &Game) -> Vec<String> {
     loop {
         print!("* ");
         let _ = io::stdout().flush();
-        let words: Vec<String> = get_input()
+        //let words: Vec<String> = get_input()
+        let s=get_input();
+        println!("### {}. [{:?}] {s}", g.turns, g.loc);
+        let words: Vec<String> = s
             .to_lowercase()
             .split_whitespace()
             .map(|s| s.to_string())
@@ -1263,6 +1266,7 @@ fn too_easy(g: &Game, o: Obj) -> bool {
 fn make_pirate_track_you(g: &mut Game) {
     //⟨ Make the pirate track you 172 ⟩ ≡
     if g.loc != MAX_PIRATE_LOC && g.prop[Obj::Chest] < 0 {
+        g.k=0;
         for o in TREASURES {
             if !too_easy(g, o) & g.toting(o) {
                 g.k = -1;
@@ -1293,7 +1297,7 @@ fn make_pirate_track_you(g: &mut Game) {
         } else if g.tally == g.lost_treasures + 1
             && g.k == 0
             && pirate_not_spotted(g)
-            && g.prop[Obj::Lamp] != 00
+            && g.prop[Obj::Lamp] != 0
             && g.here(Obj::Lamp)
         {
             //⟨ Let the pirate be spotted 175 ⟩ ≡
@@ -1320,7 +1324,8 @@ fn major(g: &mut Game) -> Goto {
         println!("{}", panic_at_closing_time(g));
     } else if g.newloc != g.loc
         && g.newloc <= MAX_PIRATE_LOC
-        && (1..g.odloc.len()).any(|j| g.odloc[j] == g.newloc && g.dseen[j])
+        //&& (1..g.odloc.len()).any(|j| g.odloc[j] == g.newloc && g.dseen[j])
+        && (1..g.dloc.len()).any(|j| g.dloc[j] == g.newloc && g.dseen[j])
     {
         //⟨ Stay in loc if a dwarf is blocking the way to newloc 176 ⟩ ≡
         g.newloc = g.loc;
@@ -1510,7 +1515,7 @@ fn cycle(g: &mut Game) -> Goto {
         }
     }
 
-    g.words = listen();
+    g.words = listen(g);
 
     Goto::PreParse
 }
@@ -2137,6 +2142,7 @@ fn transitive(g: &mut Game) -> Goto {
         Act::Toss if g.toting(g.obj) && g.obj==Obj::Axe => {
             //⟨Throw the axe at a dwarf 163⟩ ≡ 
             if let Some(j) = g.dloc.iter().skip(1).position(|l| *l == g.loc) {
+                g.drop(Obj::Axe,g.loc);
                 if ran(3) < 2 {
                     g.dloc[j+1] = Loc::Limbo;
                     g.dseen[j+1] = true;
@@ -2225,7 +2231,7 @@ fn transitive(g: &mut Game) -> Goto {
                     println!("With what? Your bare hands?");
                     g.verb = Act::Abstain;
                     g.obj = Obj::Nothing;
-                    g.words=listen();
+                    g.words=listen(g);
                     if g.words[0]!="yes" && g.words[0]!="y" {
                         return Goto::PreParse
                     }
