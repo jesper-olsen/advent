@@ -45,8 +45,10 @@ static DEATH_WISHES: [&str; 2*MAX_DEATHS] = [
 
 fn debug(g: &Game, m: &str) {
     println!(
-        "###{m} l: {:?} t: {} Rod2:{:?}, clock1:{} clock2:{}",
+        "###{m} l: {:?} ol: {:?} ool: {:?} t: {} Rod2:{:?}, clock1:{} clock2:{}",
         g.loc,
+        g.oldloc,
+        g.oldoldloc,
         g.tally,
         g.place(Obj::Rod2),
         g.clock1,
@@ -2702,14 +2704,11 @@ fn try_move(g: &mut Game) -> Goto {
             g.oldloc = g.loc;
             if l == g.loc {
                 "Sorry, but I no longer seem to remember how you got here."
+            } else if MOTIONS.iter().any(|&m| g.travel(g.loc, m, false)==l) {
+                g.newloc=l;
+                return Goto::GoForIt
             } else {
-                let dest=g.travel(g.loc, g.mot, false);
-                if dest==Loc::Limbo {
-                    "You can't get there from here." 
-                } else {
-                    g.newloc=dest;
-                    return Goto::GoForIt
-                }
+                "You can't get there from here." 
             }
        }
     _ => {
