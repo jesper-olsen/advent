@@ -43,7 +43,8 @@ static DEATH_WISHES: [&str; 2*MAX_DEATHS] = [
 "Now you've really done it! I'm out of orange smoke! You don't expect me to do a decent reincarnation without any orange smoke, do you?",
 "Okay, if you're so smart, do it yourself! I'm leaving!"];
 
-fn debug(g: &Game, m: &str) {
+fn debug(g: &mut Game, m: &str) {
+    g.drop(Obj::Axe, Loc::Inhand);
     println!(
         "###{m} l: {:?} ol: {:?} ool: {:?} t: {} Rod2:{:?}, clock1:{} clock2:{}",
         g.loc,
@@ -2105,31 +2106,28 @@ fn transitive(g: &mut Game) -> Goto {
 
         Act::Drop => {
             g.drop(g.obj , g.loc );
-            "OK."
+            OK
         }
 
         Act::Toss if g.obj==Obj::Axe && g.dwarf() =>
         {
             //⟨Throw the axe at a dwarf 163⟩ ≡ 
-            //TODO
-            if let Some(j) = g.dloc.iter().take(1).position(|l| *l == g.loc) {
-
-            let s=if ran(3) < 2 {
-                g.dloc[j] = Loc::Limbo;
-                g.dseen[j] = true;
-                g.dkill+=1;
-                if g.dkill ==1 {
-                    "You killed a little dwarf. The body vanishes in a cloud of greasy black smoke."
+            if let Some(j) = g.dloc.iter().skip(1).position(|l| *l == g.loc) {
+                println!("{}",if ran(3) < 2 {
+                    g.dloc[j+1] = Loc::Limbo;
+                    g.dseen[j+1] = true;
+                    g.dkill+=1;
+                    if g.dkill ==1 {
+                        "You killed a little dwarf. The body vanishes in a cloud of greasy black smoke."
+                    } else {
+                        "You killed a little dwarf."
+                    }
                 } else {
-                    "You killed a little dwarf."
-                }
-            } else {
-                "You attack a little dwarf, but he dodges out of the way."
-            };
-              println!("{s}");
-              g.drop(Obj::Axe,g.loc);
-              g.mot = Mot::Nowhere;
-              return Goto::TryMove
+                    "You attack a little dwarf, but he dodges out of the way."
+                });
+                g.drop(Obj::Axe,g.loc);
+                g.mot = Mot::Nowhere;
+                return Goto::TryMove
         }
         ""
         }
@@ -2137,7 +2135,6 @@ fn transitive(g: &mut Game) -> Goto {
         Act::Toss if g.obj==Obj::Rod && g.toting(Obj::Rod2) && !g.toting(Obj::Rod) => {
                 g.obj=Obj::Rod2;
                 change_to(g,Act::Drop);
-                ""
             }
 
         Act::Toss if g.toting(g.obj) && g.obj.treasure() && g.is_here(Obj::Troll) => {
