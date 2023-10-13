@@ -92,10 +92,7 @@ fn listen(g: &Game) -> Vec<String> {
     loop {
         print!("* ");
         let _ = io::stdout().flush();
-        //let words: Vec<String> = get_input()
-        let s=get_input();
-        println!("### {}. [{:?}] {s}", g.turns, g.loc);
-        let words: Vec<String> = s
+        let words: Vec<String> = get_input()
             .to_lowercase()
             .split_whitespace()
             .map(|s| s.to_string())
@@ -1224,7 +1221,7 @@ fn death(g: &mut Game) -> Goto {
         g.drop(o, g.oldoldloc);
     }
 
-    g.remove(Obj::Water); // TODO do without Water & Oil objects?
+    g.remove(Obj::Water); 
     g.remove(Obj::Oil);
     g.loc = Loc::House;
     g.oldloc = Loc::House;
@@ -1252,19 +1249,14 @@ fn panic_at_closing_time(g: &mut Game) -> &str {
 }
 
 fn pirate_not_spotted(g: &Game) -> bool {
-    //#define pirate not spotted (place[MESSAGE] ≡ limbo)
-    //TODO limbo vs empty
-    //g.place(Obj::Message).is_empty() || g.is_at(Obj::Message, Loc::Limbo)
     g.place(Obj::Message).is_empty()
 }
 
 fn too_easy(g: &Game, o: Obj) -> bool {
-    //#define too easy (i) (i ≡ PYRAMID ∧ (loc ≡ proom ∨ loc ≡ droom ))
     o == Obj::Pyramid && matches!(g.loc, Loc::Proom | Loc::Droom)
 }
 
-fn make_pirate_track_you(g: &mut Game) {
-    //⟨ Make the pirate track you 172 ⟩ ≡
+fn make_pirate_track_you_172(g: &mut Game) {
     if g.loc != MAX_PIRATE_LOC && g.prop[Obj::Chest] < 0 {
         g.k=0;
         for o in TREASURES {
@@ -1403,7 +1395,7 @@ fn major(g: &mut Game) -> Goto {
                             //⟨ Make dwarf j follow 167 ⟩ ≡
                             g.dloc[j] = g.loc;
                             if j == 0 {
-                                make_pirate_track_you(g)
+                                make_pirate_track_you_172(g)
                             } else {
                                 g.dtotal += 1;
                                 if g.odloc[j] == g.dloc[j] {
@@ -1412,7 +1404,7 @@ fn major(g: &mut Game) -> Goto {
                                         g.knife_loc = g.loc;
                                     }
                                     if (ran(1000) as i32) < 95 * (g.dflag as i32 - 2) {
-                                        //TODO g.stick += 1;
+                                        g.stick += 1;
                                     }
                                 }
                             }
@@ -1466,7 +1458,7 @@ fn minor(g: &mut Game) -> Goto {
 }
 
 fn cycle(g: &mut Game) -> Goto {
-    debug(g, "cycle");
+    //debug(g, "cycle");
     //⟨ Check if a hint applies, and give it if requested 195 ⟩ ≡
     let bc = g.here(Obj::Bird) && g.oldobj == Obj::Bird && g.toting(Obj::Rod);
     let hint_thresh = [0, 0, 4, 5, 8, 75, 25, 20]; // turns
@@ -1639,9 +1631,7 @@ fn pre_parse(g: &mut Game) -> Goto {
             } else if g.limit <= 30 && !g.warned && g.here(Obj::Lamp) {
                 let s = if g.prop[Obj::Batteries] == 1 {
                     ", and you're out of spare batteries. You'd best start wrapping this up."
-                //} else if g.is_at(Obj::Batteries, Loc::Limbo) {
                 } else if g.place(Obj::Batteries).is_empty() {
-                    //TODO - Limbo or removed?
                     ". You'd best start wrapping this up, unless you can find some fresh batteries. I seem to recall that there's a vending machine in the maze. Bring some coins with you."
                 } else {
                     ". You'd best go back for those batteries."
@@ -2035,7 +2025,6 @@ fn transitive(g: &mut Game) -> Goto {
                 }
             }
 
-            //TODO - bird in cage
             if g.obj==Obj::Bird && g.prop[Obj::Bird]==0 {
                 g.prop[Obj::Bird]=1;
                 g.obj=Obj::Cage;
