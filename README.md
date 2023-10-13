@@ -1,4 +1,4 @@
-# Colosal Cave Adventure
+# Colossal Cave Adventure
 
 Rusty port of Will Crowther and Don Woods' classic text adventure from 1977.
 Wikipedia is a good source for the games history. Several slightly different versions of the game exist - including snapshots of the original Fortan code, Raymond's machine translated Fortran to C project and D. Knuth's hand translated Fortran to cweb implementation. Present version is based on all three, but mostly Knuth's.
