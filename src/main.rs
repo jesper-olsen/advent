@@ -820,25 +820,6 @@ fn init_loc2obj_map() -> [Vec<Obj>; N_LOC] {
     const V: Vec<Obj> = Vec::<Obj>::new();
     let mut a = [V; N_LOC];
     for tup in [
-        //(
-        //    Loc::Limbo,
-        //    vec![
-        //        Obj::Troll2,
-        //        Obj::Mirror,
-        //        Obj::Pearl,
-        //        Obj::Chest,
-        //        Obj::Batteries,
-        //        Obj::Message,
-        //        Obj::Pirate,
-        //        Obj::Axe,
-        //        Obj::Oil,
-        //        Obj::Water,
-        //        Obj::Knife,
-        //        Obj::Dwarf,
-        //        Obj::Oyster,
-        //        Obj::Rod2,
-        //    ],
-        //),
         (Loc::Scan3, vec![Obj::Rug, Obj::Dragon]),
         (Loc::Scan1, vec![Obj::Rug, Obj::Dragon]),
         (Loc::Neside, vec![Obj::Troll, Obj::Bridge]),
@@ -1239,8 +1220,7 @@ fn dwarves_upset(g: &Game) -> ! {
     quit(g)
 }
 
-fn panic_at_closing_time(g: &mut Game) -> &str {
-    //⟨ Panic at closing time 180 ⟩ ≡
+fn panic_at_closing_time_180(g: &mut Game) -> &str {
     if !g.panic {
         g.clock2 = 15;
         g.panic = true;
@@ -1313,7 +1293,7 @@ fn major(g: &mut Game) -> Goto {
     //⟨ Check for interference with the proposed move to newloc 153 ⟩ ≡
     if g.closing() && g.newloc < MIN_IN_CAVE && g.newloc != Loc::Limbo {
         g.newloc = g.loc;
-        println!("{}", panic_at_closing_time(g));
+        println!("{}", panic_at_closing_time_180(g));
     } else if g.newloc != g.loc
         && g.newloc <= MAX_PIRATE_LOC
         //&& (1..g.odloc.len()).any(|j| g.odloc[j] == g.newloc && g.dseen[j])
@@ -1680,8 +1660,6 @@ fn parse(g: &mut Game) -> Goto {
         }
     }
 
-    //#define try motion (m) { mot = m; goto try move ; }
-    //#define stay put try motion (NOWHERE)
     //⟨ Look at word1 and exit to the right place if it completes a command 78 ⟩ ≡
     g.w = Word::from_string(&g.words[0]);
 
@@ -2336,7 +2314,7 @@ fn transitive(g: &mut Game) -> Goto {
             "The chain is now locked."
         }
         Act::Open | Act::Close if g.obj==Obj::Grate && g.closing() =>
-            panic_at_closing_time(g),
+            panic_at_closing_time_180(g),
         Act::Open | Act::Close if g.obj==Obj::Grate => {
             g.k = g.prop[Obj::Grate] as i32;
             g.prop[Obj::Grate]=if g.verb==Act::Open {1} else {0};
