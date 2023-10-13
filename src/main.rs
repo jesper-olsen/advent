@@ -44,17 +44,16 @@ static DEATH_WISHES: [&str; 2*MAX_DEATHS] = [
 "Okay, if you're so smart, do it yourself! I'm leaving!"];
 
 fn debug(g: &mut Game, m: &str) {
-    g.drop(Obj::Axe, Loc::Inhand);
+    let v: Vec<Mot> = MOTIONS.into_iter().filter(|&m| g.travel(g.loc, m, false)!=Loc::Limbo).collect(); 
     println!(
-        "###{m} l: {:?} ol: {:?} ool: {:?} t: {} Rod2:{:?}, clock1:{} clock2:{}",
+        "###{m} l: {:?} t: {} Rod2:{:?}, clock1:{} clock2:{}",
         g.loc,
-        g.oldloc,
-        g.oldoldloc,
         g.tally,
         g.place(Obj::Rod2),
         g.clock1,
         g.clock2
-    )
+    );
+    println!("###{m} motions: {v:?}")
 }
 
 fn printif(s: &str) {
@@ -1756,20 +1755,20 @@ fn branch(g: &mut Game) -> Goto {
 
         Word::Action(Act::Say) => {
             g.verb = Act::Say;
-            if g.words.len() > 1 {
-                return Goto::Transitive;
+            return if g.words.len() > 1 {
+                Goto::Transitive
             } else {
-                return Goto::Intransitive;
-            }
+                Goto::Intransitive
+            };
         }
         Word::Action(a) => {
             g.verb = *a;
             if g.words.len() == 1 {
-                if g.obj == Obj::Nothing {
-                    return Goto::Intransitive;
+                return if g.obj == Obj::Nothing {
+                    Goto::Intransitive
                 } else {
-                    return Goto::Transitive;
-                }
+                    Goto::Transitive
+                };
             }
         }
 
@@ -2065,11 +2064,10 @@ fn transitive(g: &mut Game) -> Goto {
         Act::Drop if g.obj==Obj::Bird =>
             //⟨ Check special cases for dropping the bird 120 ⟩ ≡ 
             if g.here(Obj::Snake) {
-                println!("The little bird attacks the green snake, and in an astounding flurry drives the snake away."); 
                 if g.closed {dwarves_upset(g)};
                 g.remove(Obj::Snake);
                 g.prop[Obj::Snake]=1; // used in conditional instructions 
-                ""
+                "The little bird attacks the green snake, and in an astounding flurry drives the snake away." 
             } else if g.is_here(Obj::Dragon) && g.prop[Obj::Dragon]==0 {
                 g.remove(Obj::Bird);
                 g.prop[Obj::Bird]=0;
@@ -2080,7 +2078,7 @@ fn transitive(g: &mut Game) -> Goto {
             } else {
                 g.prop[Obj::Bird]=1;
                 g.drop(Obj::Bird, g.loc);
-                "OK."
+                OK
             }
 
         Act::Drop if g.obj==Obj::Vase && g.loc!=Loc::Soft => {
@@ -2109,33 +2107,10 @@ fn transitive(g: &mut Game) -> Goto {
             OK
         }
 
-        Act::Toss if g.obj==Obj::Axe && g.dwarf() =>
-        {
-            //⟨Throw the axe at a dwarf 163⟩ ≡ 
-            if let Some(j) = g.dloc.iter().skip(1).position(|l| *l == g.loc) {
-                println!("{}",if ran(3) < 2 {
-                    g.dloc[j+1] = Loc::Limbo;
-                    g.dseen[j+1] = true;
-                    g.dkill+=1;
-                    if g.dkill ==1 {
-                        "You killed a little dwarf. The body vanishes in a cloud of greasy black smoke."
-                    } else {
-                        "You killed a little dwarf."
-                    }
-                } else {
-                    "You attack a little dwarf, but he dodges out of the way."
-                });
-                g.drop(Obj::Axe,g.loc);
-                g.mot = Mot::Nowhere;
-                return Goto::TryMove
-        }
-        ""
-        }
-
         Act::Toss if g.obj==Obj::Rod && g.toting(Obj::Rod2) && !g.toting(Obj::Rod) => {
-                g.obj=Obj::Rod2;
-                change_to(g,Act::Drop);
-            }
+            g.obj=Obj::Rod2;
+            return change_to(g,Act::Drop)
+        }
 
         Act::Toss if g.toting(g.obj) && g.obj.treasure() && g.is_here(Obj::Troll) => {
             //⟨ Snarf a treasure for the troll 124 ⟩ ≡ 
@@ -2152,17 +2127,30 @@ fn transitive(g: &mut Game) -> Goto {
 
         Act::Toss if g.toting(g.obj) && g.obj==Obj::Food && g.here(Obj::Bear) => {
             g.obj=Obj::Bear;
-            change_to(g,Act::Feed);
-            ""
+            return change_to(g,Act::Feed)
         }
 
         Act::Toss if g.toting(g.obj) && g.obj!=Obj::Axe => {
-            change_to(g,Act::Drop);
-            ""
+            return change_to(g,Act::Drop)
         }
 
         Act::Toss if g.toting(g.obj) && g.obj==Obj::Axe => {
-            let s=if g.is_here(Obj::Dragon) && g.prop[Obj::Dragon] == 0 {
+            //⟨Throw the axe at a dwarf 163⟩ ≡ 
+            if let Some(j) = g.dloc.iter().skip(1).position(|l| *l == g.loc) {
+                if ran(3) < 2 {
+                    g.dloc[j+1] = Loc::Limbo;
+                    g.dseen[j+1] = true;
+                    g.dkill+=1;
+                    if g.dkill ==1 {
+                        "You killed a little dwarf. The body vanishes in a cloud of greasy black smoke."
+                    } else {
+                        "You killed a little dwarf."
+                    }
+                } else {
+                    "You attack a little dwarf, but he dodges out of the way."
+                }
+            } else if g.is_here(Obj::Dragon) && g.prop[Obj::Dragon] == 0 {
+                g.drop(Obj::Axe,g.loc);
                 "The axe bounces harmlessly off the dragon's thick scales." 
             } else if g.is_here(Obj::Troll) {
                 "The troll deftly catches the axe, examines it carefully, and tosses it back, declaring, \"Good workmanship, but it's not valuable enough.\""
@@ -2174,13 +2162,8 @@ fn transitive(g: &mut Game) -> Goto {
                 "The axe misses and lands near the bear where you can't get at it."
             } else {
                 g.obj = Obj::Nothing;
-                change_to(g,Act::Kill);
-                ""
-            };
-            printif(s);
-            g.drop(Obj::Axe,g.loc);
-            g.mot = Mot::Nowhere;
-            return Goto::TryMove
+                return change_to(g,Act::Kill)
+            }
          }
 
          Act::Kill  => {
@@ -2219,7 +2202,7 @@ fn transitive(g: &mut Game) -> Goto {
                  }
             }
             if g.k > 1 {
-                return Goto::GetObject;
+                return Goto::GetObject
             }
 
             match g.obj {
@@ -2237,7 +2220,7 @@ fn transitive(g: &mut Game) -> Goto {
                         "The little bird is now dead. Its body disappears."
                     }
                 }
-                Obj::Dragon if g.prop[Obj::Dragon]==0 =>{
+                Obj::Dragon if g.prop[Obj::Dragon]==0 => {
                     //⟨ Fun stuff for dragon 128 ⟩ ≡ 
                     println!("With what? Your bare hands?");
                     g.verb = Act::Abstain;
@@ -2256,9 +2239,7 @@ fn transitive(g: &mut Game) -> Goto {
                         }
                     }
                     g.loc = Loc::Scan2;
-                    println!("{}",Obj::Dragon.note(1));
-                    g.mot = Mot::Nowhere;
-                    return Goto::TryMove
+                    Obj::Dragon.note(1)
                 }
                 Obj::Dragon if g.prop[Obj::Dragon]!=0 =>
                    "For crying out loud, the poor thing is already dead!",
@@ -2299,16 +2280,16 @@ fn transitive(g: &mut Game) -> Goto {
             g.prop[Obj::Bear]=1;
             g.prop[Obj::Axe]=0;
             g.is_movable[Obj::Axe]=true;
-        "The bear eagerly wolfs down your food, after which he seems to calm down considerably and even becomes rather friendly."
+            "The bear eagerly wolfs down your food, after which he seems to calm down considerably and even becomes rather friendly."
         }
         Act::Feed if g.obj==Obj::Bear && g.prop[Obj::Bear]==0 =>
-         "There's nothing here it wants to eat (except perhaps you).",
+            "There's nothing here it wants to eat (except perhaps you).",
         Act::Feed if g.obj==Obj::Bear && g.prop[Obj::Bear]==3 =>{
             Act::Eat.msg()
         }
         Act::Feed if g.obj==Obj::Dwarf && g.here(Obj::Food) => {
-                g.dflag+=1;
-                "You fool, dwarves eat only coal! Now you've made him REALLY mad!" 
+            g.dflag+=1;
+            "You fool, dwarves eat only coal! Now you've made him REALLY mad!" 
         }
         Act::Feed => Act::Calm.msg(),
         Act::Close if matches!(g.obj, Obj::Oyster|Obj::Clam) => "What?", 
@@ -2348,16 +2329,16 @@ fn transitive(g: &mut Game) -> Goto {
             }
         }
         Act::Close if g.obj==Obj::Chain && g.loc!=Loc::Barr =>
-            "There␣is␣nothing␣here␣to␣which␣the␣chain␣can␣be␣locked.",
+            "There is nothing here to which the chain can be locked.",
         Act::Close if g.obj==Obj::Chain && g.prop[Obj::Chain]!=0 =>
-                "It␣was␣already␣locked.",
+            "It was already locked.",
         Act::Close if g.obj==Obj::Chain => {
             g.prop[Obj::Chain]=2;
             g.is_movable[Obj::Chain] = false;
             if g.toting(Obj::Chain) {
                 g.drop(Obj::Chain, g.loc);
             }
-            "The␣chain␣is␣now␣locked."
+            "The chain is now locked."
         }
         Act::Open | Act::Close if g.obj==Obj::Grate && g.closing() =>
             panic_at_closing_time(g),
@@ -2403,22 +2384,21 @@ fn transitive(g: &mut Game) -> Goto {
 
 fn intransitive(g: &mut Game) -> Goto {
     g.k = 0;
-    match g.verb {
+    let s=match g.verb {
         Act::Go | Act::Relax => {
-            g.verb.print_msg();
-            Goto::Minor
+            g.verb.msg()
         }
         Act::On | Act::Off | Act::Pour | Act::Fill | Act::Drink | Act::Blast | Act::Kill => {
-            Goto::Transitive
+            return Goto::Transitive
         }
         //⟨ Handle cases of intransitive verbs and continue 92 ⟩ ≡
         Act::Take if g.l2o[g.loc].len() == 1 && !g.dwarf() => {
             g.obj = g.l2o[g.loc][0];
-            Goto::Transitive
+            return Goto::Transitive
         }
         Act::Eat if g.here(Obj::Food) => {
             g.obj = Obj::Food;
-            Goto::Transitive
+            return Goto::Transitive
         }
         Act::Open | Act::Close => {
             if g.is_here(Obj::Grate) {
@@ -2438,10 +2418,9 @@ fn intransitive(g: &mut Game) -> Goto {
                 }
             }
             if g.obj == Obj::Nothing {
-                println!("There is nothing here with a lock!");
-                Goto::Minor
+                "There is nothing here with a lock!"
             } else {
-                Goto::Transitive
+                return Goto::Transitive
             }
         }
         Act::Read if !g.dark() => {
@@ -2454,7 +2433,7 @@ fn intransitive(g: &mut Game) -> Goto {
             if g.closed && g.toting(Obj::Oyster) {
                 g.obj = Obj::Oyster;
             }
-            if g.obj != Obj::Nothing {
+            return if g.obj != Obj::Nothing {
                 Goto::Transitive
             } else {
                 Goto::GetObject
@@ -2462,7 +2441,7 @@ fn intransitive(g: &mut Game) -> Goto {
         }
         Act::Inventory => {
             if g.l2o[Loc::Inhand].is_empty() {
-                println!("You're not carrying anything.");
+                "You're not carrying anything."
             } else {
                 println!("You are currently holding the following:");
                 for o in g.l2o[Loc::Inhand].iter() {
@@ -2486,17 +2465,17 @@ fn intransitive(g: &mut Game) -> Goto {
                         _ => println!(" {}", o.name()),
                     }
                 }
+                if g.toting(Obj::Bear) {
+                    "You are being followed by a very large, tame bear."
+                } else {
+                    ""
+                }
             }
-            if g.toting(Obj::Bear) {
-                println!("You are being followed by a very large, tame bear.");
-            }
-            Goto::Minor
         }
         Act::Brief => {
             g.interval = 10000;
             g.look_count = 3;
-            println!("Okay, from now on I'll only describe a place in full the first time you come to it. To get the full description, say \"LOOK\".");
-            Goto::Minor
+            "Okay, from now on I'll only describe a place in full the first time you come to it. To get the full description, say \"LOOK\"."
         }
         Act::Score => {
             println!(
@@ -2507,14 +2486,14 @@ fn intransitive(g: &mut Game) -> Goto {
             if g.gave_up {
                 quit(g);
             }
-            Goto::Minor
+            ""
         }
         Act::Quit => {
             g.gave_up = yes("Do you really wish to quit now?", OK, OK);
             if g.gave_up {
                 quit(g);
             }
-            Goto::Minor
+            ""
         }
         Act::Feefie => {
             if let Some(k) = ["fee", "fie", "foe", "foo", "fum"]
@@ -2553,21 +2532,19 @@ fn intransitive(g: &mut Game) -> Goto {
                     return Goto::Minor;
                 }
             };
-            println!(
-                "{}",
-                if g.foobar == 0 {
-                    Act::Wave.msg() // nada sucede
-                } else {
-                    "What's the matter, can't you read? Now you'd best start over."
-                }
-            );
-            Goto::Minor
+            if g.foobar == 0 {
+                Act::Wave.msg() // nada sucede
+            } else {
+                "What's the matter, can't you read? Now you'd best start over."
+            }
         }
         _ => {
             println!("{} what?", g.words[0]);
-            Goto::Cycle
+            return Goto::Cycle
         }
-    }
+    };
+    printif(s);
+    Goto::Minor
 }
 
 fn score(g: &Game) -> i32 {
