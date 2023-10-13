@@ -16,7 +16,7 @@ You are standing at the end of a road before a small brick building. Around you 
 ```
 
 References:
-* [Colosal Cave Adventure](https://en.wikipedia.org/wiki/Colossal_Cave_Adventure/). 
+* [Colossal Cave Adventure](https://en.wikipedia.org/wiki/Colossal_Cave_Adventure/). 
 * [Adventure - CWEB port - Donald Knuth](https://www-cs-faculty.stanford.edu/~knuth/programs/advent.w.gz)
 * [Open Adventure - C - Eric S Raymond](https://gitlab.com/esr/open-adventure/-/tree/master/)
-* [Colosal Cave Adventure - Fortran - original source, collected by Carlos Aguilar](https://github.com/wh0am1-dev/adventure/tree/master/)
+* [Colossal Cave Adventure - Fortran - original source, collected by Carlos Aguilar](https://github.com/wh0am1-dev/adventure/tree/master/)
