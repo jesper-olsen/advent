@@ -90,7 +90,7 @@ fn yes(q: &str, y: &str, n: &str) -> bool {
 
 fn listen(g: &Game) -> Vec<String> {
     loop {
-        print!("* ");
+        print!("[{:?}] *", g.loc);
         let _ = io::stdout().flush();
         let words: Vec<String> = get_input()
             .to_lowercase()
