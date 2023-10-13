@@ -1,6 +1,8 @@
 # Colosal Cave Adventure
 
 Rusty port of Will Crowther and Don Woods' classic text adventure from 1977.
+Wikipedia is a good source for the games history. Several slightly different versions of the game exist - present version is mainly based on D. Knuth's cweb implemntation referenced below. 
+
 See [walkthrough](WALKTHROUGH.txt) for example of how to make it to the end.
 
 ```
@@ -17,4 +19,4 @@ References:
 * [Colosal Cave Adventure](https://en.wikipedia.org/wiki/Colossal_Cave_Adventure/). 
 * [Adventure - CWEB port - Donald Knuth](https://www-cs-faculty.stanford.edu/~knuth/programs/advent.w.gz)
 * [Open Adventure - C - Eric S Raymond](https://gitlab.com/esr/open-adventure/-/tree/master/)
-* [Collosal Cave Adventure - Fortran - original source, collected by Carlos Aguilar](https://github.com/wh0am1-dev/adventure/tree/master/)
+* [Colosal Cave Adventure - Fortran - original source, collected by Carlos Aguilar](https://github.com/wh0am1-dev/adventure/tree/master/)
