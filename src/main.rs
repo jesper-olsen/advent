@@ -44,7 +44,10 @@ static DEATH_WISHES: [&str; 2*MAX_DEATHS] = [
 "Okay, if you're so smart, do it yourself! I'm leaving!"];
 
 fn debug(g: &mut Game, m: &str) {
-    let v: Vec<Mot> = MOTIONS.into_iter().filter(|&m| g.travel(g.loc, m, false)!=Loc::Limbo).collect(); 
+    let v: Vec<Mot> = MOTIONS
+        .into_iter()
+        .filter(|&m| g.travel(g.loc, m, false) != Loc::Limbo)
+        .collect();
     println!(
         "###{m} l: {:?} t: {} Rod2:{:?}, clock1:{} clock2:{}",
         g.loc,
@@ -1202,7 +1205,7 @@ fn death(g: &mut Game) -> Goto {
         g.drop(o, g.oldoldloc);
     }
 
-    g.remove(Obj::Water); 
+    g.remove(Obj::Water);
     g.remove(Obj::Oil);
     g.loc = Loc::House;
     g.oldloc = Loc::House;
@@ -1238,17 +1241,7 @@ fn too_easy(g: &Game, o: Obj) -> bool {
 
 fn make_pirate_track_you_172(g: &mut Game) {
     if g.loc != MAX_PIRATE_LOC && g.prop[Obj::Chest] < 0 {
-        g.k=0;
-        for o in TREASURES {
-            if !too_easy(g, o) & g.toting(o) {
-                g.k = -1;
-                break;
-            }
-            if g.here(o) {
-                g.k = 1;
-            }
-        }
-        let s = if g.k < 0 {
+        let s = if TREASURES.iter().any(|&o| !too_easy(g, o) & g.toting(o)) {
             //⟨ Take booty and hide it in the chest 173 ⟩ ≡
             //⟨ Snatch all treasures that are snatchable here 174 ⟩ ≡
             for o in TREASURES {
@@ -1267,7 +1260,7 @@ fn make_pirate_track_you_172(g: &mut Game) {
             }
             "Out from the shadows behind you pounces a bearded pirate! \"Har, har,\" he chortles, \"I’ll just take all this booty and hide it away with me chest deep in the maze!\" He snatches your treasure and vanishes into the gloom."
         } else if g.tally == g.lost_treasures + 1
-            && g.k == 0
+            && !TREASURES.iter().any(|&o| g.here(o))
             && pirate_not_spotted(g)
             && g.prop[Obj::Lamp] != 0
             && g.here(Obj::Lamp)
@@ -1301,7 +1294,7 @@ fn major(g: &mut Game) -> Goto {
     {
         //⟨ Stay in loc if a dwarf is blocking the way to newloc 176 ⟩ ≡
         g.newloc = g.loc;
-        println!("A little dwarf with a big knife blocks your way.");
+        println!("A little dwarf with a big knife blocks your way. \u{1F479}");
     }
     g.loc = g.newloc; // hey, we actually moved you
 
@@ -1398,7 +1391,7 @@ fn major(g: &mut Game) -> Goto {
                     } else {
                         print!("There are {} threatening little dwarves", g.dtotal);
                     }
-                    println!(" in the room with you!");
+                    println!(" in the room with you! \u{1F479}");
                     if g.attack > 0 {
                         if g.dflag == 2 {
                             g.dflag = 3;
@@ -2146,22 +2139,15 @@ fn transitive(g: &mut Game) -> Goto {
                      g.k+=1;
                      g.obj=Obj::Dwarf;
                  }
-                 if g.here(Obj::Snake) {
-                     g.k+=1;
-                     g.obj=Obj::Snake;
+                 for (o,flag) in [(Obj::Snake,true), (Obj::Troll,true),
+                      (Obj::Dragon, g.prop[Obj::Dragon]==0),
+                      (Obj::Bear, g.prop[Obj::Bear]==0)]  {
+                     if g.here(o) && flag {
+                         g.k+=1;
+                         g.obj=o;
+                     }
                  }
-                 if g.is_here(Obj::Dragon) && g.prop[Obj::Dragon]==0 {
-                     g.k+=1;
-                     g.obj=Obj::Dragon;
-                 }
-                 if g.is_here(Obj::Troll) {
-                     g.k+=1;
-                     g.obj=Obj::Troll;
-                 }
-                 if g.here(Obj::Bear) && g.prop[Obj::Bear]==0 {
-                     g.k+=1;
-                     g.obj=Obj::Bear;
-                 }
+
                  if g.k==0 { // no enemies present
                      if g.here(Obj::Bird) && g.oldverb!=Act::Toss {
                          g.k+=1;
@@ -2357,21 +2343,19 @@ fn transitive(g: &mut Game) -> Goto {
 
 fn intransitive(g: &mut Game) -> Goto {
     g.k = 0;
-    let s=match g.verb {
-        Act::Go | Act::Relax => {
-            g.verb.msg()
-        }
+    let s = match g.verb {
+        Act::Go | Act::Relax => g.verb.msg(),
         Act::On | Act::Off | Act::Pour | Act::Fill | Act::Drink | Act::Blast | Act::Kill => {
             return Goto::Transitive
         }
         //⟨ Handle cases of intransitive verbs and continue 92 ⟩ ≡
         Act::Take if g.l2o[g.loc].len() == 1 && !g.dwarf() => {
             g.obj = g.l2o[g.loc][0];
-            return Goto::Transitive
+            return Goto::Transitive;
         }
         Act::Eat if g.here(Obj::Food) => {
             g.obj = Obj::Food;
-            return Goto::Transitive
+            return Goto::Transitive;
         }
         Act::Open | Act::Close => {
             if g.is_here(Obj::Grate) {
@@ -2393,7 +2377,7 @@ fn intransitive(g: &mut Game) -> Goto {
             if g.obj == Obj::Nothing {
                 "There is nothing here with a lock!"
             } else {
-                return Goto::Transitive
+                return Goto::Transitive;
             }
         }
         Act::Read if !g.dark() => {
@@ -2410,7 +2394,7 @@ fn intransitive(g: &mut Game) -> Goto {
                 Goto::Transitive
             } else {
                 Goto::GetObject
-            }
+            };
         }
         Act::Inventory => {
             if g.l2o[Loc::Inhand].is_empty() {
@@ -2513,7 +2497,7 @@ fn intransitive(g: &mut Game) -> Goto {
         }
         _ => {
             println!("{} what?", g.words[0]);
-            return Goto::Cycle
+            return Goto::Cycle;
         }
     };
     printif(s);
@@ -2779,12 +2763,7 @@ fn main() {
     g.limit = if g.hinted[0] { 1000 } else { 330 };
 
     //g.newloc=Loc::Swside;
-    //g.newloc=Loc::Neside;
     //g.drop(Obj::Lamp, Loc::Inhand);
-    //g.drop(Obj::Eggs, Loc::Inhand);
-    //g.drop(Obj::Food, Loc::Inhand);
-    //g.drop(Obj::Keys, Loc::Inhand);
-    //g.prop[Obj::Door]=1;
     //g.prop[Obj::Lamp]=1;
 
     let mut state = Goto::Major;

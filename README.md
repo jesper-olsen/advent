@@ -11,7 +11,9 @@ Welcome to Adventure!! Would you like instructions?
 ** n
 OK.
 
-You are standing at the end of a road before a small brick building. Around you is a forest. A small stream flows out of the building and down a gully.
+You are standing at the end of a road before a small brick building. 
+Around you is a forest. A small stream flows out of the building and 
+down a gully.
 *  
 ```
 
