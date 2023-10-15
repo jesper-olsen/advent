@@ -1,8 +1,8 @@
 use rand::random;
 use std::cmp::Ordering;
+use std::collections::VecDeque;
 use std::io::{self, Write};
 use std::process;
-use std::collections::VecDeque;
 
 pub mod motions;
 use motions::*;
@@ -62,7 +62,7 @@ fn debug(g: &mut Game, m: &str) {
 
 fn shortest_route(g: &Game, x: Loc, y: Loc) {
     // calc shortest route from x to y - note that
-    // some transitions are probablistic or depend
+    // some transitions are probabilstic or depend
     // on object locations/properties, so...
     // also, many motions are redundant ...
     println!("Shortst Route {x:?} -> {y:?}");
@@ -71,7 +71,7 @@ fn shortest_route(g: &Game, x: Loc, y: Loc) {
     let mut q = VecDeque::from([x]);
     used[x] = true;
 
-    while let Some(s)=q.pop_front() {
+    while let Some(s) = q.pop_front() {
         if s == y {
             // trace back
             let mut v = vec![];
@@ -143,6 +143,8 @@ fn listen(g: &Game) -> Vec<String> {
             .map(|s| s.to_string())
             .map(|s| s.chars().take(5).collect())
             .collect();
+
+        //println!("### [{:?}] * {}", g.loc, words.join(" "));
 
         match words.len() {
             0 => println!(" Tell me to do something."),
@@ -2598,10 +2600,7 @@ fn commence(g: &mut Game) -> Goto {
     if g.toting(Obj::Bear) {
         println!("You are being followed by a very large, tame bear.");
     }
-
-    if s != "" {
-        println!("\n{s}");
-    }
+    println!("\n{s}");
 
     if is_forced(g.loc) {
         return Goto::TryMove;
@@ -2631,12 +2630,14 @@ fn commence(g: &mut Game) -> Goto {
                 }
             }
             if o != Obj::Treads || g.toting(Obj::Gold) {
-                let s = if o == Obj::Treads && g.loc == Loc::Emist {
-                    o.note(g.prop[o] + 1)
-                } else {
-                    o.note(g.prop[o])
-                };
-                printif(s);
+                println!(
+                    "{}",
+                    if o == Obj::Treads && g.loc == Loc::Emist {
+                        o.note(g.prop[o] + 1)
+                    } else {
+                        o.note(g.prop[o])
+                    }
+                )
             }
         }
     }
@@ -2798,9 +2799,8 @@ fn main() {
     g.offer(0);
     g.limit = if g.hinted[0] { 1000 } else { 330 };
 
-    shortest_route(&g, Loc::House, Loc::Bedquilt);
-    //shortest_route(&g, Loc::Y2, Loc::Bedquilt);
-    //g.newloc=Loc::Swside;
+    //shortest_route(&g, Loc::House, Loc::Bedquilt);
+    //g.newloc=Loc::Pony;
     //g.drop(Obj::Lamp, Loc::Inhand);
     //g.prop[Obj::Lamp]=1;
 

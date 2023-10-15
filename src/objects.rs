@@ -46,7 +46,7 @@ impl Obj {
             Pyramid => "Platinum pyramid",
             Emerald => "Egg-sized emerald",
             Vase => "Ming vase",
-            Trident => "Jeweled trident",
+            Trident => "Jeweled trident \u{1F531}",
             Eggs => "Golden eggs",
             Chest => "Treasure chest",
             Coins => "Rare coins",
