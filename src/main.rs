@@ -2,6 +2,7 @@ use rand::random;
 use std::cmp::Ordering;
 use std::io::{self, Write};
 use std::process;
+use std::collections::VecDeque;
 
 pub mod motions;
 use motions::*;
@@ -36,10 +37,10 @@ const SAYIT: [&str; 13] = [
 
 const MAX_DEATHS: usize = 3;
 static DEATH_WISHES: [&str; 2*MAX_DEATHS] = [
-"Oh␣dear, you seem to have gotten yourself killed. I might be␣able to help you out, but I've never really done this before. Do you want me to try to reincarnate you?", 
+"Oh dear, you seem to have gotten yourself killed. I might be␣able to help you out, but I've never really done this before. Do you want me to try to reincarnate you?", 
 "All right. But don't blame me if something goes wr......  −−− POOF!! −−− You are engulfed in a cloud of orange smoke. Coughing and gasping, you emerge from the smoke and find....",
 "You clumsy oaf, you've done it again! I don't know how long I can keep this up. Do you want me to try reincarnating you again?",
-"Okay, now where did I put my resurrection␣kit?....  >POOF!< Everything␣disappears in a dense cloud of orange smoke.",
+"Okay, now where did I put my resurrection␣kit?....  >POOF!< Everything disappears in a dense cloud of orange smoke.",
 "Now you've really done it! I'm out of orange smoke! You don't expect me to do a decent reincarnation without any orange smoke, do you?",
 "Okay, if you're so smart, do it yourself! I'm leaving!"];
 
@@ -57,6 +58,47 @@ fn debug(g: &mut Game, m: &str) {
         g.clock2
     );
     println!("###{m} motions: {v:?}")
+}
+
+fn shortest_route(g: &Game, x: Loc, y: Loc) {
+    // calc shortest route from x to y - note that
+    // some transitions are probablistic or depend
+    // on object locations/properties, so...
+    // also, many motions are redundant ...
+    println!("Shortst Route {x:?} -> {y:?}");
+    let mut used = [false; N_LOC];
+    let mut prev = [(Mot::Nowhere, Loc::Limbo); N_LOC];
+    let mut q = VecDeque::from([x]);
+    used[x] = true;
+
+    while let Some(s)=q.pop_front() {
+        if s == y {
+            // trace back
+            let mut v = vec![];
+            let mut s = y;
+            loop {
+                let (m, p) = prev[s];
+                if p == Loc::Limbo {
+                    break;
+                }
+                v.push((m, p));
+                s = p;
+            }
+            while let Some((m, p)) = v.pop() {
+                println!("{p:?} ({m:?})->");
+            }
+            println!("{y:?}");
+            return;
+        }
+        for m in MOTIONS {
+            let u = g.travel(s, m, false);
+            if u != Loc::Limbo && !is_forced(u) && !used[u] {
+                q.push_back(u);
+                used[u] = true;
+                prev[u] = (m, s);
+            }
+        }
+    }
 }
 
 fn printif(s: &str) {
@@ -878,7 +920,6 @@ struct Game {
     is_movable: [bool; N_OBJECTS],
     gave_up: bool,
     bonus: i32,
-    k: i32,
     dtotal: u32,     // this many dwarves are in the room with you
     attack: u32,     // this many have had time to draw their knives
     stick: usize,    // this many have hurled their knives accurately
@@ -928,7 +969,6 @@ impl Game {
             is_movable: init_movable(),
             gave_up: false,
             bonus: 0,
-            k: 0,
             dtotal: 0,
             attack: 0,
             stick: 0,
@@ -1464,7 +1504,6 @@ fn cycle(g: &mut Game) -> Goto {
     //⟨ Make special adjustments before looking at new input 85 ⟩ ≡
     //See also sections 158, 169, and 182.
     g.was_dark = g.dark();
-    g.k = 0;
     if g.knife_loc > Loc::Limbo && g.knife_loc != g.loc {
         g.knife_loc = Loc::Limbo;
     }
@@ -1769,7 +1808,6 @@ fn change_to(g: &mut Game, verb: Act) -> Goto {
 }
 
 fn transitive(g: &mut Game) -> Goto {
-    g.k = 0;
     let s=match g.verb {
         //⟨ Handle cases of transitive verbs and continue 97 ⟩ ≡
         Act::Say => {
@@ -1982,10 +2020,7 @@ fn transitive(g: &mut Game) -> Goto {
         }
         Act::Take if g.obj==Obj::Bird && !g.toting(Obj::Cage) => "You can catch the bird, but you cannot carry it.",
         Act::Take if g.obj==Obj::Bird && g.toting(Obj::Rod) => "The bird was unafraid when you entered, but as you approach it becomes disturbed and you cannot catch it.",
-
         Act::Take if matches!(g.obj, Obj::Water | Obj::Oil) && !g.toting(Obj::Bottle) => "You have nothing in which to carry it.",
-
-
         Act::Take if !g.toting(g.obj) => {
             if matches!(g.obj, Obj::Water | Obj::Oil) {
                 g.obj=Obj::Bottle;
@@ -2134,34 +2169,35 @@ fn transitive(g: &mut Game) -> Goto {
 
          Act::Kill  => {
             if g.obj==Obj::Nothing {
-                 //⟨ See if there’s a unique object to attack 126 ⟩ ≡ {
-                 if g.dwarf() {
-                     g.k+=1;
-                     g.obj=Obj::Dwarf;
-                 }
-                 for (o,flag) in [(Obj::Snake,true), (Obj::Troll,true),
-                      (Obj::Dragon, g.prop[Obj::Dragon]==0),
-                      (Obj::Bear, g.prop[Obj::Bear]==0)]  {
-                     if g.here(o) && flag {
-                         g.k+=1;
-                         g.obj=o;
-                     }
-                 }
+                let mut k=0;
+                //⟨ See if there’s a unique object to attack 126 ⟩ ≡ {
+                if g.dwarf() {
+                    k+=1;
+                    g.obj=Obj::Dwarf;
+                }
+                for (o,flag) in [(Obj::Snake,true), (Obj::Troll,true),
+                     (Obj::Dragon, g.prop[Obj::Dragon]==0),
+                     (Obj::Bear, g.prop[Obj::Bear]==0)]  {
+                    if g.here(o) && flag {
+                        k+=1;
+                        g.obj=o;
+                    }
+                }
 
-                 if g.k==0 { // no enemies present
+                if k==0 { // no enemies present
                      if g.here(Obj::Bird) && g.oldverb!=Act::Toss {
-                         g.k+=1;
+                         k+=1;
                          g.obj=Obj::Bird;
                      }
                      // no harm done to call the oyster a clam in this case  
                      if g.here(Obj::Clam) || g.here(Obj::Oyster) {
-                         g.k+=1;
+                         k+=1;
                          g.obj=Obj::Clam;
                      }
-                 }
-            }
-            if g.k > 1 {
-                return Goto::GetObject
+                }
+                if k > 1 {
+                    return Goto::GetObject
+                }
             }
 
             match g.obj {
@@ -2302,9 +2338,9 @@ fn transitive(g: &mut Game) -> Goto {
         Act::Open | Act::Close if g.obj==Obj::Grate && g.closing() =>
             panic_at_closing_time_180(g),
         Act::Open | Act::Close if g.obj==Obj::Grate => {
-            g.k = g.prop[Obj::Grate] as i32;
+            let k=g.prop[Obj::Grate];
             g.prop[Obj::Grate]=if g.verb==Act::Open {1} else {0};
-            match g.k+2*g.prop[Obj::Grate] as i32 {
+            match k+2*g.prop[Obj::Grate]  {
                 0 => "It was already locked.", 
                 1 => "The grate is now locked.", 
                 2 => "The grate is now unlocked.", 
@@ -2342,7 +2378,6 @@ fn transitive(g: &mut Game) -> Goto {
 }
 
 fn intransitive(g: &mut Game) -> Goto {
-    g.k = 0;
     let s = match g.verb {
         Act::Go | Act::Relax => g.verb.msg(),
         Act::On | Act::Off | Act::Pour | Act::Fill | Act::Drink | Act::Blast | Act::Kill => {
@@ -2478,14 +2513,15 @@ fn intransitive(g: &mut Game) -> Goto {
                     {
                         g.prop[Obj::Troll] = 1;
                     }
-                    g.k = match (g.loc == Loc::Giant, g.here(Obj::Eggs)) {
-                        (true, _) => 0,
-                        (_, true) => 1,
-                        (_, false) => 2,
-                    };
-                    g.remove(Obj::Eggs);
-                    g.l2o[Loc::Giant].push(Obj::Eggs);
-                    println!("{}", Obj::Eggs.note(g.k as i8));
+                    println!(
+                        "{}",
+                        match (g.loc == Loc::Giant, g.here(Obj::Eggs)) {
+                            (true, _) => Obj::Eggs.note(0),
+                            (_, true) => Obj::Eggs.note(1),
+                            (_, false) => Obj::Eggs.note(2),
+                        }
+                    );
+                    g.drop(Obj::Eggs, Loc::Giant);
                     return Goto::Minor;
                 }
             };
@@ -2762,6 +2798,8 @@ fn main() {
     g.offer(0);
     g.limit = if g.hinted[0] { 1000 } else { 330 };
 
+    shortest_route(&g, Loc::House, Loc::Bedquilt);
+    //shortest_route(&g, Loc::Y2, Loc::Bedquilt);
     //g.newloc=Loc::Swside;
     //g.drop(Obj::Lamp, Loc::Inhand);
     //g.prop[Obj::Lamp]=1;
