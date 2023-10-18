@@ -2197,7 +2197,7 @@ fn transitive(g: &mut Game) -> Goto {
                          k+=1;
                          g.obj=Obj::Clam;
                      }
-                }
+                } 
                 if k > 1 {
                     return Goto::GetObject
                 }
@@ -2227,7 +2227,7 @@ fn transitive(g: &mut Game) -> Goto {
                     if g.words[0]!="yes" && g.words[0]!="y" {
                         return Goto::PreParse
                     }
-                    g.prop[Obj::Dragon]=2; // dead
+                    g.prop[Obj::Dragon]=1; // dead
                     g.prop[Obj::Rug]=0;
                     g.is_movable[Obj::Rug] = true;
                     for l in [Loc::Scan1, Loc::Scan3] {
@@ -2237,7 +2237,7 @@ fn transitive(g: &mut Game) -> Goto {
                         }
                     }
                     g.loc = Loc::Scan2;
-                    Obj::Dragon.note(1)
+                    "Congratulations! You have just vanquished a dragon with your bare hands! (Unbelievable, isn't it?)"
                 }
                 Obj::Dragon if g.prop[Obj::Dragon]!=0 =>
                    "For crying out loud, the poor thing is already dead!",
