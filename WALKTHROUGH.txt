@@ -1,5 +1,6 @@
 Welcome to Adventure!! Would you like instructions?
-** Somewhere nearby is Colossal Cave, where others have found fortunes in treasure and gold, though it is rumored that some who enter are never seen again. Magic is said to work in the cave. I will be your eyes and hands. Direct me with commands of one or two words. I should warn you that I look at only the first five letters of each word, so you'll have to enter "NORTHEAST" as "NE" to distinguish it from "NORTH". Should you get stuck, type "HELP" for some general hints. For information on how to end your adventure, etc., type "INFO".
+** y
+Somewhere nearby is Colossal Cave, where others have found fortunes in treasure and gold, though it is rumored that some who enter are never seen again. Magic is said to work in the cave. I will be your eyes and hands. Direct me with commands of one or two words. I should warn you that I look at only the first five letters of each word, so you'll have to enter "NORTHEAST" as "NE" to distinguish it from "NORTH". Should you get stuck, type "HELP" for some general hints. For information on how to end your adventure, etc., type "INFO".
 −  −  −
 The first adventure program was developed by Willie Crowther. Most of the features of the current program were added by Don Woods.
 
