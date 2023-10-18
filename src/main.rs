@@ -2092,7 +2092,7 @@ fn transitive(g: &mut Game) -> Goto {
                 g.is_movable[Obj::Vase] = false;
                 g.prop[Obj::Vase]=2;
             };
-            Obj::Vase.note(g.prop[Obj::Vase])
+            Obj::Vase.note(1+g.prop[Obj::Vase])
         }
 
         Act::Drop if g.obj==Obj::Bear && g.is_here(Obj::Troll) => {

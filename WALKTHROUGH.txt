@@ -328,7 +328,7 @@ Sorry, I don't know the word "pilow".
 [House] * drop pillo
 OK.
 [House] * drop vase
-There is a delicate, precious, Ming vase here!
+The vase is now resting, delicately, on a velvet pillow.
 [House] * drop emera
 OK.
 [House] * drop tride
