@@ -1062,7 +1062,7 @@ impl Game {
     }
 
     pub fn smash_vase(&mut self) {
-        self.prop[Obj::Vase] = 2;
+        self.prop[Obj::Vase] = 1;
         self.is_movable[Obj::Vase] = false;
     }
 
@@ -2088,11 +2088,11 @@ fn transitive(g: &mut Game) -> Goto {
             g.drop(Obj::Vase, g.loc);
             if g.is_here(Obj::Pillow) {
                 g.prop[Obj::Vase]=0;
+                "The vase is now resting, delicately, on a velvet pillow."
             } else {
-                g.is_movable[Obj::Vase] = false;
-                g.prop[Obj::Vase]=2;
-            };
-            Obj::Vase.note(1+g.prop[Obj::Vase])
+                g.smash_vase();
+                "The Ming vase drops with a delicate crash."
+            }
         }
 
         Act::Drop if g.obj==Obj::Bear && g.is_here(Obj::Troll) => {
@@ -2800,7 +2800,7 @@ fn main() {
     g.offer(0);
     g.limit = if g.hinted[0] { 1000 } else { 330 };
 
-    //shortest_route(&g, Loc::House, Loc::Bedquilt);
+    //shortest_route(&g, Loc::Epit, Loc::Wpit);
     //g.newloc=Loc::Pony;
     //g.drop(Obj::Lamp, Loc::Inhand);
     //g.prop[Obj::Lamp]=1;
