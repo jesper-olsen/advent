@@ -2022,6 +2022,7 @@ fn transitive(g: &mut Game) -> Goto {
         }
         Act::Take if g.obj==Obj::Bird && !g.toting(Obj::Cage) => "You can catch the bird, but you cannot carry it.",
         Act::Take if g.obj==Obj::Bird && g.toting(Obj::Rod) => "The bird was unafraid when you entered, but as you approach it becomes disturbed and you cannot catch it.",
+        Act::Take if matches!(g.obj, Obj::Water | Obj::Oil) && g.is_here(Obj::Bottle) && g.object_in_bottle(g.obj) => { g.carry(Obj::Bottle); OK}
         Act::Take if matches!(g.obj, Obj::Water | Obj::Oil) && !g.toting(Obj::Bottle) => "You have nothing in which to carry it.",
         Act::Take if !g.toting(g.obj) => {
             if matches!(g.obj, Obj::Water | Obj::Oil) {
@@ -2039,18 +2040,18 @@ fn transitive(g: &mut Game) -> Goto {
                 g.remove(Obj::Bird)
             }
             g.carry(g.obj);
-            "OK."
+            OK
         }
 
         Act::Drop if g.obj==Obj::Rod && !g.toting(Obj::Rod) && g.toting(Obj::Rod2) => {
             g.drop(Obj::Rod2, g.loc);
-            "OK."
+            OK
         }
 
         Act::Drop if !g.toting(g.obj) =>
              if matches!(g.obj, Obj::Water | Obj::Oil) && g.toting(Obj::Bottle) {
              g.drop(Obj::Bottle, g.loc);
-             "OK."
+             OK
         } else {
             Act::Drop.msg()
         }
@@ -2101,6 +2102,7 @@ fn transitive(g: &mut Game) -> Goto {
             g.drop(Obj::Troll2, Loc::Swside);
             g.drop(Obj::Troll2, Loc::Neside);
             g.prop[Obj::Troll]=2;
+            g.drop(Obj::Bear, g.loc);
             "The bear lumbers toward the troll, who lets out a startled shriek and scurries away. The bear soon gives up the pursuit and wanders back."
         }
 
