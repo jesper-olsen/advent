@@ -135,7 +135,7 @@ fn yes(q: &str, y: &str, n: &str) -> bool {
 
 fn listen(g: &Game) -> Vec<String> {
     loop {
-        print!("[{:?}] *", g.loc);
+        print!("[{:?}] * ", g.loc);
         let _ = io::stdout().flush();
         let words: Vec<String> = get_input()
             .to_lowercase()
@@ -2048,13 +2048,12 @@ fn transitive(g: &mut Game) -> Goto {
             OK
         }
 
-        Act::Drop if !g.toting(g.obj) =>
-             if matches!(g.obj, Obj::Water | Obj::Oil) && g.toting(Obj::Bottle) {
+        Act::Drop if matches!(g.obj,Obj::Water | Obj::Oil) && g.toting(Obj::Bottle) && g.object_in_bottle(g.obj) => {
              g.drop(Obj::Bottle, g.loc);
              OK
-        } else {
-            Act::Drop.msg()
         }
+
+        Act::Drop if !g.toting(g.obj) => Act::Drop.msg(),
 
         Act::Drop if g.obj==Obj::Coins && g.here(Obj::Pony) => {
             //⟨ Put coins in the vending machine 118 ⟩ ≡ 
