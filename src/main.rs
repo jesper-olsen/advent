@@ -101,9 +101,21 @@ fn shortest_route(g: &Game, x: Loc, y: Loc) {
     }
 }
 
-fn printif(s: &str) {
-    if s != "" {
-        println!("{s}")
+fn prn(s: &str) {
+    const MAX_WIDTH: usize = 50;
+    let mut v: Vec<&str> = Vec::new();
+    let mut n = 0;
+    for w in s.split_whitespace() {
+        if n + v.len() > MAX_WIDTH {
+            println!("{}", v.join(" "));
+            v.clear();
+            n = 0;
+        }
+        v.push(w);
+        n += w.len();
+    }
+    if !v.is_empty() {
+        println!("{}", v.join(" "));
     }
 }
 
@@ -120,11 +132,11 @@ fn yes(q: &str, y: &str, n: &str) -> bool {
         if let Some(c) = get_input().chars().next() {
             match c {
                 'Y' | 'y' => {
-                    printif(y);
+                    prn(y);
                     return true;
                 }
                 'N' | 'n' => {
-                    printif(n);
+                    prn(n);
                     return false;
                 }
                 _ => println!(" Please answer Yes or No."),
@@ -167,9 +179,8 @@ static HINT: [(&str,&str); N_HINTS] = [
    you'll have to enter \"NORTHEAST\" as \"NE\" to distinguish it from \
    \"NORTH\". Should you get stuck, type \"HELP\" for some general hints. \
    For information on how to end your adventure, etc., type \"INFO\". \
-   \n                        −  −  −\nThe first adventure program was \
-   developed by Willie Crowther. Most of the features of the current \
-   program were added by Don Woods."),
+   The first adventure program was developed by Willie Crowther. Most \
+   of the features of the current program were added by Don Woods."),
 
    ("Hmmm, this looks like a clue, which means it’ll cost you 10 points to read it. Should I go ahead and read it anyway?", 
     "It says, \"There is something strange about this place, such that one \
@@ -1227,7 +1238,7 @@ fn death(g: &mut Game) -> Goto {
     //⟨ Deal with death and resurrection 188 ⟩=;
     g.death_count += 1;
     if g.closing() {
-        println!("It looks as though you're dead. Well, seeing as how it's so close to closing time anyway, let's just call it a day.");
+        prn("It looks as though you're dead. Well, seeing as how it's so close to closing time anyway, let's just call it a day.");
         quit(g)
     }
     if !yes(
@@ -1255,13 +1266,13 @@ fn death(g: &mut Game) -> Goto {
 }
 
 fn pitch_dark(g: &mut Game) -> Goto {
-    println!("You fell into a pit and broke every bone in your body!");
+    prn("You fell into a pit and broke every bone in your body!");
     g.oldoldloc = g.loc;
     death(g)
 }
 
 fn dwarves_upset(g: &Game) -> ! {
-    println!("The resulting ruckus has awakened the dwarves. There are now several threatening little dwarves in the room with you! Most of them throw knives at you! All of them get you!");
+    prn("The resulting ruckus has awakened the dwarves. There are now several threatening little dwarves in the room with you! Most of them throw knives at you! All of them get you!");
     quit(g)
 }
 
@@ -1320,7 +1331,7 @@ fn make_pirate_track_you_172(g: &mut Game) {
         } else {
             ""
         };
-        printif(s);
+        prn(s);
     }
 }
 
@@ -1328,7 +1339,7 @@ fn major(g: &mut Game) -> Goto {
     //⟨ Check for interference with the proposed move to newloc 153 ⟩ ≡
     if g.closing() && g.newloc < MIN_IN_CAVE && g.newloc != Loc::Limbo {
         g.newloc = g.loc;
-        println!("{}", panic_at_closing_time_180(g));
+        prn(panic_at_closing_time_180(g));
     } else if g.newloc != g.loc
         && g.newloc <= MAX_PIRATE_LOC
         //&& (1..g.odloc.len()).any(|j| g.odloc[j] == g.newloc && g.dseen[j])
@@ -1336,7 +1347,7 @@ fn major(g: &mut Game) -> Goto {
     {
         //⟨ Stay in loc if a dwarf is blocking the way to newloc 176 ⟩ ≡
         g.newloc = g.loc;
-        println!("A little dwarf with a big knife blocks your way. \u{1F479}");
+        prn("A little dwarf with a big knife blocks your way. \u{1F479}");
     }
     g.loc = g.newloc; // hey, we actually moved you
 
@@ -1364,7 +1375,7 @@ fn major(g: &mut Game) -> Goto {
                         }
                         g.odloc[j] = g.dloc[j];
                     }
-                    println!("A little dwarf just walked around a corner, saw you, threw a little axe at you, cursed, and ran away. (The axe missed.)");
+                    prn("A little dwarf just walked around a corner, saw you, threw a little axe at you, cursed, and ran away. (The axe missed.)");
                     g.drop(Obj::Axe, g.loc);
                 }
             }
@@ -1512,7 +1523,7 @@ fn cycle(g: &mut Game) -> Goto {
 
     if g.closed {
         if g.prop[Obj::Oyster] < 0 && g.toting(Obj::Oyster) {
-            println!("{}", Obj::Oyster.note(g.prop[Obj::Oyster]));
+            prn(Obj::Oyster.note(g.prop[Obj::Oyster]));
         }
         for o in g.l2o[Loc::Inhand].iter() {
             if g.prop[*o] < 0 {
@@ -1545,7 +1556,7 @@ fn pre_parse(g: &mut Game) -> Goto {
     }
     if g.clock1 == 0 {
         //⟨ Warn that the cave is closing 179 ⟩ ≡
-        println!("A sepulchral voice, reverberating through the cave, says, \"Cave closing soon. All adventurers exit immediately through main office.\"");
+        prn("A sepulchral voice, reverberating through the cave, says, \"Cave closing soon. All adventurers exit immediately through main office.\"");
         g.clock1 = -1;
         g.prop[Obj::Grate] = 0;
         g.prop[Obj::Crystal] = 0;
@@ -1574,7 +1585,7 @@ fn pre_parse(g: &mut Game) -> Goto {
         }
         if g.clock2 == 0 {
             //⟨ Close the cave 181 ⟩ ≡
-            println!("The sepulchral voice intones, \"The cave is now closed.\" As the echoes fade, there is a blinding flash of light (and a small puff of orange smoke). . . . Then your eyes refocus; you look around and find...");
+            prn("The sepulchral voice intones, \"The cave is now closed.\" As the echoes fade, there is a blinding flash of light (and a small puff of orange smoke). . . . Then your eyes refocus; you look around and find...");
             for (obj, p) in [
                 (Obj::Bottle, -2),
                 (Obj::Plant, -1),
@@ -1623,9 +1634,7 @@ fn pre_parse(g: &mut Game) -> Goto {
                 && g.here(Obj::Lamp)
             {
                 //⟨ Replace the batteries 186 ⟩ ≡
-                println!(
-                    "Your lamp is getting dim. I'm taking the liberty of replacing the batteries."
-                );
+                prn("Your lamp is getting dim. I'm taking the liberty of replacing the batteries.");
                 g.prop[Obj::Batteries] = 1;
                 if g.toting(Obj::Batteries) {
                     g.drop(Obj::Batteries, g.loc);
@@ -1636,10 +1645,10 @@ fn pre_parse(g: &mut Game) -> Goto {
                 g.limit = -1;
                 g.prop[Obj::Lamp] = 0;
                 if g.here(Obj::Lamp) {
-                    println!("Your lamp has run out of power.");
+                    prn("Your lamp has run out of power.");
                 }
             } else if g.limit < 0 && g.loc < MIN_IN_CAVE {
-                println!("There's not much point in wandering around out here, and you can't explore the cave without a lamp. So let's just call it a day.");
+                prn("There's not much point in wandering around out here, and you can't explore the cave without a lamp. So let's just call it a day.");
                 g.gave_up = true;
                 quit(g)
             } else if g.limit <= 30 && !g.warned && g.here(Obj::Lamp) {
@@ -1650,7 +1659,9 @@ fn pre_parse(g: &mut Game) -> Goto {
                 } else {
                     ". You'd best go back for those batteries."
                 };
-                println!("Your lamp is getting dim{}", s);
+                //println!("Your lamp is getting dim{}", s);
+                prn(format!("Your lamp is getting dim{}", s).as_str());
+
                 g.warned = true;
             }
         }
@@ -1690,7 +1701,7 @@ fn parse(g: &mut Game) -> Goto {
     if g.words[0] == "west" {
         g.west_count += 1;
         if g.west_count == 10 {
-            println!(" If you prefer, simply type W rather than WEST.");
+            prn(" If you prefer, simply type W rather than WEST.");
         }
     }
 
@@ -1736,9 +1747,7 @@ fn branch(g: &mut Game) -> Goto {
 
                     Obj::Knife if g.loc == g.knife_loc => {
                         g.knife_loc = Loc::Limbo;
-                        println!(
-                            "The dwarves' knives vanish as they strike the walls of the cave."
-                        );
+                        prn("The dwarves' knives vanish as they strike the walls of the cave.");
                     }
                     Obj::Rod if g.here(Obj::Rod2) => g.obj = Obj::Rod2,
                     Obj::Water
@@ -1780,7 +1789,7 @@ fn branch(g: &mut Game) -> Goto {
         }
 
         Word::Message(m) => {
-            println!("{}", m);
+            prn(m);
             return Goto::Minor;
         }
     }
@@ -1850,7 +1859,7 @@ fn transitive(g: &mut Game) -> Goto {
                Act::Drop.msg(), // don't carry it 
 
         Act::Blast if g.closed && g.prop[Obj::Rod2] >= 0 => {
-            println!("{}", if g.here(Obj::Rod2) {
+            prn(if g.here(Obj::Rod2) {
                 g.bonus=25;
                 "There is a loud explosion and you are suddenly splashed across the walls of the room."
             } else if g.loc==Loc::Neend {
@@ -1879,7 +1888,7 @@ fn transitive(g: &mut Game) -> Goto {
 
         Act::Break if g.obj == Obj::Mirror => {
             if g.closed {
-                println!("You strike the mirror a resounding blow, whereupon it shatters into a myriad tiny fragments.");
+                prn("You strike the mirror a resounding blow, whereupon it shatters into a myriad tiny fragments.");
                 dwarves_upset(g)
             } else {
                 "It is too far up for you to reach"
@@ -1894,7 +1903,7 @@ fn transitive(g: &mut Game) -> Goto {
         }
 
         Act::Wake if g.closed && g.obj == Obj::Dwarf => {
-            println!("You prod the nearest dwarf, who wakes up grumpily, takes one look at you, curses, and grabs for his axe.");
+            prn("You prod the nearest dwarf, who wakes up grumpily, takes one look at you, curses, and grabs for his axe.");
             dwarves_upset(g)
         }
 
@@ -1903,7 +1912,7 @@ fn transitive(g: &mut Game) -> Goto {
                 "Your lamp has run out of power."
             } else {
                 g.prop[Obj::Lamp]=1;
-                println!("Your lamp is now on.");
+                prn("Your lamp is now on.");
                 if g.was_dark
                     {return Goto::Commence}
                 ""
@@ -1912,7 +1921,7 @@ fn transitive(g: &mut Game) -> Goto {
 
         Act::Off if g.here(Obj::Lamp) => {
             g.prop[Obj::Lamp]=0;
-            println!("Your lamp is now off.");
+            prn("Your lamp is now off.");
             if g.dark() {PITCH_DARK_MSG} else {""}
         }
 
@@ -1954,7 +1963,7 @@ fn transitive(g: &mut Game) -> Goto {
                     if g.obj != Obj::Water {
                         "The plant indignantly shakes the oil off its leaves and asks, \"Water?\""
                     } else {
-                        println!("{}", Obj::Plant.note(g.prop[Obj::Plant]));
+                        prn(Obj::Plant.note(g.prop[Obj::Plant]));
                         g.prop[Obj::Plant] += 2;
                         if g.prop[Obj::Plant] > 4 {
                             g.prop[Obj::Plant] = 0;
@@ -2197,7 +2206,7 @@ fn transitive(g: &mut Game) -> Goto {
                          k+=1;
                          g.obj=Obj::Clam;
                      }
-                } 
+                }
                 if k > 1 {
                     return Goto::GetObject
                 }
@@ -2220,7 +2229,7 @@ fn transitive(g: &mut Game) -> Goto {
                 }
                 Obj::Dragon if g.prop[Obj::Dragon]==0 => {
                     //⟨ Fun stuff for dragon 128 ⟩ ≡ 
-                    println!("With what? Your bare hands?");
+                    prn("With what? Your bare hands?");
                     g.verb = Act::Abstain;
                     g.obj = Obj::Nothing;
                     g.words=listen(g);
@@ -2375,7 +2384,7 @@ fn transitive(g: &mut Game) -> Goto {
         }
         _ => g.verb.msg(),
     };
-    printif(s);
+    prn(s);
 
     Goto::Minor
 }
@@ -2438,7 +2447,7 @@ fn intransitive(g: &mut Game) -> Goto {
             if g.l2o[Loc::Inhand].is_empty() {
                 "You're not carrying anything."
             } else {
-                println!("You are currently holding the following:");
+                prn("You are currently holding the following:");
                 for o in g.l2o[Loc::Inhand].iter() {
                     match *o {
                         Obj::Bear => (),
@@ -2539,7 +2548,7 @@ fn intransitive(g: &mut Game) -> Goto {
             return Goto::Cycle;
         }
     };
-    printif(s);
+    prn(s);
     Goto::Minor
 }
 
@@ -2599,9 +2608,11 @@ fn commence(g: &mut Game) -> Goto {
     };
 
     if g.toting(Obj::Bear) {
-        println!("You are being followed by a very large, tame bear.");
+        prn("You are being followed by a very large, tame bear.");
     }
-    println!("\n{s}");
+    println!();
+    prn(s);
+    //println!("\n{s}");
 
     if is_forced(g.loc) {
         return Goto::TryMove;
@@ -2609,7 +2620,7 @@ fn commence(g: &mut Game) -> Goto {
 
     //⟨ Give optional plugh hint 157 ⟩ ≡
     if g.loc == Loc::Y2 && pct(25) && !g.closing() {
-        println!("A hollow voice says \"PLUGH\".")
+        prn("A hollow voice says \"PLUGH\".")
     }
     if !g.dark() {
         //⟨ Describe the objects at this location 88 ⟩ ≡
@@ -2631,14 +2642,11 @@ fn commence(g: &mut Game) -> Goto {
                 }
             }
             if o != Obj::Treads || g.toting(Obj::Gold) {
-                println!(
-                    "{}",
-                    if o == Obj::Treads && g.loc == Loc::Emist {
-                        o.note(g.prop[o] + 1)
-                    } else {
-                        o.note(g.prop[o])
-                    }
-                )
+                prn(if o == Obj::Treads && g.loc == Loc::Emist {
+                    o.note(g.prop[o] + 1)
+                } else {
+                    o.note(g.prop[o])
+                })
             }
         }
     }
@@ -2685,7 +2693,7 @@ fn try_move(g: &mut Game) -> Goto {
            return Goto::GoForIt
          }
     };
-    printif(s);
+    prn(s);
     Goto::Major
 }
 
@@ -2771,7 +2779,7 @@ fn go_for_it(g: &mut Game) -> Goto {
                 g.prop[Obj::Troll] = 1;
             }
             if g.toting(Obj::Bear) {
-                println!("Just as you reach the other side, the bridge buckles beneath the weight of the bear, who was still following you around. You scrabble desperately for support, but as the bridge collapses you stumble back and fall into the chasm.");
+                prn("Just as you reach the other side, the bridge buckles beneath the weight of the bear, who was still following you around. You scrabble desperately for support, but as the bridge collapses you stumble back and fall into the chasm.");
                 g.prop[Obj::Bridge] = 1;
                 g.prop[Obj::Troll] = 2;
                 g.drop(Obj::Bear, g.newloc);
@@ -2789,7 +2797,7 @@ fn go_for_it(g: &mut Game) -> Goto {
         }
         _ => "",
     };
-    printif(s);
+    prn(s);
 
     Goto::Major
 }
