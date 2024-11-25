@@ -15,8 +15,8 @@ pub enum Word {
 }
 
 impl Word {
-    pub fn from_string(s: &String) -> Self {
-        match s.as_str() {
+    pub fn from_string(s: &str) -> Self {
+        match s {
         "north" | "n" => Word::Motion(Mot::N),
         "south" | "s" => Word::Motion(Mot::S),
         "east" | "e" => Word::Motion(Mot::E),

@@ -1196,7 +1196,7 @@ enum Goto {
 
 fn quit(g: &Game) -> ! {
     //⟨ Print the score and say adieu 198 ⟩=;
-    static CLASS_SCORE: [i32; 9] = [35, 100, 130, 200, 250, 300, 330, 349, std::i32::MAX];
+    static CLASS_SCORE: [i32; 9] = [35, 100, 130, 200, 250, 300, 330, 349, i32::MAX];
 
     let k = score(g);
 
@@ -1499,9 +1499,9 @@ fn cycle(g: &mut Game) -> Goto {
                     3 if !bc => continue,
                     4 => g.here(Obj::Snake) && !g.here(Obj::Bird),
                     5 => {
-                        g.l2o[g.loc].len() == 0
-                            && g.l2o[g.oldloc].len() == 0
-                            && g.l2o[g.oldoldloc].len() == 0
+                        g.l2o[g.loc].is_empty()
+                            && g.l2o[g.oldloc].is_empty()
+                            && g.l2o[g.oldoldloc].is_empty()
                             && g.l2o[Loc::Inhand].len() > 1
                     }
                     6 => g.prop[Obj::Emerald] != -1 && g.prop[Obj::Pyramid] == -1,
@@ -1804,7 +1804,7 @@ fn get_object(g: &Game) -> Goto {
 }
 
 fn cant_see_it(g: &mut Game) -> Goto {
-    if matches!(g.verb, Act::Find | Act::Inventory) && g.words[1] == "" {
+    if matches!(g.verb, Act::Find | Act::Inventory) && g.words[1].is_empty() {
         g.words.remove(0);
         return Goto::Transitive;
     }
@@ -2583,12 +2583,12 @@ fn score(g: &Game) -> i32 {
     };
     s += g.bonus;
 
-    for j in 0..g.hinted.len() {
-        if g.hinted[j] {
-            s -= HINT_COST[j];
-        }
-    }
-    s
+    s - g
+        .hinted
+        .iter()
+        .zip(HINT_COST.iter())
+        .map(|(&hinted, &cost)| if hinted { cost } else { 0 })
+        .sum::<i32>()
 }
 
 fn commence(g: &mut Game) -> Goto {
@@ -2601,7 +2601,7 @@ fn commence(g: &mut Game) -> Goto {
             return pitch_dark(g);
         }
         PITCH_DARK_MSG
-    } else if short_desc(g.loc) != "" || g.visits() % g.interval == 0 {
+    } else if !short_desc(g.loc).is_empty() || g.visits() % g.interval == 0 {
         long_desc(g.loc)
     } else {
         short_desc(g.loc)
