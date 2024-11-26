@@ -161,17 +161,22 @@ fn listen(g: &Game) -> Vec<String> {
         match words.len() {
             0 => println!(" Tell me to do something."),
             1 | 2 => return words,
-            _ => println!(" Please stick to 1− and 2−word commands."),
+            _ => println!(" Please stick to 1 and 2 word commands."),
         }
     }
 }
 
-const N_HINTS: usize = 8;
-const HINT_COST: [i32; N_HINTS] = [5, 10, 2, 2, 2, 4, 5, 3];
+struct Hint {
+    question: &'static str,
+    answer: &'static str,
+    cost: i32,
+}
 
-static HINT: [(&str,&str); N_HINTS] = [
-   ("Welcome to Adventure!! Would you like instructions?", 
-   "Somewhere nearby is Colossal Cave, where others have found fortunes in \
+const N_HINTS: usize = 8;
+static HINTS: [Hint; N_HINTS] = [
+    Hint {
+        question: "Welcome to Adventure!! Would you like instructions?",
+        answer: "Somewhere nearby is Colossal Cave, where others have found fortunes in \
    treasure and gold, though it is rumored that some who enter are never \
    seen again. Magic is said to work in the cave. I will be your eyes \
    and hands. Direct me with commands of one or two words. I should \
@@ -180,35 +185,52 @@ static HINT: [(&str,&str); N_HINTS] = [
    \"NORTH\". Should you get stuck, type \"HELP\" for some general hints. \
    For information on how to end your adventure, etc., type \"INFO\". \
    The first adventure program was developed by Willie Crowther. Most \
-   of the features of the current program were added by Don Woods."),
-
-   ("Hmmm, this looks like a clue, which means it’ll cost you 10 points to read it. Should I go ahead and read it anyway?", 
-    "It says, \"There is something strange about this place, such that one \
-   of the words I've always known now has a new effect.\""),
-
-   ("Are you trying to get into the cave?", 
-    "The grate is very solid and has a hardened steel lock. You cannot \
+   of the features of the current program were added by Don Woods.",
+        cost: 5,
+    },
+    Hint {
+        question: "Hmmm, this looks like a clue, which means it will cost you 10 points to read it. Should I go ahead and read it anyway?",
+        answer: "It says, \"There is something strange about this place, such that one \
+   of the words I've always known now has a new effect.\"",
+        cost: 10,
+    },
+    Hint {
+        question: "Are you trying to get into the cave?",
+        answer: "The grate is very solid and has a hardened steel lock. You cannot \
    enter without a key, and there are no keys in sight. I would recommend \
-   looking elsewhere for the keys."),
-
-  ("Are you trying to catch the␣bird?", 
-    "Something seems to be frightening the bird just now and you cannot \
-   catch it no matter what you try. Perhaps you might try later."),
-
-  ("Are you trying to deal somehow with the␣snake?", 
-    "You can't kill the snake, or drive it away, or avoid it, or anything \
+   looking elsewhere for the keys.",
+        cost: 2,
+    },
+    Hint {
+        question: "Are you trying to catch the bird?",
+        answer: "Something seems to be frightening the bird just now and you cannot \
+   catch it no matter what you try. Perhaps you might try later.",
+        cost: 2,
+    },
+    Hint {
+        question: "Are you trying to deal somehow with the snake?",
+        answer: "You can't kill the snake, or drive it away, or avoid it, or anything \
    like that. There is a way to get by, but you don't have the necessary \
-   resources right now."),
-
-  ("Do you need help getting out of the maze?", 
-    "You can make the passages look less alike by dropping things."),
-
-  ("Are you trying to explore beyond the Plover Room?", 
-    "There is a way to explore that region without having to worry about \
+   resources right now.",
+        cost: 2,
+    },
+    Hint {
+        question: "Do you need help getting out of the maze?",
+        answer: "You can make the passages look less alike by dropping things.",
+        cost: 4,
+    },
+    Hint {
+        question: "Are you trying to explore beyond the Plover Room?",
+        answer: "There is a way to explore that region without having to worry about \
    falling into a pit. None of the objects available is immediately \
-   useful for discovering the secret."),
-
-  ("Do you need help getting out of here?", "Don't go west."),
+   useful for discovering the secret.",
+        cost: 5,
+    },
+    Hint {
+        question: "Do you need help getting out of here?",
+        answer: "Don't go west.",
+        cost: 3,
+    },
 ];
 
 fn pct(n: u8) -> bool {
@@ -1155,16 +1177,16 @@ impl Game {
     // 194
     fn offer(&mut self, j: usize) {
         if j > 1 {
-            if !yes(HINT[j].0, "I am prepared to give you a hint", OK) {
+            if !yes(HINTS[j].question, "I am prepared to give you a hint", OK) {
                 return;
             }
-            println!(" but it will cost you {} points", HINT_COST[j]);
-            self.hinted[j] = yes("Do you want the hint?", HINT[j].1, OK);
+            println!(" but it will cost you {} points", HINTS[j].cost);
+            self.hinted[j] = yes("Do you want the hint?", HINTS[j].answer, OK);
         } else {
-            self.hinted[j] = yes(HINT[j].0, HINT[j].1, OK);
+            self.hinted[j] = yes(HINTS[j].question, HINTS[j].answer, OK);
         }
         if self.hinted[j] && self.limit > 30 {
-            self.limit += 30 * HINT_COST[j]
+            self.limit += 30 * HINTS[j].cost
         }
     }
 
@@ -2586,8 +2608,8 @@ fn score(g: &Game) -> i32 {
     s - g
         .hinted
         .iter()
-        .zip(HINT_COST.iter())
-        .map(|(&hinted, &cost)| if hinted { cost } else { 0 })
+        .zip(HINTS.iter())
+        .map(|(&hinted, hints)| if hinted { hints.cost } else { 0 })
         .sum::<i32>()
 }
 

@@ -114,6 +114,27 @@ pub const fn no_liquid_here(loc: Loc) -> bool {
     condition(loc) & LIQUID == 0
 }
 
+struct LocationDescription {
+    long: &'static str,
+    short: &'static str,
+    condition: u16,
+}
+
+const fn location_description(loc: Loc) -> LocationDescription {
+    match loc {
+        Road => LocationDescription {
+            long: "",
+            short: "",
+            condition: 0,
+        },
+        _ => LocationDescription {
+            long: "",
+            short: "",
+            condition: 0,
+        },
+    }
+}
+
 const fn lookup_location(loc: Loc) -> (&'static str, &'static str, u16) {
     match loc {
         Road => ("You are standing at the end of a road before a small brick building. Around you is a forest. A small stream flows out of the building and down a gully.", "You’re at end of road again.", LIGHTED + LIQUID ),
