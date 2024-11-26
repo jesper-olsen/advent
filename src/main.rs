@@ -983,9 +983,9 @@ struct Game {
     obj: Obj,
     oldobj: Obj,
     turns: u32,
-    tally: u8, // treasures not seen yet
+    tally: u8, // treasures not seen yea
     lost_treasures: u8,
-    hint_count: [u16; N_HINTS],
+    hint_count: [u16; N_HINTS], // # of recent turns relevant to each hint
     hinted: [bool; N_HINTS],
     words: Vec<String>,
     visits: [u16; N_LOC],
@@ -1034,7 +1034,7 @@ impl Game {
             turns: 0,
             tally: (Obj::Chain as usize - Obj::Gold as usize + 1) as u8,
             lost_treasures: 0,
-            hint_count: [0, 0, 4, 5, 8, 75, 25, 20],
+            hint_count: [0; N_HINTS],
             hinted: [false; N_HINTS],
             words: Vec::new(),
             visits: [0; N_LOC],
@@ -1508,17 +1508,22 @@ fn minor(g: &mut Game) -> Goto {
 fn cycle(g: &mut Game) -> Goto {
     //debug(g, "cycle");
     //⟨ Check if a hint applies, and give it if requested 195 ⟩ ≡
-    let bc = g.here(Obj::Bird) && g.oldobj == Obj::Bird && g.toting(Obj::Rod);
     let hint_thresh = [0, 0, 4, 5, 8, 75, 25, 20]; // turns
 
     for j in 2..N_HINTS {
-        if !g.hinted[j] {
-            if (condition(g.loc) & 2u16.pow(1 + j as u32)) == 0 {
-                g.hint_count[j] = 0;
-            } else if g.hint_count[j] >= hint_thresh[j] {
+        if g.hinted[j] {
+            continue;
+        }
+        if (condition(g.loc) & 2u16.pow(1 + j as u32)) == 0 {
+            g.hint_count[j] = 0;
+        } else {
+            g.hint_count[j] += 1;
+            if g.hint_count[j] >= hint_thresh[j] {
                 if match j {
                     2 => g.prop[Obj::Grate] == 0 && !g.here(Obj::Keys),
-                    3 if !bc => continue,
+                    3 if !g.here(Obj::Bird) || g.oldobj != Obj::Bird || !g.toting(Obj::Rod) => {
+                        continue
+                    }
                     4 => g.here(Obj::Snake) && !g.here(Obj::Bird),
                     5 => {
                         g.l2o[g.loc].is_empty()
