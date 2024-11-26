@@ -2,6 +2,7 @@ use std::ops::{Index, IndexMut};
 
 #[rustfmt::skip]
 #[derive(Eq, PartialEq, PartialOrd, Hash, Copy, Clone, Debug)]
+#[repr(u8)]
 pub enum Loc {
     Inhand, Limbo, Road, Hill, House, Valley, Forest, Woods, Slit, Outside,
     Inside, Cobbles, Debris, Awk, Bird, Spit, Emist, Nugget, Efiss, Wfiss, 
@@ -29,30 +30,16 @@ pub enum Loc {
 
 use Loc::*;
 
-#[rustfmt::skip]
-pub static LOCATIONS: [Loc; N_LOC] = [
-    Inhand, Limbo, Road, Hill, House, Valley, Forest, Woods, Slit, Outside,
-    Inside, Cobbles, Debris, Awk, Bird, Spit, Emist, Nugget, Efiss, Wfiss, Wmist,
-    Like1, Like2, Like3, Like4, Like5, Like6, Like7, Like8, Like9, Like10, 
-    Like11, Like12, Like13, Like14, 
-    Brink, Elong, Wlong,
-    Diff0, Diff1, Diff2, Diff3, Diff4, Diff5, Diff6, Diff7, Diff8, Diff9,
-    Diff10,
-    Pony, Cross, Hmk, West, South, Ns, Y2, Jumble, Windoe, Dirty, Clean, 
-    Wet, Dusty, Complex, Shell, Arch, Ragged, Sac, Ante, Witt, Bedquilt,
-    Cheese, Soft, E2pit, W2pit, Epit, Wpit, Narrow, Giant, Block, Immense,
-    Falls, Steep, Abovep, Sjunc, Tite, Low, Crawl, Window, Oriental, Misty,
-    Alcove, Proom, Droom, Slab, Abover, Mirror, Res, Scan1, Scan2, Scan3,
-    Secret, Wide, Tight, Tall, Boulders, Scorr, Swside,
-    Dead0, Dead1, Dead2, Dead3, Dead4, Dead5, Dead6, Dead7,
-    Dead8, Dead9, Dead10, Dead11,
-    Neside, Corr, Fork, Warm, View, Chamber, Lime, Fbarr, Barr, Neend, 
-    Swend, 
-    Crack, Neck, Lose, Cant, Climb, Check, Snaked, Thru, Duck, Sewer, Upnout,
-    Didit, Ppass, Pdrop, Troll,
-    Sayit0, Sayit1, Sayit2, Sayit3, Sayit4, Sayit5, Sayit6, Sayit7,
-    Sayit8, Sayit9, Sayit10, Sayit11, Sayit12
-];
+impl Loc {
+    pub fn from_u8(value: u8) -> Option<Self> {
+        // Use `std::mem::transmute` for simplicity if the values align.
+        if value <= Loc::Sayit12 as u8 {
+            Some(unsafe { std::mem::transmute::<u8,Loc>(value) })
+        } else {
+            None
+        }
+    }
+}
 
 impl<T> Index<Loc> for [T; N_LOC] {
     type Output = T;
@@ -545,3 +532,19 @@ const fn description(loc: Loc) -> Description {
     }
 }
 
+
+#[cfg(test)]
+mod tests {
+    use crate::Loc;
+    use crate::Loc::*;
+
+    #[test]
+    fn enum_from_u8_test() {
+        for loc in [Inhand, Limbo, Road, Hill, House, Valley, Forest, Woods, Slit, Outside,
+            Sayit8, Sayit9, Sayit10, Sayit11, Sayit12] {
+
+            let l =  Loc::from_u8(loc as u8).expect("failed to convert u8 to Loc");
+            assert_eq!(loc, l);
+        }
+    }
+}

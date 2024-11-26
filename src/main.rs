@@ -1153,9 +1153,10 @@ impl Game {
     // return location of obj
     fn place(&self, obj: Obj) -> Vec<Loc> {
         let mut v = Vec::new();
-        for l in LOCATIONS {
-            if self.is_at(obj, l) {
-                v.push(l)
+        for (i, vo) in self.l2o.iter().enumerate() {
+            if vo.contains(&obj) {
+                let l = Loc::from_u8(i as u8).expect("Failed to convert u8 to Loc");
+                v.push(l);
             }
         }
         v
