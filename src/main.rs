@@ -37,12 +37,12 @@ const SAYIT: [&str; 13] = [
 
 const MAX_DEATHS: usize = 3;
 static DEATH_WISHES: [&str; 2*MAX_DEATHS] = [
-"Oh dear, you seem to have gotten yourself killed. I might be able to help you out, but I've never really done this before. Do you want me to try to reincarnate you?", 
-"All right. But don't blame me if something goes wr......  −−− POOF!! −−− You are engulfed in a cloud of orange smoke. Coughing and gasping, you emerge from the smoke and find....",
-"You clumsy oaf, you've done it again! I don't know how long I can keep this up. Do you want me to try reincarnating you again?",
-"Okay, now where did I put my resurrection␣kit?....  >POOF!< Everything disappears in a dense cloud of orange smoke.",
-"Now you've really done it! I'm out of orange smoke! You don't expect me to do a decent reincarnation without any orange smoke, do you?",
-"Okay, if you're so smart, do it yourself! I'm leaving!"];
+    "Oh dear, you seem to have gotten yourself killed. I might be able to help you out, but I've never really done this before. Do you want me to try to reincarnate you?", 
+    "All right. But don't blame me if something goes wr......  −−− POOF!! −−− You are engulfed in a cloud of orange smoke. Coughing and gasping, you emerge from the smoke and find....",
+    "You clumsy oaf, you've done it again! I don't know how long I can keep this up. Do you want me to try reincarnating you again?",
+    "Okay, now where did I put my resurrection␣kit?....  >POOF!< Everything disappears in a dense cloud of orange smoke.",
+    "Now you've really done it! I'm out of orange smoke! You don't expect me to do a decent reincarnation without any orange smoke, do you?",
+    "Okay, if you're so smart, do it yourself! I'm leaving!"];
 
 fn debug(g: &mut Game, m: &str) {
     let v: Vec<Mot> = MOTIONS
