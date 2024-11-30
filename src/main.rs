@@ -1228,12 +1228,12 @@ fn quit(g: &Game) -> ! {
         j += 1;
     }
 
-    println!(
+    let mut s = format!(
         "You scored {k} points out of a possible {MAX_SCORE}, using {} turn{}.\n",
         g.turns,
         if g.turns == 1 { "" } else { "s" }
     );
-    let s = match j {
+    s += match j {
         0 => "You are obviously a rank amateur. Better luck next time.",
         1 => "Your score qualifies you as a novice class adventurer.",
         2 => "You have achieved the rating \"Experienced␣Adventurer\".",
@@ -1244,16 +1244,17 @@ fn quit(g: &Game) -> ! {
         7 => "Your score puts you in Master Adventurer Class A.",
         _ => "All of Adventuredom gives tribute to you, Adventure Grandmaster!",
     };
-    print!("{s}\nTo achieve the next higher rating");
+    s += "\nTo achieve the next higher rating";
     if j < CLASS_SCORE.len() - 1 {
-        println!(
-            ", you need {} more point{}.",
+        s += &format!(
+            ", you need {} more point{}.\n",
             CLASS_SCORE[j] - k,
             if CLASS_SCORE[j] == k + 1 { "" } else { "s" }
         );
     } else {
-        print!(" would be a neat trick!\nCongratulations!!\n");
+        s += (" would be a neat trick!\nCongratulations!!\n");
     }
+    print!("{s}");
     process::exit(1);
 }
 
