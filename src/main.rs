@@ -1236,9 +1236,9 @@ fn quit(g: &Game) -> ! {
     s += match j {
         0 => "You are obviously a rank amateur. Better luck next time.",
         1 => "Your score qualifies you as a novice class adventurer.",
-        2 => "You have achieved the rating \"Experienced␣Adventurer\".",
-        3 => "You may now consider␣yourself a \"Seasoned␣Adventurer\".",
-        4 => "You have reached \"Junior␣Master\" status.",
+        2 => "You have achieved the rating \"Experienced Adventurer\".",
+        3 => "You may now consider yourself a \"Seasoned Adventurer\".",
+        4 => "You have reached \"Junior Master\" status.",
         5 => "Your score puts you in Master Adventurer Class C.",
         6 => "Your score puts you in Master Adventurer Class B.",
         7 => "Your score puts you in Master Adventurer Class A.",
@@ -1252,7 +1252,7 @@ fn quit(g: &Game) -> ! {
             if CLASS_SCORE[j] == k + 1 { "" } else { "s" }
         );
     } else {
-        s += (" would be a neat trick!\nCongratulations!!\n");
+        s += " would be a neat trick!\nCongratulations!!\n";
     }
     print!("{s}");
     process::exit(1);
@@ -1691,9 +1691,7 @@ fn pre_parse(g: &mut Game) -> Goto {
                 } else {
                     ". You'd best go back for those batteries."
                 };
-                //println!("Your lamp is getting dim{}", s);
-                prn(format!("Your lamp is getting dim{}", s).as_str());
-
+                prn(&format!("Your lamp is getting dim{}", s));
                 g.warned = true;
             }
         }
@@ -2479,28 +2477,29 @@ fn intransitive(g: &mut Game) -> Goto {
             if g.l2o[Loc::Inhand].is_empty() {
                 "You're not carrying anything."
             } else {
-                prn("You are currently holding the following:");
+                let mut s = String::from("You are currently holding the following:\n");
                 for o in g.l2o[Loc::Inhand].iter() {
                     match *o {
                         Obj::Bear => (),
                         Obj::Cage => {
-                            println!(" {}", o.name());
+                            s += &format!(" {}\n", o.name());
                             if g.prop[Obj::Bird] == 1 {
-                                println!(" {}", Obj::Bird.name())
+                                s += &format!(" {}\n", Obj::Bird.name())
                             }
                         }
                         Obj::Bottle => {
-                            println!(" {}", o.name());
+                            s += &format!(" {}\n", o.name());
                             match g.prop[Obj::Bottle] {
-                                0 => println!(" {}", Obj::Water.name()),
+                                0 => s += &format!(" {}\n", Obj::Water.name()),
                                 1 => (),
-                                2 => println!(" {}", Obj::Oil.name()),
+                                2 => s += &format!(" {}\n", Obj::Oil.name()),
                                 _ => panic!("Not valid"),
                             }
                         }
-                        _ => println!(" {}", o.name()),
+                        _ => s += &format!(" {}\n", o.name()),
                     }
                 }
+                print!("{s}");
                 if g.toting(Obj::Bear) {
                     "You are being followed by a very large, tame bear."
                 } else {
@@ -2511,7 +2510,8 @@ fn intransitive(g: &mut Game) -> Goto {
         Act::Brief => {
             g.interval = 10000;
             g.look_count = 3;
-            "Okay, from now on I'll only describe a place in full the first time you come to it. To get the full description, say \"LOOK\"."
+            "Okay, from now on I'll only describe a place in full the first time you come to it. \
+             To get the full description, say \"LOOK\"."
         }
         Act::Score => {
             println!(
