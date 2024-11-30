@@ -1463,34 +1463,37 @@ fn major(g: &mut Game) -> Goto {
                 } // for each dwarf+pirate
                 if g.dtotal > 0 {
                     //⟨ Make the threatening dwarves attack 170 ⟩ ≡
+                    let mut s = String::new();
                     if g.dtotal == 1 {
-                        print!("There is a threatening little dwarf");
+                        s += "There is a threatening little dwarf";
                     } else {
-                        print!("There are {} threatening little dwarves", g.dtotal);
+                        s += &format!("There are {} threatening little dwarves", g.dtotal);
                     }
-                    println!(" in the room with you! \u{1F479}");
+                    s += " in the room with you! \u{1F479}\n";
                     if g.attack > 0 {
                         if g.dflag == 2 {
                             g.dflag = 3;
                         }
                         if g.attack == 1 {
-                            print!("One sharp nasty knife is thrown");
+                            s += "One sharp nasty knife is thrown";
                         } else {
-                            print!("{} of them throw knives", g.attack);
+                            s += &format!("{} of them throw knives", g.attack);
                         };
-                        print!(" at you --- ");
+                        s += " at you --- ";
                         match (g.attack, g.stick) {
-                            (1, 0) => println!("it misses!"),
-                            (1, 1) => println!("it gets you!"),
-                            (_, 0) => println!("none of them hit you"),
-                            (_, 1) => println!("one of them gets you"),
-                            (_, _) => println!("{} of them get you!", g.stick),
+                            (1, 0) => s += "it misses",
+                            (1, 1) => s += "it gets you",
+                            (_, 0) => s += "none of them hit you",
+                            (_, 1) => s += "one of them gets you",
+                            (_, _) => s += &format!("{} of them get you!", g.stick),
                         };
                         if g.stick > 0 {
+                            println!("{s}");
                             g.oldoldloc = g.loc;
                             return Goto::Death;
                         }
                     }
+                    println!("{s}");
                 } // if dtotal
             } // possibly move dwarves+pirate
         }
