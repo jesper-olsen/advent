@@ -102,21 +102,26 @@ fn shortest_route(g: &Game, x: Loc, y: Loc) {
 }
 
 fn prn(s: &str) {
+    let mut o = String::new();
     const MAX_WIDTH: usize = 50;
-    let mut v: Vec<&str> = Vec::new();
-    let mut n = 0;
-    for w in s.split_whitespace() {
-        if n + v.len() > MAX_WIDTH {
-            println!("{}", v.join(" "));
-            v.clear();
-            n = 0;
+    let mut line = String::new();
+
+    for word in s.split_whitespace() {
+        // Check if adding the next word would exceed the maximum width
+        if !line.is_empty() && line.len() + 1 + word.len() > MAX_WIDTH {
+            o.push_str(&line);
+            o.push('\n');
+            line.clear();
         }
-        v.push(w);
-        n += w.len();
+        if !line.is_empty() {
+            line.push(' ');
+        }
+        line.push_str(word);
     }
-    if !v.is_empty() {
-        println!("{}", v.join(" "));
+    if !line.is_empty() {
+        o.push_str(&line);
     }
+    println!("{o}");
 }
 
 fn get_input() -> String {
