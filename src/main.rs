@@ -1177,15 +1177,18 @@ impl Game {
 
     // 194
     fn offer(&mut self, j: usize) {
-        if j > 1 {
+        self.hinted[j] = if j > 1 {
             if !yes(HINTS[j].question, "I am prepared to give you a hint", OK) {
                 return;
             }
-            println!(" but it will cost you {} points", HINTS[j].cost);
-            self.hinted[j] = yes("Do you want the hint?", HINTS[j].answer, OK);
+            let s = format!(
+                " but it will cost you {} points. Do you want the hint?",
+                HINTS[j].cost
+            );
+            yes(&s, HINTS[j].answer, OK)
         } else {
-            self.hinted[j] = yes(HINTS[j].question, HINTS[j].answer, OK);
-        }
+            yes(HINTS[j].question, HINTS[j].answer, OK)
+        };
         if self.hinted[j] && self.limit > 30 {
             self.limit += 30 * HINTS[j].cost
         }
@@ -1193,10 +1196,7 @@ impl Game {
 
     // is a dwarf present
     fn dwarf(&self) -> bool {
-        if self.dflag < 2 {
-            return false;
-        }
-        self.dloc.iter().skip(1).any(|&l| l == self.loc) // skip pirate
+        self.dflag >= 2 && self.dloc.iter().skip(1).any(|&l| l == self.loc) // skip pirate
     }
 }
 
