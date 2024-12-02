@@ -2268,7 +2268,7 @@ fn transitive(g: &mut Game) -> Goto {
                     g.verb = Act::Abstain;
                     g.obj = Obj::Nothing;
                     g.words=listen(g);
-                    if g.words[0]!="yes" && g.words[0]!="y" {
+                    if g.words[0]!="y" {
                         return Goto::PreParse
                     }
                     g.prop[Obj::Dragon]=1; // dead
