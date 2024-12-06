@@ -3,6 +3,11 @@ use std::io::{self, Write};
 use std::sync::mpsc;
 use std::thread;
 
+fn print_and_flush(message: &str) -> io::Result<()> {
+    print!("{}", message);
+    io::stdout().flush()
+}
+
 fn main() {
     // For TUI (terminal), the game reads reads stdin and prints to stdout
     // We do that right here - and communicate with the engine via channels
@@ -17,26 +22,34 @@ fn main() {
 
     // read stdin
     let input_handle = thread::spawn(move || {
-        loop {
-            let mut buffer = String::new();
-            io::stdout().flush().unwrap();
-            if io::stdin().read_line(&mut buffer).is_err() {
-                eprintln!("Failed to read input.");
-                break;
-            }
-            if input_tx.send(buffer.trim().to_string()).is_err() {
-                //eprintln!("Game logic thread has ended.");
-                break;
+        for line in io::stdin().lines() {
+            match line {
+                Ok(input) => {
+                    if input_tx.send(input.trim().to_string()).is_err() {
+                        eprintln!("Failed to send input to the game.");
+                        break;
+                    }
+                }
+                Err(e) => {
+                    eprintln!("Error reading input: {e}");
+                    break;
+                }
             }
         }
     });
 
-    // print to stdout
-    while let Ok(message) = output_rx.recv() {
-        print!("{}", message);
-        io::stdout().flush().unwrap();
+    for message in output_rx.iter() {
+        if let Err(e) = print_and_flush(&message) {
+            eprintln!("Error printing game output: {e}");
+            break;
+        }
     }
 
-    input_handle.join().unwrap();
-    game_handle.join().unwrap();
+    if let Err(e) = input_handle.join() {
+        eprintln!("Error in input thread: {:?}", e);
+    }
+
+    if let Err(e) = game_handle.join() {
+        eprintln!("Error in game logic thread: {:?}", e);
+    }
 }
