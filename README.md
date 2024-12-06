@@ -7,7 +7,7 @@ See [walkthrough](WALKTHROUGH.txt) for example of how to make it to the end. Inc
 The game has 130 physical locations that can be visited. See the travel() function (cheat) for how they are connected - note that some transitions are probabilistic or depend on objects you carry or other characters in the game. Use shortest_route() function to calculate a route between two locations...
 
 ```
-% cargo run --release
+% cargo run --release --bin main
 Welcome to Adventure!! Would you like instructions?
 ** n
 OK.
