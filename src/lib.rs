@@ -39,13 +39,14 @@ const SAYIT: [&str; 13] = [
 ];
 
 const MAX_DEATHS: usize = 3;
-static DEATH_WISHES: [&str; 2*MAX_DEATHS] = [
-    "Oh dear, you seem to have gotten yourself killed. I might be able to help you out, but I've never really done this before. Do you want me to try to reincarnate you?", 
+static DEATH_WISHES: [&str; 2 * MAX_DEATHS] = [
+    "Oh dear, you seem to have gotten yourself killed. I might be able to help you out, but I've never really done this before. Do you want me to try to reincarnate you?",
     "All right. But don't blame me if something goes wr......  −−− POOF!! −−− You are engulfed in a cloud of orange smoke. Coughing and gasping, you emerge from the smoke and find....",
     "You clumsy oaf, you've done it again! I don't know how long I can keep this up. Do you want me to try reincarnating you again?",
     "Okay, now where did I put my resurrection␣kit?....  >POOF!< Everything disappears in a dense cloud of orange smoke.",
     "Now you've really done it! I'm out of orange smoke! You don't expect me to do a decent reincarnation without any orange smoke, do you?",
-    "Okay, if you're so smart, do it yourself! I'm leaving!"];
+    "Okay, if you're so smart, do it yourself! I'm leaving!",
+];
 
 fn debug(g: &mut Game, m: &str) {
     let v: Vec<Mot> = MOTIONS
@@ -1612,7 +1613,7 @@ fn cycle(g: &mut Game) -> Goto {
                 if match j {
                     2 => g.prop[Obj::Grate] == 0 && !g.here(Obj::Keys),
                     3 if !g.here(Obj::Bird) || g.oldobj != Obj::Bird || !g.toting(Obj::Rod) => {
-                        continue
+                        continue;
                     }
                     4 => g.here(Obj::Snake) && !g.here(Obj::Bird),
                     5 => {
@@ -1799,15 +1800,13 @@ fn pre_parse(g: &mut Game) -> Goto {
     }
 
     // water/oil used as verbs
-    if g.words.len() > 1 {
-        if let Word::Object(o) = Word::from_string(&g.words[1]) {
-            if (g.words[0] == "water" || g.words[0] == "oil")
-                && matches!(o, Obj::Plant | Obj::Door)
-                && g.is_here(o)
-            {
-                g.words[1] = String::from("pour");
-            }
-        }
+    if g.words.len() > 1
+        && let Word::Object(o) = Word::from_string(&g.words[1])
+        && (g.words[0] == "water" || g.words[0] == "oil")
+        && matches!(o, Obj::Plant | Obj::Door)
+        && g.is_here(o)
+    {
+        g.words[1] = String::from("pour");
     }
 
     Goto::Parse
@@ -1942,7 +1941,7 @@ fn change_to(g: &mut Game, verb: Act) -> Goto {
 }
 
 fn transitive(g: &mut Game) -> Goto {
-    let s=match g.verb {
+    let s = match g.verb {
         //⟨ Handle cases of transitive verbs and continue 97 ⟩ ≡
         Act::Say => {
             if g.words.len() > 1 {
@@ -1960,37 +1959,39 @@ fn transitive(g: &mut Game) -> Goto {
                 }
             }
         }
-        Act::Eat => {
-            match g.obj {
-                Obj::Food => "Thank you, it was delicious!",
-                Obj::Bird
-                | Obj::Snake
-                | Obj::Clam
-                | Obj::Oyster
-                | Obj::Dwarf
-                | Obj::Dragon
-                | Obj::Troll
-                | Obj::Bear => "I think I just lost my appetite.",
-                _ => Act::Eat.msg(),
-            }
-        }
-        Act::Wave if g.obj==Obj::Rod && g.toting(Obj::Rod) && matches!(g.loc, Loc::Efiss | Loc::Wfiss) && !g.closing() => {
+        Act::Eat => match g.obj {
+            Obj::Food => "Thank you, it was delicious!",
+            Obj::Bird
+            | Obj::Snake
+            | Obj::Clam
+            | Obj::Oyster
+            | Obj::Dwarf
+            | Obj::Dragon
+            | Obj::Troll
+            | Obj::Bear => "I think I just lost my appetite.",
+            _ => Act::Eat.msg(),
+        },
+        Act::Wave
+            if g.obj == Obj::Rod
+                && g.toting(Obj::Rod)
+                && matches!(g.loc, Loc::Efiss | Loc::Wfiss)
+                && !g.closing() =>
+        {
             g.prop[Obj::Crystal] = 1 - g.prop[Obj::Crystal];
             Obj::Crystal.note(2 - g.prop[Obj::Crystal])
         }
-        Act::Wave if !g.toting(g.obj) =>
-               Act::Drop.msg(), // don't carry it 
+        Act::Wave if !g.toting(g.obj) => Act::Drop.msg(), // don't carry it
 
         Act::Blast if g.closed && g.prop[Obj::Rod2] >= 0 => {
             if g.here(Obj::Rod2) {
-                g.bonus=25;
+                g.bonus = 25;
                 g.prn("There is a loud explosion and you are suddenly splashed across the walls of the room.")
-            } else if g.loc==Loc::Neend {
-                g.bonus=30;
+            } else if g.loc == Loc::Neend {
+                g.bonus = 30;
                 g.prn("There is a loud explosion and a twenty-foot hole appears in the far wall, burying the snakes in the rubble. A river of molten lava pours in through the hole, destroying everything in its path, including you!")
             } else {
-                g.bonus=45;
-               g.prn("There is a loud explosion, and a twenty-foot hole appears in the far wall, burying the dwarves in the rubble. You march through the hole and find yourself in the main office, where a cheering band of friendly elves carry the conquering adventurer off into the sunset.")
+                g.bonus = 45;
+                g.prn("There is a loud explosion, and a twenty-foot hole appears in the far wall, burying the dwarves in the rubble. You march through the hole and find yourself in the main office, where a cheering band of friendly elves carry the conquering adventurer off into the sunset.")
             };
             g.quit()
         }
@@ -2031,21 +2032,22 @@ fn transitive(g: &mut Game) -> Goto {
         }
 
         Act::On if g.here(Obj::Lamp) => {
-            if g.limit<0 {
+            if g.limit < 0 {
                 "Your lamp has run out of power."
             } else {
-                g.prop[Obj::Lamp]=1;
+                g.prop[Obj::Lamp] = 1;
                 g.prn("Your lamp is now on.");
-                if g.was_dark
-                    {return Goto::Commence}
+                if g.was_dark {
+                    return Goto::Commence;
+                }
                 ""
             }
         }
 
         Act::Off if g.here(Obj::Lamp) => {
-            g.prop[Obj::Lamp]=0;
+            g.prop[Obj::Lamp] = 0;
             g.prn("Your lamp is now off.");
-            if g.dark() {PITCH_DARK_MSG} else {""}
+            if g.dark() { PITCH_DARK_MSG } else { "" }
         }
 
         Act::Drink if g.here(Obj::Bottle) && g.prop[Obj::Bottle] == 0 => {
@@ -2060,25 +2062,23 @@ fn transitive(g: &mut Game) -> Goto {
         {
             return Goto::GetObject;
         }
-        Act::Drink if g.obj != Obj::Water => {
-            Act::Eat.msg()
-        }
+        Act::Drink if g.obj != Obj::Water => Act::Eat.msg(),
 
         Act::Pour => {
             if matches!(g.obj, Obj::Nothing | Obj::Bottle) {
-                g.obj=match g.prop[Obj::Bottle] {
+                g.obj = match g.prop[Obj::Bottle] {
                     0 => Obj::Water,
                     2 => Obj::Oil,
                     _ => Obj::Nothing,
                 };
-                if g.obj==Obj::Nothing {
+                if g.obj == Obj::Nothing {
                     return Goto::GetObject;
                 }
             }
             if !g.toting(g.obj) {
                 g.verb.msg()
             } else if !matches!(g.obj, Obj::Water | Obj::Oil) {
-                "You can’t pour that." 
+                "You can’t pour that."
             } else {
                 g.prop[Obj::Bottle] = 1;
                 if g.is_here(Obj::Plant) {
@@ -2102,11 +2102,11 @@ fn transitive(g: &mut Game) -> Goto {
                         "The hinges are quite thoroughly rusted now and won't budge"
                     } else {
                         // Oil
-                        g.prop[Obj::Door]=1;
+                        g.prop[Obj::Door] = 1;
                         "The oil has freed up the hinges so that the door will now open."
                     }
                 } else {
-                   "Your bottle is empty and␣the ground is wet."
+                    "Your bottle is empty and␣the ground is wet."
                 }
             }
         }
@@ -2130,7 +2130,7 @@ fn transitive(g: &mut Game) -> Goto {
             } else if no_liquid_here(g.loc) {
                 "There is nothing here with which to fill the bottle."
             } else {
-                g.prop[Obj::Bottle]=(condition(g.loc) & OIL).try_into().unwrap();
+                g.prop[Obj::Bottle] = (condition(g.loc) & OIL).try_into().unwrap();
                 if g.prop[Obj::Bottle] == 2 {
                     "Your bottle is now full of oil."
                 } else {
@@ -2139,87 +2139,108 @@ fn transitive(g: &mut Game) -> Goto {
             }
         }
         Act::Take if !g.is_movable[g.obj] => {
-            if g.obj==Obj::Chain && g.prop[Obj::Bear]!=0 {
+            if g.obj == Obj::Chain && g.prop[Obj::Bear] != 0 {
                 "The chain is still locked."
-            } else if g.obj==Obj::Bear  && g.prop[Obj::Bear]==1 {
+            } else if g.obj == Obj::Bear && g.prop[Obj::Bear] == 1 {
                 "The bear is still chained to the wall."
-            } else if g.obj==Obj::Plant  && g.prop[Obj::Plant]<=0 {
+            } else if g.obj == Obj::Plant && g.prop[Obj::Plant] <= 0 {
                 "The plant has exceptionally deep roots and cannot be pulled free."
             } else {
                 "You can't be serious!"
             }
         }
-        Act::Take if g.holding()>=7 => {
+        Act::Take if g.holding() >= 7 => {
             "You can't carry anything more. You'll have to drop something first."
         }
-        Act::Take if g.obj==Obj::Bird && !g.toting(Obj::Cage) => "You can catch the bird, but you cannot carry it.",
-        Act::Take if g.obj==Obj::Bird && g.toting(Obj::Rod) => "The bird was unafraid when you entered, but as you approach it becomes disturbed and you cannot catch it.",
-        Act::Take if matches!(g.obj, Obj::Water | Obj::Oil) && g.is_here(Obj::Bottle) && g.object_in_bottle(g.obj) => { g.carry(Obj::Bottle); OK}
-        Act::Take if matches!(g.obj, Obj::Water | Obj::Oil) && !g.toting(Obj::Bottle) => "You have nothing in which to carry it.",
+        Act::Take if g.obj == Obj::Bird && !g.toting(Obj::Cage) => {
+            "You can catch the bird, but you cannot carry it."
+        }
+        Act::Take if g.obj == Obj::Bird && g.toting(Obj::Rod) => {
+            "The bird was unafraid when you entered, but as you approach it becomes disturbed and you cannot catch it."
+        }
+        Act::Take
+            if matches!(g.obj, Obj::Water | Obj::Oil)
+                && g.is_here(Obj::Bottle)
+                && g.object_in_bottle(g.obj) =>
+        {
+            g.carry(Obj::Bottle);
+            OK
+        }
+        Act::Take if matches!(g.obj, Obj::Water | Obj::Oil) && !g.toting(Obj::Bottle) => {
+            "You have nothing in which to carry it."
+        }
         Act::Take if !g.toting(g.obj) => {
             if matches!(g.obj, Obj::Water | Obj::Oil) {
-                g.obj=Obj::Bottle;
+                g.obj = Obj::Bottle;
                 if !g.object_in_bottle(g.obj) {
-                    g.oldverb=g.verb;
-                    g.verb=Act::Fill;
+                    g.oldverb = g.verb;
+                    g.verb = Act::Fill;
                     return Goto::Transitive;
                 }
             }
 
-            if g.obj==Obj::Bird && g.prop[Obj::Bird]==0 {
-                g.prop[Obj::Bird]=1;
-                g.obj=Obj::Cage;
+            if g.obj == Obj::Bird && g.prop[Obj::Bird] == 0 {
+                g.prop[Obj::Bird] = 1;
+                g.obj = Obj::Cage;
                 g.remove(Obj::Bird)
             }
             g.carry(g.obj);
             OK
         }
 
-        Act::Drop if g.obj==Obj::Rod && !g.toting(Obj::Rod) && g.toting(Obj::Rod2) => {
+        Act::Drop if g.obj == Obj::Rod && !g.toting(Obj::Rod) && g.toting(Obj::Rod2) => {
             g.drop(Obj::Rod2, g.loc);
             OK
         }
 
-        Act::Drop if matches!(g.obj,Obj::Water | Obj::Oil) && g.toting(Obj::Bottle) && g.object_in_bottle(g.obj) => {
-             g.drop(Obj::Bottle, g.loc);
-             OK
+        Act::Drop
+            if matches!(g.obj, Obj::Water | Obj::Oil)
+                && g.toting(Obj::Bottle)
+                && g.object_in_bottle(g.obj) =>
+        {
+            g.drop(Obj::Bottle, g.loc);
+            OK
         }
 
         Act::Drop if !g.toting(g.obj) => Act::Drop.msg(),
 
-        Act::Drop if g.obj==Obj::Coins && g.here(Obj::Pony) => {
-            //⟨ Put coins in the vending machine 118 ⟩ ≡ 
+        Act::Drop if g.obj == Obj::Coins && g.here(Obj::Pony) => {
+            //⟨ Put coins in the vending machine 118 ⟩ ≡
             g.remove(Obj::Coins);
             g.drop(Obj::Batteries, g.loc);
-            g.prop[Obj::Batteries]=0;
+            g.prop[Obj::Batteries] = 0;
             Obj::Batteries.note(0)
         }
 
-        Act::Drop if g.obj==Obj::Bird =>
-            //⟨ Check special cases for dropping the bird 120 ⟩ ≡ 
+        Act::Drop if g.obj == Obj::Bird =>
+        //⟨ Check special cases for dropping the bird 120 ⟩ ≡
+        {
             if g.here(Obj::Snake) {
-                if g.closed {dwarves_upset(g)};
+                if g.closed {
+                    dwarves_upset(g)
+                };
                 g.remove(Obj::Snake);
-                g.prop[Obj::Snake]=1; // used in conditional instructions 
-                "The little bird attacks the green snake, and in an astounding flurry drives the snake away." 
-            } else if g.is_here(Obj::Dragon) && g.prop[Obj::Dragon]==0 {
+                g.prop[Obj::Snake] = 1; // used in conditional instructions 
+                "The little bird attacks the green snake, and in an astounding flurry drives the snake away."
+            } else if g.is_here(Obj::Dragon) && g.prop[Obj::Dragon] == 0 {
                 g.remove(Obj::Bird);
-                g.prop[Obj::Bird]=0;
+                g.prop[Obj::Bird] = 0;
                 if g.is_at(Obj::Snake, Loc::Hmk) {
-                    g.lost_treasures+=1;
+                    g.lost_treasures += 1;
                 }
-                "The little bird attacks the green dragon, and in an astounding flurry gets burnt to a cinder. The ashes blow away." 
+                "The little bird attacks the green dragon, and in an astounding flurry gets burnt to a cinder. The ashes blow away."
             } else {
-                g.prop[Obj::Bird]=1;
+                g.prop[Obj::Bird] = 1;
                 g.drop(Obj::Bird, g.loc);
                 OK
             }
+        }
 
-        Act::Drop if g.obj==Obj::Vase && g.loc!=Loc::Soft => {
-            //⟨ Check special cases for dropping the vase 121 ⟩ ≡ 
+        Act::Drop if g.obj == Obj::Vase && g.loc != Loc::Soft => {
+            //⟨ Check special cases for dropping the vase 121 ⟩ ≡
             g.drop(Obj::Vase, g.loc);
             if g.is_here(Obj::Pillow) {
-                g.prop[Obj::Vase]=0;
+                g.prop[Obj::Vase] = 0;
                 "The vase is now resting, delicately, on a velvet pillow."
             } else {
                 g.smash_vase();
@@ -2227,57 +2248,55 @@ fn transitive(g: &mut Game) -> Goto {
             }
         }
 
-        Act::Drop if g.obj==Obj::Bear && g.is_here(Obj::Troll) => {
-            //⟨ Chase the troll away 119 ⟩ ≡ 
+        Act::Drop if g.obj == Obj::Bear && g.is_here(Obj::Troll) => {
+            //⟨ Chase the troll away 119 ⟩ ≡
             g.remove(Obj::Troll);
             g.drop(Obj::Troll2, Loc::Swside);
             g.drop(Obj::Troll2, Loc::Neside);
-            g.prop[Obj::Troll]=2;
+            g.prop[Obj::Troll] = 2;
             g.drop(Obj::Bear, g.loc);
             "The bear lumbers toward the troll, who lets out a startled shriek and scurries away. The bear soon gives up the pursuit and wanders back."
         }
 
         Act::Drop => {
-            g.drop(g.obj , g.loc );
+            g.drop(g.obj, g.loc);
             OK
         }
 
-        Act::Toss if g.obj==Obj::Rod && g.toting(Obj::Rod2) && !g.toting(Obj::Rod) => {
-            g.obj=Obj::Rod2;
-            return change_to(g,Act::Drop)
+        Act::Toss if g.obj == Obj::Rod && g.toting(Obj::Rod2) && !g.toting(Obj::Rod) => {
+            g.obj = Obj::Rod2;
+            return change_to(g, Act::Drop);
         }
 
         Act::Toss if g.toting(g.obj) && g.obj.treasure() && g.is_here(Obj::Troll) => {
-            //⟨ Snarf a treasure for the troll 124 ⟩ ≡ 
+            //⟨ Snarf a treasure for the troll 124 ⟩ ≡
             //g.drop(g.obj, Loc::Limbo);
             g.remove(g.obj);
             g.remove(Obj::Troll);
-            g.drop(Obj::Troll2,Loc::Swside);
-            g.drop(Obj::Troll2,Loc::Neside);
+            g.drop(Obj::Troll2, Loc::Swside);
+            g.drop(Obj::Troll2, Loc::Neside);
             g.remove(Obj::Bridge);
             g.drop(Obj::Bridge, Loc::Swside);
             g.drop(Obj::Bridge, Loc::Neside);
             "The troll catches your treasure and scurries away out of sight."
         }
 
-        Act::Toss if g.toting(g.obj) && g.obj==Obj::Food && g.here(Obj::Bear) => {
-            g.obj=Obj::Bear;
-            return change_to(g,Act::Feed)
+        Act::Toss if g.toting(g.obj) && g.obj == Obj::Food && g.here(Obj::Bear) => {
+            g.obj = Obj::Bear;
+            return change_to(g, Act::Feed);
         }
 
-        Act::Toss if g.toting(g.obj) && g.obj!=Obj::Axe => {
-            return change_to(g,Act::Drop)
-        }
+        Act::Toss if g.toting(g.obj) && g.obj != Obj::Axe => return change_to(g, Act::Drop),
 
-        Act::Toss if g.toting(g.obj) && g.obj==Obj::Axe => {
-            //⟨Throw the axe at a dwarf 163⟩ ≡ 
+        Act::Toss if g.toting(g.obj) && g.obj == Obj::Axe => {
+            //⟨Throw the axe at a dwarf 163⟩ ≡
             if let Some(j) = g.dloc.iter().skip(1).position(|l| *l == g.loc) {
-                g.drop(Obj::Axe,g.loc);
+                g.drop(Obj::Axe, g.loc);
                 if ran(3) < 2 {
-                    g.dloc[j+1] = Loc::Limbo;
-                    g.dseen[j+1] = true;
-                    g.dkill+=1;
-                    if g.dkill ==1 {
+                    g.dloc[j + 1] = Loc::Limbo;
+                    g.dseen[j + 1] = true;
+                    g.dkill += 1;
+                    if g.dkill == 1 {
                         "You killed a little dwarf. The body vanishes in a cloud of greasy black smoke."
                     } else {
                         "You killed a little dwarf."
@@ -2286,52 +2305,56 @@ fn transitive(g: &mut Game) -> Goto {
                     "You attack a little dwarf, but he dodges out of the way."
                 }
             } else if g.is_here(Obj::Dragon) && g.prop[Obj::Dragon] == 0 {
-                g.drop(Obj::Axe,g.loc);
-                "The axe bounces harmlessly off the dragon's thick scales." 
+                g.drop(Obj::Axe, g.loc);
+                "The axe bounces harmlessly off the dragon's thick scales."
             } else if g.is_here(Obj::Troll) {
                 "The troll deftly catches the axe, examines it carefully, and tosses it back, declaring, \"Good workmanship, but it's not valuable enough.\""
-            } else if g.here(Obj::Bear) && g.prop[Obj::Bear]==0 {
+            } else if g.here(Obj::Bear) && g.prop[Obj::Bear] == 0 {
                 //⟨Throw the axe at the bear 123⟩ ≡
-                g.drop(Obj::Axe,g.loc);
-                g.prop[Obj::Axe]=1;
-                g.is_movable[Obj::Axe]=false;
+                g.drop(Obj::Axe, g.loc);
+                g.prop[Obj::Axe] = 1;
+                g.is_movable[Obj::Axe] = false;
                 "The axe misses and lands near the bear where you can't get at it."
             } else {
                 g.obj = Obj::Nothing;
-                return change_to(g,Act::Kill)
+                return change_to(g, Act::Kill);
             }
-         }
+        }
 
-         Act::Kill  => {
-            if g.obj==Obj::Nothing {
-                let mut k=0;
+        Act::Kill => {
+            if g.obj == Obj::Nothing {
+                let mut k = 0;
                 //⟨ See if there’s a unique object to attack 126 ⟩ ≡ {
                 if g.dwarf() {
-                    k+=1;
-                    g.obj=Obj::Dwarf;
+                    k += 1;
+                    g.obj = Obj::Dwarf;
                 }
-                for (o,flag) in [(Obj::Snake,true), (Obj::Troll,true),
-                     (Obj::Dragon, g.prop[Obj::Dragon]==0),
-                     (Obj::Bear, g.prop[Obj::Bear]==0)]  {
+                for (o, flag) in [
+                    (Obj::Snake, true),
+                    (Obj::Troll, true),
+                    (Obj::Dragon, g.prop[Obj::Dragon] == 0),
+                    (Obj::Bear, g.prop[Obj::Bear] == 0),
+                ] {
                     if g.here(o) && flag {
-                        k+=1;
-                        g.obj=o;
+                        k += 1;
+                        g.obj = o;
                     }
                 }
 
-                if k==0 { // no enemies present
-                     if g.here(Obj::Bird) && g.oldverb!=Act::Toss {
-                         k+=1;
-                         g.obj=Obj::Bird;
-                     }
-                     // no harm done to call the oyster a clam in this case  
-                     if g.here(Obj::Clam) || g.here(Obj::Oyster) {
-                         k+=1;
-                         g.obj=Obj::Clam;
-                     }
+                if k == 0 {
+                    // no enemies present
+                    if g.here(Obj::Bird) && g.oldverb != Act::Toss {
+                        k += 1;
+                        g.obj = Obj::Bird;
+                    }
+                    // no harm done to call the oyster a clam in this case
+                    if g.here(Obj::Clam) || g.here(Obj::Oyster) {
+                        k += 1;
+                        g.obj = Obj::Clam;
+                    }
                 }
                 if k > 1 {
-                    return Goto::GetObject
+                    return Goto::GetObject;
                 }
             }
 
@@ -2343,24 +2366,24 @@ fn transitive(g: &mut Game) -> Goto {
                         "Oh, leave the poor unhappy bird alone."
                     } else {
                         g.remove(Obj::Bird);
-                        g.prop[Obj::Bird]=0;
-                        if g.is_at(Obj::Snake,Loc::Hmk) {
-                            g.lost_treasures+=1
+                        g.prop[Obj::Bird] = 0;
+                        if g.is_at(Obj::Snake, Loc::Hmk) {
+                            g.lost_treasures += 1
                         }
                         "The little bird is now dead. Its body disappears."
                     }
                 }
-                Obj::Dragon if g.prop[Obj::Dragon]==0 => {
-                    //⟨ Fun stuff for dragon 128 ⟩ ≡ 
+                Obj::Dragon if g.prop[Obj::Dragon] == 0 => {
+                    //⟨ Fun stuff for dragon 128 ⟩ ≡
                     g.prn("With what? Your bare hands?");
                     g.verb = Act::Abstain;
                     g.obj = Obj::Nothing;
-                    g.words=g.listen();
-                    if g.words[0]!="y" {
-                        return Goto::PreParse
+                    g.words = g.listen();
+                    if g.words[0] != "y" {
+                        return Goto::PreParse;
                     }
-                    g.prop[Obj::Dragon]=1; // dead
-                    g.prop[Obj::Rug]=0;
+                    g.prop[Obj::Dragon] = 1; // dead
+                    g.prop[Obj::Rug] = 0;
                     g.is_movable[Obj::Rug] = true;
                     for l in [Loc::Scan1, Loc::Scan3] {
                         for o in g.l2o[l].clone() {
@@ -2371,137 +2394,152 @@ fn transitive(g: &mut Game) -> Goto {
                     g.loc = Loc::Scan2;
                     "Congratulations! You have just vanquished a dragon with your bare hands! (Unbelievable, isn't it?)"
                 }
-                Obj::Dragon if g.prop[Obj::Dragon]!=0 =>
-                   "For crying out loud, the poor thing is already dead!",
-                Obj::Clam | Obj::Oyster =>
-                   "The shell is very strong and impervious to attack.",
-                Obj::Snake =>
-                   "Attacking the snake both doesn't work and is very dangerous.",
+                Obj::Dragon if g.prop[Obj::Dragon] != 0 => {
+                    "For crying out loud, the poor thing is already dead!"
+                }
+                Obj::Clam | Obj::Oyster => "The shell is very strong and impervious to attack.",
+                Obj::Snake => "Attacking the snake both doesn't work and is very dangerous.",
                 Obj::Dwarf if g.closed => dwarves_upset(g),
                 Obj::Dwarf => "With what? Your bare hands?",
-                Obj::Troll => "Trolls are close relatives with the rocks and have skin as tough as a rhinoceros hide. The troll fends off your blows effortlessly.",
-                Obj::Bear if g.prop[Obj::Bear]==0 =>
-                    "With what? Your bare hands? Against HIS bear hands?",
-                Obj::Bear if g.prop[Obj::Bear]==3 =>
-                   "For crying out loud, the poor thing is already dead!",
-                Obj::Bear =>
-                   "The bear is confused; he only wants to be your friend.",
+                Obj::Troll => {
+                    "Trolls are close relatives with the rocks and have skin as tough as a rhinoceros hide. The troll fends off your blows effortlessly."
+                }
+                Obj::Bear if g.prop[Obj::Bear] == 0 => {
+                    "With what? Your bare hands? Against HIS bear hands?"
+                }
+                Obj::Bear if g.prop[Obj::Bear] == 3 => {
+                    "For crying out loud, the poor thing is already dead!"
+                }
+                Obj::Bear => "The bear is confused; he only wants to be your friend.",
                 _ => Act::Kill.msg(),
             }
         }
-        Act::Feed if g.obj==Obj::Bird  =>
-            "It's not hungry (it's merely pinin' for the fjords). Besides, you have no bird seed.",
-        Act::Feed if g.obj==Obj::Troll=>
-              "Gluttony is not one of the troll's vices. Avarice, however, is.",
-        Act::Feed if g.obj==Obj::Dragon && g.prop[Obj::Dragon]==0=>
-         "There's nothing here it wants to eat (except perhaps you).",
-        Act::Feed if g.obj==Obj::Dragon && g.prop[Obj::Dragon]!=0=>
-         Act::Eat.msg(),
-        Act::Feed if g.obj==Obj::Snake && (g.closed || !g.here(Obj::Bird))=>
-         "There's nothing here it wants to eat (except perhaps you).",
-        Act::Feed if g.obj==Obj::Snake=> {
+        Act::Feed if g.obj == Obj::Bird => {
+            "It's not hungry (it's merely pinin' for the fjords). Besides, you have no bird seed."
+        }
+        Act::Feed if g.obj == Obj::Troll => {
+            "Gluttony is not one of the troll's vices. Avarice, however, is."
+        }
+        Act::Feed if g.obj == Obj::Dragon && g.prop[Obj::Dragon] == 0 => {
+            "There's nothing here it wants to eat (except perhaps you)."
+        }
+        Act::Feed if g.obj == Obj::Dragon && g.prop[Obj::Dragon] != 0 => Act::Eat.msg(),
+        Act::Feed if g.obj == Obj::Snake && (g.closed || !g.here(Obj::Bird)) => {
+            "There's nothing here it wants to eat (except perhaps you)."
+        }
+        Act::Feed if g.obj == Obj::Snake => {
             g.remove(Obj::Bird);
-            g.prop[Obj::Bird]=0;
-            g.lost_treasures+=1;
+            g.prop[Obj::Bird] = 0;
+            g.lost_treasures += 1;
             "The snake has now devoured your bird"
         }
-        Act::Feed if g.obj==Obj::Bear && g.here(Obj::Food)=> {
+        Act::Feed if g.obj == Obj::Bear && g.here(Obj::Food) => {
             g.remove(Obj::Food);
-            g.prop[Obj::Bear]=1;
-            g.prop[Obj::Axe]=0;
-            g.is_movable[Obj::Axe]=true;
+            g.prop[Obj::Bear] = 1;
+            g.prop[Obj::Axe] = 0;
+            g.is_movable[Obj::Axe] = true;
             "The bear eagerly wolfs down your food, after which he seems to calm down considerably and even becomes rather friendly."
         }
-        Act::Feed if g.obj==Obj::Bear && g.prop[Obj::Bear]==0 =>
-            "There's nothing here it wants to eat (except perhaps you).",
-        Act::Feed if g.obj==Obj::Bear && g.prop[Obj::Bear]==3 =>{
-            Act::Eat.msg()
+        Act::Feed if g.obj == Obj::Bear && g.prop[Obj::Bear] == 0 => {
+            "There's nothing here it wants to eat (except perhaps you)."
         }
-        Act::Feed if g.obj==Obj::Dwarf && g.here(Obj::Food) => {
-            g.dflag+=1;
-            "You fool, dwarves eat only coal! Now you've made him REALLY mad!" 
+        Act::Feed if g.obj == Obj::Bear && g.prop[Obj::Bear] == 3 => Act::Eat.msg(),
+        Act::Feed if g.obj == Obj::Dwarf && g.here(Obj::Food) => {
+            g.dflag += 1;
+            "You fool, dwarves eat only coal! Now you've made him REALLY mad!"
         }
         Act::Feed => Act::Calm.msg(),
-        Act::Close if matches!(g.obj, Obj::Oyster|Obj::Clam) => "What?", 
-        Act::Open if g.obj==Obj::Clam && !g.toting(Obj::Trident) =>
-            "You don't have anything storng enough to open the clam.",
-        Act::Open if g.obj==Obj::Oyster && !g.toting(Obj::Trident) =>
-            "You don't have anything storng enough to open the oyster.",
-        Act::Open if g.obj==Obj::Oyster && g.toting(g.obj) =>
-            "I advise you to put down the oyster before opening it. >WRENCH!<",
-        Act::Open if g.obj==Obj::Clam && g.toting(g.obj) =>
-            "I advise you to put down the clam before opening it. >STRAIN!<",
-        Act::Open if g.obj==Obj::Clam => {
+        Act::Close if matches!(g.obj, Obj::Oyster | Obj::Clam) => "What?",
+        Act::Open if g.obj == Obj::Clam && !g.toting(Obj::Trident) => {
+            "You don't have anything storng enough to open the clam."
+        }
+        Act::Open if g.obj == Obj::Oyster && !g.toting(Obj::Trident) => {
+            "You don't have anything storng enough to open the oyster."
+        }
+        Act::Open if g.obj == Obj::Oyster && g.toting(g.obj) => {
+            "I advise you to put down the oyster before opening it. >WRENCH!<"
+        }
+        Act::Open if g.obj == Obj::Clam && g.toting(g.obj) => {
+            "I advise you to put down the clam before opening it. >STRAIN!<"
+        }
+        Act::Open if g.obj == Obj::Clam => {
             g.remove(Obj::Clam);
-            g.drop(Obj::Oyster,g.loc);
-            g.drop(Obj::Pearl,Loc::Sac);
+            g.drop(Obj::Oyster, g.loc);
+            g.drop(Obj::Pearl, Loc::Sac);
             "A glistening pearl falls out of the clam and rolls away. Goodness, this must really be an oyster. (I never was very good at identifying bivalves.) Whatever it is, it has now snapped shut again."
         }
-        Act::Open if g.obj==Obj::Oyster =>
-            "The oyster creaks open, revealing nothing but oyster inside. It promptly snaps shut again.",
-        Act::Open | Act::Close if matches!(g.obj,Obj::Grate | Obj::Chain) && !g.here(Obj::Keys) => "You have no keys!",
-        Act::Open if g.obj==Obj::Chain => {
+        Act::Open if g.obj == Obj::Oyster => {
+            "The oyster creaks open, revealing nothing but oyster inside. It promptly snaps shut again."
+        }
+        Act::Open | Act::Close
+            if matches!(g.obj, Obj::Grate | Obj::Chain) && !g.here(Obj::Keys) =>
+        {
+            "You have no keys!"
+        }
+        Act::Open if g.obj == Obj::Chain => {
             //⟨ Open chain 133 ⟩;
-            if g.prop[Obj::Chain]==0 {
+            if g.prop[Obj::Chain] == 0 {
                 "It was already unlocked."
-            } else if g.prop[Obj::Bear]==0 {
+            } else if g.prop[Obj::Bear] == 0 {
                 "There is no way to get past the bear to unlock the chain, which is probably just as well"
-            } else  {
-                g.prop[Obj::Chain]=0;
-                g.is_movable[Obj::Chain]=true;
-                if g.prop[Obj::Bear]==3 {
-                    g.is_movable[Obj::Bear]=false;
+            } else {
+                g.prop[Obj::Chain] = 0;
+                g.is_movable[Obj::Chain] = true;
+                if g.prop[Obj::Bear] == 3 {
+                    g.is_movable[Obj::Bear] = false;
                 } else {
-                    g.prop[Obj::Bear]=2;
-                    g.is_movable[Obj::Bear]=true;
+                    g.prop[Obj::Bear] = 2;
+                    g.is_movable[Obj::Bear] = true;
                 }
                 "The chain is now unlocked."
             }
         }
-        Act::Close if g.obj==Obj::Chain && g.loc!=Loc::Barr =>
-            "There is nothing here to which the chain can be locked.",
-        Act::Close if g.obj==Obj::Chain && g.prop[Obj::Chain]!=0 =>
-            "It was already locked.",
-        Act::Close if g.obj==Obj::Chain => {
-            g.prop[Obj::Chain]=2;
+        Act::Close if g.obj == Obj::Chain && g.loc != Loc::Barr => {
+            "There is nothing here to which the chain can be locked."
+        }
+        Act::Close if g.obj == Obj::Chain && g.prop[Obj::Chain] != 0 => "It was already locked.",
+        Act::Close if g.obj == Obj::Chain => {
+            g.prop[Obj::Chain] = 2;
             g.is_movable[Obj::Chain] = false;
             if g.toting(Obj::Chain) {
                 g.drop(Obj::Chain, g.loc);
             }
             "The chain is now locked."
         }
-        Act::Open | Act::Close if g.obj==Obj::Grate && g.closing() =>
-            {g.panic_at_closing_time_180();PANIC_AT_CLOSING_TIME},
-        Act::Open | Act::Close if g.obj==Obj::Grate => {
-            let k=g.prop[Obj::Grate];
-            g.prop[Obj::Grate]=if g.verb==Act::Open {1} else {0};
-            match k+2*g.prop[Obj::Grate]  {
-                0 => "It was already locked.", 
-                1 => "The grate is now locked.", 
-                2 => "The grate is now unlocked.", 
-                3 => "It was already unlocked.", 
+        Act::Open | Act::Close if g.obj == Obj::Grate && g.closing() => {
+            g.panic_at_closing_time_180();
+            PANIC_AT_CLOSING_TIME
+        }
+        Act::Open | Act::Close if g.obj == Obj::Grate => {
+            let k = g.prop[Obj::Grate];
+            g.prop[Obj::Grate] = if g.verb == Act::Open { 1 } else { 0 };
+            match k + 2 * g.prop[Obj::Grate] {
+                0 => "It was already locked.",
+                1 => "The grate is now locked.",
+                2 => "The grate is now unlocked.",
+                3 => "It was already unlocked.",
                 _ => panic!("can't happen"),
             }
         }
-        Act::Open | Act::Close => {
-           match g.obj {
+        Act::Open | Act::Close => match g.obj {
             Obj::Keys => "You can't lock or unlock the keys.",
             Obj::Cage => "It has no lock",
-            Obj::Door if g.prop[Obj::Door]!=0 => Act::Relax.msg(),
-            Obj::Door  => "The door is extremely rusty and refuses to open.", 
+            Obj::Door if g.prop[Obj::Door] != 0 => Act::Relax.msg(),
+            Obj::Door => "The door is extremely rusty and refuses to open.",
             _ => g.verb.msg(),
-            }
-        }
+        },
         Act::Read if g.dark() => return Goto::CantSeeIt,
-        Act::Read if g.obj==Obj::Mag =>
-           "I'm afraid the magazine is written in dwarvish.",
-        Act::Read if g.obj==Obj::Tablet =>
-           "\"CONGRATULATIONS ON BRINGING LIGHT INTO THE DARK-ROOM!\""  ,
-        Act::Read if g.obj==Obj::Message=>
-           "This is not the maze where the pirate hides his treasure chest.",
-        Act::Read if g.obj==Obj::Oyster && g.hinted[1] && g.toting(Obj::Oyster)=>
-           "It says the same thing it did before.",
-        Act::Read if g.obj==Obj::Oyster && g.toting(Obj::Oyster)=> {
+        Act::Read if g.obj == Obj::Mag => "I'm afraid the magazine is written in dwarvish.",
+        Act::Read if g.obj == Obj::Tablet => {
+            "\"CONGRATULATIONS ON BRINGING LIGHT INTO THE DARK-ROOM!\""
+        }
+        Act::Read if g.obj == Obj::Message => {
+            "This is not the maze where the pirate hides his treasure chest."
+        }
+        Act::Read if g.obj == Obj::Oyster && g.hinted[1] && g.toting(Obj::Oyster) => {
+            "It says the same thing it did before."
+        }
+        Act::Read if g.obj == Obj::Oyster && g.toting(Obj::Oyster) => {
             g.offer(1);
             return Goto::Minor;
         }
@@ -2516,7 +2554,7 @@ fn intransitive(g: &mut Game) -> Goto {
     let s = match g.verb {
         Act::Go | Act::Relax => g.verb.msg(),
         Act::On | Act::Off | Act::Pour | Act::Fill | Act::Drink | Act::Blast | Act::Kill => {
-            return Goto::Transitive
+            return Goto::Transitive;
         }
         //⟨ Handle cases of intransitive verbs and continue 92 ⟩ ≡
         Act::Take if g.l2o[g.loc].len() == 1 && !g.dwarf() => {
@@ -2743,40 +2781,45 @@ fn try_move(g: &mut Game) -> Goto {
     //⟨ Handle special motion words 140 ⟩ ≡
     g.newloc = g.loc; // by default we will stay put
 
-    let s=match g.mot {
-    Mot::Nowhere => "", 
-    Mot::Look => {
-        // ⟨ Repeat the long description and continue 141 ⟩ ≡
-        g.look_count+=1;
-        g.was_dark=false;
-        g.visits_zero();
-        if g.look_count <= 3 {
-            "Sorry, but I am not allowed to give more detail. I will repeat the long description of your location."
-        } else {
-            ""
+    let s = match g.mot {
+        Mot::Nowhere => "",
+        Mot::Look => {
+            // ⟨ Repeat the long description and continue 141 ⟩ ≡
+            g.look_count += 1;
+            g.was_dark = false;
+            g.visits_zero();
+            if g.look_count <= 3 {
+                "Sorry, but I am not allowed to give more detail. I will repeat the long description of your location."
+            } else {
+                ""
+            }
         }
-    }
-    Mot::Cave if g.loc<MIN_IN_CAVE =>
-                "I can't see where the cave is, but hereabouts no stream can run on the surface for long... I would try the stream.",
-    Mot::Cave => "I need more detailed instructions to do that.",
-    Mot::Back => {
-            //⟨ Try to go back 143 ⟩ ≡ 
-            let l=if is_forced(g.loc) {g.oldoldloc} else {g.oldloc};
+        Mot::Cave if g.loc < MIN_IN_CAVE => {
+            "I can't see where the cave is, but hereabouts no stream can run on the surface for long... I would try the stream."
+        }
+        Mot::Cave => "I need more detailed instructions to do that.",
+        Mot::Back => {
+            //⟨ Try to go back 143 ⟩ ≡
+            let l = if is_forced(g.loc) {
+                g.oldoldloc
+            } else {
+                g.oldloc
+            };
             g.oldoldloc = g.oldloc;
             g.oldloc = g.loc;
             if l == g.loc {
                 "Sorry, but I no longer seem to remember how you got here."
-            } else if MOTIONS.iter().any(|&m| g.travel(g.loc, m, false)==l) {
-                g.newloc=l;
-                return Goto::GoForIt
+            } else if MOTIONS.iter().any(|&m| g.travel(g.loc, m, false) == l) {
+                g.newloc = l;
+                return Goto::GoForIt;
             } else {
-                "You can't get there from here." 
+                "You can't get there from here."
             }
-       }
-    _ => {
-           g.newloc=g.travel(g.loc, g.mot, false);
-           return Goto::GoForIt
-         }
+        }
+        _ => {
+            g.newloc = g.travel(g.loc, g.mot, false);
+            return Goto::GoForIt;
+        }
     };
     g.prn(s);
     Goto::Major
@@ -2791,15 +2834,17 @@ fn go_for_it(g: &mut Game) -> Goto {
             //⟨ Report on inapplicable motion and continue 148 ⟩ ≡
             g.newloc = g.loc;
             match g.mot {
-            Mot::Crawl => "Which way?",
-            Mot::Xyzzy | Mot::Plugh => Act::Wave.msg(),
-            Mot::In | Mot::Out =>
-                  "I don't know in from out here. Use compass points or name something in the general direction you want to go.",
-            Mot::Forward | Mot::L | Mot::R =>
-                   "I am unsure how you are facing. Use compass points or nearby objects.",
-            _ if g.mot<=Mot::Forward => "There is no way to go in that direction.",
-            _ if matches!(g.verb, Act::Find | Act::Inventory) => Act::Find.msg(),
-            _ => "I don’t know how to apply that word here."
+                Mot::Crawl => "Which way?",
+                Mot::Xyzzy | Mot::Plugh => Act::Wave.msg(),
+                Mot::In | Mot::Out => {
+                    "I don't know in from out here. Use compass points or name something in the general direction you want to go."
+                }
+                Mot::Forward | Mot::L | Mot::R => {
+                    "I am unsure how you are facing. Use compass points or nearby objects."
+                }
+                _ if g.mot <= Mot::Forward => "There is no way to go in that direction.",
+                _ if matches!(g.verb, Act::Find | Act::Inventory) => Act::Find.msg(),
+                _ => "I don’t know how to apply that word here.",
             }
         }
         Loc::Sayit0
